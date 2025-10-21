@@ -1,0 +1,24 @@
+{
+    "first": [
+        "Lukas", "Tobias", "Julian", "Alexander", "Maximilian", "Florian", "Dominik", "Simon", "Michael", "David",
+        "Daniel", "Matthias", "Christoph", "Stefan", "Manuel", "Patrick", "Thomas", "Andreas", "Markus", "Martin",
+        "Christian", "Sebastian", "Philipp", "Bernhard", "Wolfgang", "Klaus", "Peter", "Franz", "Johann", "Joseph",
+        "Karl", "Walter", "Rudolf", "Hans", "Friedrich", "Ernst", "Heinz", "Anton", "Leopold", "Ferdinand",
+        "Felix", "Leon", "Noah", "Elias", "Paul", "Jonas", "Jakob", "Luca", "Benjamin", "Samuel",
+        "Nico", "Marcel", "Raphael", "Adrian", "Kevin", "Fabian", "Mario", "René", "Sascha", "Gerald",
+        "Harald", "Kurt", "Otto", "Robert", "Roland", "Siegfried", "Alois", "Clemens", "Dietmar", "Erich",
+        "Georg", "Herbert", "Josef", "Leo", "Norbert", "Oliver", "Richard", "Theodor", "Ulrich", "Vincent",
+        "Xaver", "Yannick", "Zacharias", "Aaron", "Bastian", "Cedric", "Dario", "Emil", "Finn", "Gabriel"
+    ],
+    "last": [
+        "Gruber", "Huber", "Bauer", "Wagner", "Müller", "Pichler", "Steiner", "Moser", "Mayer", "Hofer",
+        "Leitner", "Berger", "Fuchs", "Eder", "Fischer", "Schmid", "Winkler", "Weber", "Schwarz", "Maier",
+        "Schneider", "Reiter", "Weiss", "Hofer", "Lang", "Wolf", "Wallner", "Auer", "Ebner", "Binder",
+        "Lechner", "Schuster", "Strasser", "Koller", "Leitgeb", "Friedl", "Haas", "Koch", "Holzer", "Wimmer",
+        "Baumgartner", "Nowak", "Kern", "Brunner", "Stadler", "Fritz", "Ertl", "Graf", "Karner", "Lackner",
+        "Brandstetter", "Resch", "Schenk", "Thaler", "Vogl", "Wieser", "Ziegler", "Angerer", "Bichler", "Dengg",
+        "Ellinger", "Forster", "Gassner", "Hinterberger", "Illes", "Jovanovic", "Kogler", "Liebhart", "Mitterer", "Nagl",
+        "Ortner", "Plank", "Quendler", "Riegler", "Strobl", "Trummer", "Unger", "Varga", "Wurzer", "Zauner",
+        "Arnold", "Böhm", "Cervenka", "Draxler", "Engel", "Feichtinger", "Grabner", "Hauser", "Ibrahim", "Jäger"
+    ]
+}

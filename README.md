@@ -1,0 +1,1 @@
+A football manager for navigator game.

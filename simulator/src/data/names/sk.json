@@ -1,0 +1,24 @@
+{
+    "first": [
+        "Jiří", "Jan", "Petr", "Josef", "Pavel", "Martin", "Jaroslav", "Tomáš", "Milan", "Zdeněk",
+        "František", "Václav", "Michal", "Karel", "Lukáš", "David", "Jakub", "Daniel", "Marek", "Antonín",
+        "Stanislav", "Roman", "Radek", "Vladimír", "Matěj", "Adam", "Patrik", "Dominik", "Štěpán", "Libor",
+        "Viktor", "Ondřej", "Filip", "Miroslav", "Ladislav", "Alois", "Bohumil", "Dalibor", "Emil", "Herbert",
+        "Igor", "Jindřich", "Kamil", "Leoš", "Marcel", "Norbert", "Oldřich", "Prokop", "Radim", "Silvestr",
+        "Tibor", "Urban", "Vít", "Zbyněk", "Bohuslav", "Ctirad", "Dušan", "Evžen", "Gustav", "Hynek",
+        "Ivan", "Jaromír", "Kryštof", "Lubomír", "Mikuláš", "Nikolas", "Otakar", "Pravoslav", "Rostislav", "Svatopluk",
+        "Vlastimil", "Zikmund", "Aleš", "Bedřich", "Cyril", "Drahomír", "Eduard", "Felix", "Hubert", "Ignác",
+        "Jáchym", "Květoslav", "Lumír", "Matyáš", "Natan", "Oliver", "Petr", "Richard", "Sebastián", "Tadeáš"
+    ],
+    "last": [
+        "Novák", "Svoboda", "Novotný", "Dvořák", "Černý", "Procházka", "Kučera", "Veselý", "Horák", "Němec",
+        "Pospíšil", "Pokorný", "Hájek", "Jelínek", "Král", "Růžička", "Beneš", "Fiala", "Sedláček", "Doležal",
+        "Zeman", "Kolář", "Navrátil", "Čermák", "Urban", "Vaněk", "Blažek", "Kříž", "Kopecký", "Kovář",
+        "Malý", "Holub", "Staněk", "Soukup", "Tichý", "Říha", "Vlček", "Polák", "Musil", "Šimek",
+        "Kratochvíl", "Vacek", "Štěpánek", "Janda", "Čech", "Kadlec", "Bartoš", "Mach", "Ševčík", "Mareš",
+        "Beran", "Dostál", "František", "Hrubý", "Jílek", "Kalous", "Ludvík", "Müller", "Nečas", "Opatrný",
+        "Pavelka", "Quitt", "Richter", "Strnad", "Toman", "Uher", "Vávra", "Zajíček", "Adam", "Bílek",
+        "Cahánek", "David", "Eliáš", "Fořt", "Gajdoš", "Havel", "Chalupa", "Ivan", "Jelínková", "Kafka",
+        "Linhart", "Mašek", "Nováček", "Ondráček", "Pech", "Radek", "Schwarz", "Tůma", "Ulrich", "Vítek"
+    ]
+}

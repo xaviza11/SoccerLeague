@@ -1,0 +1,15 @@
+{
+    "first": [
+        "Nikola", "Marko", "Stefan", "Luka", "Aleksandar", "Nemanja", "Milan", "Ivan", "Mihajlo", "Jovan",
+        "Petar", "Uroš", "Vladimir", "Dušan", "Bojan", "Goran", "Miloš", "Dragan", "Zoran", "Dejan",
+        "Igor", "Branko", "Saša", "Miroslav", "Slobodan", "Radomir", "Željko", "Darko", "Predrag", "Vladislav",
+        "Srdjan", "Miodrag", "Milan", "Nenad", "Mitar", "Ognjen", "Todor", "Strahinja", "Vuk", "Lazar",
+        "Damjan", "Boris", "Rade", "Veljko", "Mihailo", "Milan", "Srđan"
+    ],
+    "last": [
+        "Jovanović", "Nikolić", "Marković", "Đorđević", "Stojanović", "Petrović", "Ilić", "Stanković", "Pavlović", "Milanović",
+        "Popović", "Radovanović", "Mitić", "Tomić", "Kostić", "Milić", "Simić", "Lukić", "Đokić", "Perić",
+        "Antić", "Ristić", "Mladenović", "Vasić", "Gajić", "Babić", "Stevanović", "Janković", "Mihajlović", "Aleksić",
+        "Marjanović", "Savić", "Grujić", "Živković", "Miletić"
+    ]
+}

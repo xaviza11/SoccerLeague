@@ -1,0 +1,24 @@
+{
+    "first": [
+        "László", "István", "József", "János", "Zoltán", "Sándor", "Gábor", "Ferenc", "Attila", "Péter",
+        "Tamás", "Zsolt", "Tibor", "András", "Csaba", "Imre", "Mihály", "Károly", "Béla", "Róbert",
+        "Dénes", "György", "Márk", "Norbert", "Szabolcs", "Kristóf", "Bence", "Dániel", "Máté", "Levente",
+        "Balázs", "Ádám", "Milán", "Dominik", "Patrik", "Márton", "Viktor", "Ákos", "Gergő", "Dávid",
+        "Barnabás", "Alex", "Martin", "Olivér", "Benedek", "Marcell", "Zsombor", "Noel", "Benett", "Áron",
+        "Botond", "Csongor", "Erik", "Gellért", "Hunor", "István", "Jenő", "Kornél", "Lajos", "Miklós",
+        "Nándor", "Ottó", "Pál", "Renátó", "Richárd", "Sámuel", "Szilárd", "Tivadar", "Ubul", "Vilmos",
+        "Zalán", "Zétény", "Zsigmond", "Zsolt", "Adrián", "Bendegúz", "Csongor", "Dorián", "Endre", "Frigyes",
+        "Gusztáv", "Henrik", "Iván", "Jácint", "Kevin", "Lénárd", "Mirkó", "Nimród", "Orbán", "Panka"
+    ],
+    "last": [
+        "Nagy", "Kovács", "Tóth", "Szabó", "Horváth", "Varga", "Kiss", "Molnár", "Németh", "Farkas",
+        "Balogh", "Papp", "Lakatos", "Takács", "Juhász", "Mészáros", "Oláh", "Simon", "Rácz", "Fekete",
+        "Szilágyi", "Török", "Fehér", "Balázs", "Gál", "Kis", "Szűcs", "Kocsis", "Orsós", "Pintér",
+        "Fodor", "Szalai", "Sipos", "Magyar", "Hegedűs", "Lengyel", "Budai", "Virág", "Bán", "Bíró",
+        "Király", "László", "Deák", "Bodnár", "Sándor", "Hajdu", "Halász", "Jónás", "Máté", "Székely",
+        "Gulyás", "Huszár", "Puskás", "Balla", "Barna", "Csizmadia", "Dobos", "Faragó", "Gáspár", "Házi",
+        "Illés", "Jáger", "Kelemen", "Lukács", "Márton", "Novák", "Pál", "Sárközi", "Somogyi", "Szabó",
+        "Tátrai", "Váradi", "Vincze", "Zombori", "Ács", "Bakos", "Bence", "Csonka", "Dániel", "Erdős",
+        "Fábián", "Gergely", "Hoffman", "Iglódi", "Jakab", "Kertész", "Lőrinc", "Mogyorósi", "Nagy", "Orosz"
+    ]
+}

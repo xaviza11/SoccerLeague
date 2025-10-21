@@ -1,0 +1,21 @@
+{
+    "first": [
+        "Erik", "Lars", "Karl", "Anders", "Johan", "Per", "Nils", "Mikael", "Jan", "Björn",
+        "Mats", "Magnus", "Daniel", "Fredrik", "Stefan", "Thomas", "Peter", "Hans", "Gunnar", "Sven",
+        "Ulf", "Christer", "Martin", "Jonas", "Oskar", "Marcus", "Alexander", "William", "Oliver", "Lucas",
+        "Elias", "Isak", "Noah", "Adam", "Viktor", "Emil", "Albin", "Filip", "Simon", "Anton",
+        "Gustav", "Victor", "Leo", "Theo", "Max", "Arvid", "Vilhelm", "Edvin", "Ludvig", "Axel",
+        "Gabriel", "Alvin", "Hugo", "Olle", "Elliot", "Melvin", "Sixten", "Casper", "Benjamin", "Samuel",
+        "David", "Sebastian", "Joel", "Jonathan", "Rasmus", "Jacob", "Jesper", "Patrik", "Robin", "Stig",
+        "Kent", "Leif", "Bertil", "Sten", "Torbjörn", "Henrik", "Rolf", "Kjell", "Börje", "Göran"
+    ],
+    "last": [
+        "Andersson", "Johansson", "Karlsson", "Nilsson", "Eriksson", "Larsson", "Olsson", "Persson", "Svensson", "Gustafsson",
+        "Pettersson", "Jonsson", "Jansson", "Hansson", "Bengtsson", "Jönsson", "Lindberg", "Jakobsson", "Magnusson", "Lindström",
+        "Lindgren", "Berg", "Bergström", "Lundberg", "Lundgren", "Lindqvist", "Lundqvist", "Mattsson", "Berglund", "Fredriksson",
+        "Sandberg", "Henriksson", "Sjöberg", "Forsberg", "Danielsson", "Håkansson", "Holmberg", "Engström", "Eklund", "Lundin",
+        "Gunnarsson", "Hermansson", "Ström", "Åberg", "Holm", "Björk", "Nyström", "Isaksson", "Bergman", "Wallin",
+        "Arvidsson", "Månsson", "Nyberg", "Löfgren", "Söderberg", "Ekström", "Blom", "Abrahamsson", "Öberg", "Åström",
+        "Hedlund", "Hellström", "Dahlberg", "Martinsson", "Samuelson", "Falk", "Lind", "Norberg", "Boström", "Molin"
+    ]
+}

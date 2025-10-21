@@ -1,0 +1,17 @@
+# Node.js / Nuxt
+node_modules/
+dist/
+npm-debug.log*
+
+# Rust / Simulator
+simulator/target/
+simulator/Cargo.lock
+
+# Docker
+*.env
+*.log
+docker-compose.override.yml
+
+# IDE / OS
+*.swp
+.DS_Store

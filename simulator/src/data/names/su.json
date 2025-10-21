@@ -1,0 +1,24 @@
+{
+    "first": [
+        "Lars", "Mikael", "Anders", "Johan", "Erik", "Per", "Peter", "Karl", "Nils", "Jan",
+        "Olof", "Hans", "Björn", "Gunnar", "Sven", "Magnus", "Ulf", "Henrik", "Daniel", "Fredrik",
+        "Martin", "Mats", "Jonas", "Stefan", "Thomas", "Christoffer", "Marcus", "Andreas", "Christian", "Mattias",
+        "Robert", "David", "Jakob", "Simon", "Emil", "Tobias", "Alexander", "Joakim", "Rasmus", "Oscar",
+        "Patrik", "Jonathan", "Anton", "Gustav", "Viktor", "Filip", "Isak", "Leo", "William", "Adam",
+        "Noah", "Lucas", "Liam", "Oliver", "Elias", "Theo", "Viggo", "Melvin", "Arvid", "Albin",
+        "Axel", "Elliot", "Hugo", "John", "Kevin", "Linus", "Max", "Nicklas", "Robin", "Sebastian",
+        "Stig", "Urban", "Valdemar", "Walter", "Xavier", "Yngve", "Åke", "Örjan", "Göran", "Sten",
+        "Kjell", "Leif", "Bertil", "Birger", "Dan", "Edvin", "Frank", "Harald", "Ivar", "Jesper"
+    ],
+    "last": [
+        "Andersson", "Johansson", "Karlsson", "Nilsson", "Eriksson", "Larsson", "Olsson", "Persson", "Svensson", "Gustafsson",
+        "Pettersson", "Jonsson", "Jansson", "Hansson", "Bengtsson", "Jönsson", "Lindberg", "Jakobsson", "Magnusson", "Lindström",
+        "Olofsson", "Lindgren", "Axelsson", "Bergström", "Lundberg", "Berglund", "Lundgren", "Fredriksson", "Mattsson", "Sandberg",
+        "Henriksson", "Sjöberg", "Forsberg", "Holmberg", "Ali", "Engström", "Eklund", "Danielsson", "Lundin", "Gunnarsson",
+        "Håkansson", "Björk", "Bergman", "Ström", "Åberg", "Holm", "Sundberg", "Ekström", "Arvidsson", "Falk",
+        "Dahlberg", "Holmgren", "Mårtensson", "Öberg", "Blom", "Nyström", "Isaksson", "Nyberg", "Bergqvist", "Wallin",
+        "Lindqvist", "Samuelson", "Nordström", "Hermansson", "Claesson", "Boström", "Abrahamsson", "Martinsson", "Östlund", "Lind",
+        "Möller", "Strömberg", "Åkesson", "Blomqvist", "Norberg", "Söderberg", "Borg", "Fransson", "Johnsson", "Skoglund",
+        "Viklund", "Sundström", "Hedlund", "Pålsson", "Åström", "Augustsson", "Bäckström", "Eliasson", "Frisk", "Granberg"
+    ]
+}
