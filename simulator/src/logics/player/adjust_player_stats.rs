@@ -27,26 +27,32 @@ pub fn apply_card(player: &mut Player, card: &str) {
 
 /// Apply chemistry to all player skills
 pub fn apply_chemistry(player: &mut Player, chemistry: u32) {
+    macro_rules! boost {
+        ($skill:expr) => {
+            $skill = (($skill as u32 + chemistry).min(99)) as u8;
+        };
+    }
+
     // Outfield skills
-    player.skills.shooting = (player.skills.shooting + chemistry).min(99);
-    player.skills.passing = (player.skills.passing + chemistry).min(99);
-    player.skills.dribbling = (player.skills.dribbling + chemistry).min(99);
-    player.skills.defense = (player.skills.defense + chemistry).min(99);
-    player.skills.physical = (player.skills.physical + chemistry).min(99);
-    player.skills.speed = (player.skills.speed + chemistry).min(99);
-    player.skills.stamina = (player.skills.stamina + chemistry).min(99);
-    player.skills.vision = (player.skills.vision + chemistry).min(99);
-    player.skills.crossing = (player.skills.crossing + chemistry).min(99);
-    player.skills.finishing = (player.skills.finishing + chemistry).min(99);
-    player.skills.aggression = (player.skills.aggression + chemistry).min(99);
-    player.skills.composure = (player.skills.composure + chemistry).min(99);
-    player.skills.control = (player.skills.control + chemistry).min(99);
+    boost!(player.skills.shooting);
+    boost!(player.skills.passing);
+    boost!(player.skills.dribbling);
+    boost!(player.skills.defense);
+    boost!(player.skills.physical);
+    boost!(player.skills.speed);
+    boost!(player.skills.stamina);
+    boost!(player.skills.vision);
+    boost!(player.skills.crossing);
+    boost!(player.skills.finishing);
+    boost!(player.skills.aggression);
+    boost!(player.skills.composure);
+    boost!(player.skills.control);
 
     // Goalkeeper skills
-    player.skills.intuition = (player.skills.intuition + chemistry).min(99);
-    player.skills.handling = (player.skills.handling + chemistry).min(99);
-    player.skills.kicking = (player.skills.kicking + chemistry).min(99);
-    player.skills.reflexes = (player.skills.reflexes + chemistry).min(99);
+    boost!(player.skills.intuition);
+    boost!(player.skills.handling);
+    boost!(player.skills.kicking);
+    boost!(player.skills.reflexes);
 }
 
 #[cfg(test)]
@@ -92,9 +98,8 @@ mod tests {
     #[test]
     fn test_card_application_outfield() {
         let mut player = create_test_player();
-        player.card = "Killer".to_string();
-
-        super::apply_card(&mut player, &player.card);
+        // Pass string literal to avoid borrow conflicts
+        apply_card(&mut player, "Killer");
 
         assert_eq!(player.skills.finishing, 75); // original 70 + 5
         assert_eq!(player.skills.shooting, 70);  // unchanged
@@ -103,9 +108,7 @@ mod tests {
     #[test]
     fn test_card_application_goalkeeper() {
         let mut player = create_test_player();
-        player.card = "Magnet".to_string();
-
-        super::apply_card(&mut player, &player.card);
+        apply_card(&mut player, "Magnet");
 
         assert_eq!(player.skills.handling, 50); // original 45 + 5
         assert_eq!(player.skills.reflexes, 60); // unchanged
@@ -114,7 +117,7 @@ mod tests {
     #[test]
     fn test_chemistry_application() {
         let mut player = create_test_player();
-        super::apply_chemistry(&mut player, 10);
+        apply_chemistry(&mut player, 10);
 
         // Outfield skills
         assert_eq!(player.skills.shooting, 80); 
@@ -141,10 +144,12 @@ mod tests {
     #[test]
     fn test_max_clamp() {
         let mut player = create_test_player();
-        super::apply_chemistry(&mut player, 50);
+        apply_chemistry(&mut player, 50);
 
         // Ensure all skills are clamped to 99
         assert!(player.skills.shooting <= 99);
         assert!(player.skills.handling <= 99);
+        assert!(player.skills.finishing <= 99);
+        assert!(player.skills.speed <= 99);
     }
 }
