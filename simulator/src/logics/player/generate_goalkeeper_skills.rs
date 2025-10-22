@@ -1,13 +1,11 @@
 use rand::Rng;
 use crate::models::player::Skills;
 
-/// Generate goalkeeper skills based on a target average.
-/// Only updates goalkeeper-specific fields; other skills are zero.
 pub fn generate_goalkeeper_skills(target_avg: f32) -> Skills {
-    let mut rng = rand::thread_rng();
     const GK_SKILLS: usize = 4;
+    let mut rng = rand::thread_rng();
 
-    // Step 1: Generate random skills 0–99
+    // Step 1: Generate initial random skills 0–99
     let mut gk_array: [u8; GK_SKILLS] = [
         rng.gen_range(0..=99),
         rng.gen_range(0..=99),
@@ -15,33 +13,28 @@ pub fn generate_goalkeeper_skills(target_avg: f32) -> Skills {
         rng.gen_range(0..=99),
     ];
 
-    // Step 2: Scale proportionally
+    // Step 2: Compute current and target sum
     let target_avg = target_avg.clamp(0.0, 99.0);
-    let current_avg: f32 = gk_array.iter().map(|&x| x as f32).sum::<f32>() / GK_SKILLS as f32;
-    let scale = target_avg / current_avg;
+    let current_sum: f32 = gk_array.iter().map(|&x| x as f32).sum();
+    let target_sum = target_avg * GK_SKILLS as f32;
+    let diff = target_sum - current_sum;
 
-    for skill in gk_array.iter_mut() {
-        *skill = (*skill as f32 * scale).round().clamp(0.0, 99.0) as u8;
-    }
+    // Step 3: Proportional adjustment
+    if diff.abs() > 0.0 {
+        // Compute total "adjustable capacity"
+        let mut capacity: f32 = 0.0;
+        let mut caps: Vec<f32> = Vec::with_capacity(GK_SKILLS);
+        for &skill in gk_array.iter() {
+            let cap = if diff > 0.0 { 99.0 - skill as f32 } else { skill as f32 };
+            caps.push(cap);
+            capacity += cap;
+        }
 
-    // Step 3: Distribute remaining difference safely
-    let mut adjusted_sum: u32 = gk_array.iter().map(|&x| x as u32).sum();
-    let target_sum: u32 = (target_avg * GK_SKILLS as f32).round() as u32;
-    let diff = target_sum as i32 - adjusted_sum as i32;
-
-    if diff != 0 {
-        let mut indices: Vec<usize> = (0..GK_SKILLS).collect();
-        for _ in 0..diff.abs() {
-            if indices.is_empty() { break; }
-            let idx = rng.gen_range(0..indices.len());
-            let i = indices[idx];
-            if diff > 0 && gk_array[i] < 99 {
-                gk_array[i] += 1;
-            } else if diff < 0 && gk_array[i] > 0 {
-                gk_array[i] -= 1;
-            }
-            if gk_array[i] == 0 || gk_array[i] == 99 {
-                indices.remove(idx);
+        if capacity > 0.0 {
+            for i in 0..GK_SKILLS {
+                let change = diff * (caps[i] / capacity); // proportional adjustment
+                let new_val = (gk_array[i] as f32 + change).clamp(0.0, 99.0);
+                gk_array[i] = new_val.round() as u8;
             }
         }
     }
@@ -67,6 +60,7 @@ pub fn generate_goalkeeper_skills(target_avg: f32) -> Skills {
         reflexes: gk_array[3],
     }
 }
+
 
 #[cfg(test)]
 mod tests {

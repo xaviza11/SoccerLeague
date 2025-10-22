@@ -2,61 +2,55 @@ use rand::Rng;
 use crate::models::player::Skills;
 
 pub fn generate_player_skills(target_avg: f32) -> Skills {
-    let mut rng = rand::thread_rng();
     const FIELD_SKILLS: usize = 13;
+    let mut rng = rand::thread_rng();
 
-    // Step 1: Generate random skills between 40–99
-    let mut skills_array: [u8; FIELD_SKILLS] = [0; FIELD_SKILLS];
-    for skill in skills_array.iter_mut() {
+    // Step 1: Generate initial random skills
+    let mut skills: [u8; FIELD_SKILLS] = [0; FIELD_SKILLS];
+    for skill in skills.iter_mut() {
         *skill = rng.gen_range(40..=99);
     }
 
-    // Step 2: Scale proportionally
+    // Step 2: Calculate current sum and target sum
     let target_avg = target_avg.clamp(0.0, 99.0);
-    let current_avg: f32 = skills_array.iter().map(|&x| x as f32).sum::<f32>() / FIELD_SKILLS as f32;
-    let scale = target_avg / current_avg;
+    let current_sum: f32 = skills.iter().map(|&x| x as f32).sum();
+    let target_sum = target_avg * FIELD_SKILLS as f32;
+    let diff = target_sum - current_sum;
 
-    for skill in skills_array.iter_mut() {
-        *skill = (*skill as f32 * scale).round().clamp(0.0, 99.0) as u8;
-    }
+    // Step 3: Proportional adjustment
+    if diff.abs() > 0.0 {
+        // Compute total "adjustable capacity" for scaling
+        let mut capacity: f32 = 0.0;
+        let mut caps: Vec<f32> = Vec::with_capacity(FIELD_SKILLS);
+        for &skill in skills.iter() {
+            let cap = if diff > 0.0 { 99.0 - skill as f32 } else { skill as f32 };
+            caps.push(cap);
+            capacity += cap;
+        }
 
-    // Step 3: Distribute remaining difference safely in one pass
-    let mut adjusted_sum: u32 = skills_array.iter().map(|&x| x as u32).sum();
-    let target_sum: u32 = (target_avg * FIELD_SKILLS as f32).round() as u32;
-    let diff = target_sum as i32 - adjusted_sum as i32;
-
-    if diff != 0 {
-        let mut indices: Vec<usize> = (0..FIELD_SKILLS).collect();
-        for _ in 0..diff.abs() {
-            if indices.is_empty() { break; }
-            let idx = rng.gen_range(0..indices.len());
-            let i = indices[idx];
-            if diff > 0 && skills_array[i] < 99 {
-                skills_array[i] += 1;
-            } else if diff < 0 && skills_array[i] > 0 {
-                skills_array[i] -= 1;
-            }
-            // Remove index if clamped
-            if skills_array[i] == 0 || skills_array[i] == 99 {
-                indices.remove(idx);
+        if capacity > 0.0 {
+            for i in 0..FIELD_SKILLS {
+                let change = diff * (caps[i] / capacity); // proportional adjustment
+                let new_val = (skills[i] as f32 + change).clamp(0.0, 99.0);
+                skills[i] = new_val.round() as u8;
             }
         }
     }
 
     Skills {
-        shooting: skills_array[0],
-        passing: skills_array[1],
-        dribbling: skills_array[2],
-        defense: skills_array[3],
-        physical: skills_array[4],
-        speed: skills_array[5],
-        stamina: skills_array[6],
-        vision: skills_array[7],
-        crossing: skills_array[8],
-        finishing: skills_array[9],
-        aggression: skills_array[10],
-        composure: skills_array[11],
-        control: skills_array[12],
+        shooting: skills[0],
+        passing: skills[1],
+        dribbling: skills[2],
+        defense: skills[3],
+        physical: skills[4],
+        speed: skills[5],
+        stamina: skills[6],
+        vision: skills[7],
+        crossing: skills[8],
+        finishing: skills[9],
+        aggression: skills[10],
+        composure: skills[11],
+        control: skills[12],
         // Goalkeeper skills
         intuition: 0,
         handling: 0,
