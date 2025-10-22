@@ -10,7 +10,7 @@ pub struct GameSimulation {
 pub struct Team {
     pub name: String,
     pub players: [Player; 11],       // starting 11
-    pub bench_players: <Vec>[Players],  // players on the bench
+    pub bench_players: Vec<Player>,  // players on the bench
     pub instructions: Vec<String>,   // instructions
 }
 
