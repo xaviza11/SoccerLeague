@@ -86,5 +86,17 @@ pub struct Player {
 
     // Player's skills
     pub skills: Skills,
+
+    // Card card for boost player's skills
+    pub card: String,
+
+    // Player offensive instructions
+    pub offensive_instructions: Vec<String>,
+
+    // Player defensive instructions
+    pub defensive_instructions: Vec<String>,
+
+    // Player height in centimeters
+    pub height_cm: u8,
 }
 

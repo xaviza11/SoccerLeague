@@ -33,6 +33,7 @@ pub fn generate_random_player(position: &str, skill_range: &str) -> Player {
     let max_skill_level: u8 = rng.gen_range(80..=85); // 80 to 85 inclusive
     let retirement_age: u8 = rng.gen_range(35..=40);  // 35 to 40 inclusive
     let current_age: u8 = rng.gen_range(17..=30);
+    let height_cm: u8 = rng.gen_range(160..=200);
 
     Player {
         name,
@@ -44,5 +45,9 @@ pub fn generate_random_player(position: &str, skill_range: &str) -> Player {
         injured_until: "".to_string(),
         max_skill_level,
         retirement_age,
+        card: "NONE".to_string(),
+        offensive_instructions: vec![],
+        defensive_instructions: vec![],
+        height_cm,
     }
 }
