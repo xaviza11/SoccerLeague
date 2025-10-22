@@ -69,6 +69,9 @@ pub struct Player {
     // Position the player plays in (e.g., Forward, Midfielder)
     pub position: String,
 
+    // Current position update position in game
+    pub current_position: String,
+
     // Player's age
     pub age: u8,
 

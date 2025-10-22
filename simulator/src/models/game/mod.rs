@@ -5,3 +5,31 @@ use crate::models::player::Player;
 pub struct GameSimulation {
     pub result: String,
 }
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct Team {
+    pub name: String,
+    pub players: [Player; 11],       // starting 11
+    pub bench_players: [Player; 11],  // players on the bench
+    pub instructions: Vec<String>,   // instructions
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct Game {
+    pub team_a: Team,
+    pub team_b: Team,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct GameResult {
+    pub score: (u8, u8),
+    pub logs: Vec<String>,
+    pub cards_player_a: Vec<String>,
+    pub cards_player_b: Vec<String>,
+    pub scorers_player_a: Vec<String>,
+    pub scorers_player_b: Vec<String>,
+    pub injuries_player_a: Vec<String>,
+    pub injuries_player_b: Vec<String>,
+    pub assistants_player_a: Vec<String>,
+    pub assistants_player_b: Vec<String>,
+}
