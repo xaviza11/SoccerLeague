@@ -12,6 +12,7 @@ pub struct Team {
     pub players: [Player; 11],       // starting 11
     pub bench_players: Vec<Player>,  // players on the bench
     pub instructions: Vec<String>,   // instructions
+    pub substitutions: Vec<GameSubstitution>
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -32,4 +33,11 @@ pub struct GameResult {
     pub injuries_player_b: Vec<String>,
     pub assistants_player_a: Vec<String>,
     pub assistants_player_b: Vec<String>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct GameSubstitution {
+    pub minute: u8,
+    pub player_out: u8,
+    pub player_in: u8,
 }
