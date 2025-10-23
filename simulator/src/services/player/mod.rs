@@ -40,6 +40,7 @@ pub fn generate_random_player(position: &str, skill_range: &str) -> Player {
         country,
         position: position.to_string(),
         current_position: position.to_string(),
+        original_position: position.to_string(),
         skills,
         age: current_age,
         is_active: true,

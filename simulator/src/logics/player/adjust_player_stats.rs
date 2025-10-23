@@ -65,6 +65,7 @@ mod tests {
             country: "Testland".to_string(),
             position: "Forward".to_string(),
             current_position: "Forward".to_string(),
+            original_position: "Forward".to_string(),
             age: 25,
             is_active: true,
             injured_until: "".to_string(),

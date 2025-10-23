@@ -72,6 +72,9 @@ pub struct Player {
     // Current position update position in game
     pub current_position: String,
 
+    // Original position of the player
+    pub original_position: String,
+
     // Player's age
     pub age: u8,
 

@@ -1,11 +1,11 @@
-pub fn simulate_game() -> String {
+pub fn simulate_game() {
     // Validate data
     // Apply improvements players stats (chemistry, cards, and instructions)
     // Simulate game using loop()
     // Return result
 }
 
-pub fn loop() {
+pub fn main_loop() {
     // let steps_per_minute = 5 - 9;
     // let current_minute = 0;
     // let last_pass_player = [0-1, 0-11];
