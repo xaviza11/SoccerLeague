@@ -10,17 +10,9 @@ pub struct Substitutions {
     pub substitutions: Vec<Substitution>,
 }
 
-pub struct ValidationResult {
-    pub is_valid: bool,
-    pub message: String,
-}
-
-pub fn validate_substitutions(substitutions: &Vec<Substitutions>) -> ValidationResult {
+pub fn validate_substitutions(substitutions: &Vec<Substitutions>) -> Result<(), String> {
     if substitutions.len() > 3 {
-        return ValidationResult {
-            is_valid: false,
-            message: "Too many substitution groups (max 3 allowed)".into(),
-        };
+        return Err("Too many substitution groups (max 3 allowed)".into());
     }
 
     let mut players_in = HashSet::new();
@@ -29,25 +21,16 @@ pub fn validate_substitutions(substitutions: &Vec<Substitutions>) -> ValidationR
     for sub_group in substitutions {
         for sub in &sub_group.substitutions {
             if !players_in.insert(sub.player_in) {
-                return ValidationResult {
-                    is_valid: false,
-                    message: format!("Player {} is substituted in more than once", sub.player_in),
-                };
+                return Err(format!("Player {} is substituted in more than once", sub.player_in));
             }
 
             if !players_out.insert(sub.player_out) {
-                return ValidationResult {
-                    is_valid: false,
-                    message: format!("Player {} is substituted out more than once", sub.player_out),
-                };
+                return Err(format!("Player {} is substituted out more than once", sub.player_out));
             }
         }
     }
 
-    ValidationResult {
-        is_valid: true,
-        message: "All substitutions are valid".into(),
-    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -71,7 +54,7 @@ mod tests {
         ];
 
         let result = validate_substitutions(&subs);
-        assert!(result.is_valid);
+        assert!(result.is_ok());
     }
 
     #[test]
@@ -86,8 +69,8 @@ mod tests {
         ];
 
         let result = validate_substitutions(&subs);
-        assert!(!result.is_valid);
-        assert_eq!(result.message, "Player 12 is substituted in more than once");
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Player 12 is substituted in more than once");
     }
 
     #[test]
@@ -102,8 +85,8 @@ mod tests {
         ];
 
         let result = validate_substitutions(&subs);
-        assert!(!result.is_valid);
-        assert_eq!(result.message, "Player 5 is substituted out more than once");
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Player 5 is substituted out more than once");
     }
 
     #[test]
@@ -116,15 +99,14 @@ mod tests {
         ];
 
         let result = validate_substitutions(&subs);
-        assert!(!result.is_valid);
-        assert_eq!(result.message, "Too many substitution groups (max 3 allowed)");
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Too many substitution groups (max 3 allowed)");
     }
 
     #[test]
     fn test_empty_substitutions() {
         let subs: Vec<Substitutions> = vec![];
         let result = validate_substitutions(&subs);
-        assert!(result.is_valid);
-        assert_eq!(result.message, "All substitutions are valid");
+        assert!(result.is_ok());
     }
 }

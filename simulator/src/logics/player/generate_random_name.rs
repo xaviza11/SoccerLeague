@@ -84,21 +84,26 @@ fn generate_single_name(country_name: &str, mixed_mode: bool) -> String {
     let names = load_names(country.file);
     let mut rng = rand::thread_rng();
 
-    if mixed_mode {
-        let first = names.first.choose(&mut rng).unwrap();
-        let last = names.last.choose(&mut rng).unwrap();
+    // Fallback alien name (solo uno necesario)
+    let alien_name = "Zorblax Prime".to_string();
 
-        if rng.gen_bool(0.5) {
-            format!("{} {}", first, last)
-        } else {
-            format!("{} {}", first, last)
-        }
+    let first = names.first.choose(&mut rng);
+    let last = names.last.choose(&mut rng);
+
+    // Si falta algo o está vacío, usar nombre alienígena
+    let full_name = match (first, last) {
+        (Some(f), Some(l)) if !f.is_empty() && !l.is_empty() => format!("{} {}", f, l),
+        _ => alien_name.clone(),
+    };
+
+    // Garantizar que no devuelva vacío
+    if full_name.trim().is_empty() {
+        alien_name
     } else {
-        let first = names.first.choose(&mut rng).unwrap();
-        let last = names.last.choose(&mut rng).unwrap();
-        format!("{} {}", first, last)
+        full_name
     }
 }
+
 
 /// Returns one name with 96% normal, 2% mixed1, 2% mixed2
 pub fn generate_random_name(country_name: &str) -> String {

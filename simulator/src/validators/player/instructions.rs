@@ -3,15 +3,10 @@ use std::collections::HashSet;
 pub const VALID_OFFENSIVE: [&str; 5] = ["shoot", "pass", "dribble", "cross", "long_ball"];
 pub const VALID_DEFENSIVE: [&str; 4] = ["destroy", "normal", "passive", "offside"];
 
-pub struct ValidationResult {
-    pub is_valid: bool,
-    pub message: String,
-}
-
 pub fn validate_instructions(
     offensive: &mut Vec<String>,
     defensive: &mut Vec<String>,
-) -> ValidationResult {
+) -> Result<(), String> {
     let valid_offensive: HashSet<&str> = VALID_OFFENSIVE.iter().cloned().collect();
     let valid_defensive: HashSet<&str> = VALID_DEFENSIVE.iter().cloned().collect();
 
@@ -26,26 +21,17 @@ pub fn validate_instructions(
     // Validate content
     for instr in offensive.iter() {
         if !valid_offensive.contains(instr.as_str()) {
-            return ValidationResult {
-                is_valid: false,
-                message: format!("Invalid offensive instruction: '{}'", instr),
-            };
+            return Err(format!("Invalid offensive instruction: '{}'", instr));
         }
     }
 
     for instr in defensive.iter() {
         if !valid_defensive.contains(instr.as_str()) {
-            return ValidationResult {
-                is_valid: false,
-                message: format!("Invalid defensive instruction: '{}'", instr),
-            };
+            return Err(format!("Invalid defensive instruction: '{}'", instr));
         }
     }
 
-    ValidationResult {
-        is_valid: true,
-        message: "All instructions are valid".into(),
-    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -58,8 +44,7 @@ mod tests {
         let mut def = vec!["destroy".to_string(), "normal".to_string()];
 
         let result = validate_instructions(&mut off, &mut def);
-        assert!(result.is_valid);
-        assert_eq!(result.message, "All instructions are valid");
+        assert!(result.is_ok());
         assert_eq!(off.len(), 2);
         assert_eq!(def.len(), 2);
     }
@@ -80,8 +65,7 @@ mod tests {
         ];
 
         let result = validate_instructions(&mut off, &mut def);
-        assert!(result.is_valid);
-        assert_eq!(result.message, "All instructions are valid");
+        assert!(result.is_ok());
         assert_eq!(off.len(), 3);
         assert_eq!(def.len(), 3);
     }
@@ -92,7 +76,7 @@ mod tests {
         let mut def = vec!["destroy".to_string()];
 
         let result = validate_instructions(&mut off, &mut def);
-        assert!(!result.is_valid);
-        assert_eq!(result.message, "Invalid offensive instruction: 'fly'");
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Invalid offensive instruction: 'fly'");
     }
 }

@@ -1,8 +1,9 @@
-use crate::models::game::Game;
-use crate::models::game::GameResult;
+use crate::models::game::{Game, GameResult};
+use crate::validators::game::lineup::validate_lineup;
+use actix_web::{error, Error};
 
-pub fn simulate_game(game: Game) -> Result<GameResult, &'static str>{
-    // Create game  result object
+pub fn simulate_game(game: Game) -> Result<GameResult, Error> {
+    // Initialize the GameResult struct with default values
     let mut result = GameResult {
         score: (0, 0),
         logs: Vec::new(),
@@ -15,27 +16,38 @@ pub fn simulate_game(game: Game) -> Result<GameResult, &'static str>{
         assistants_player_a: Vec::new(),
         assistants_player_b: Vec::new(),
     };
+
+    // Log that the data has been loaded successfully
     push_game_log(255, "Data loaded", &mut result);
 
-    // Validate data
-    push_game_log(255, "Validating team data", &mut result);
-    let team_a_valid = validate_team_data();
-    let team_b_valid = validate_team_data();
-    if !team_a_valid || !team_b_valid {
-        if (team_a_valid == false && team_b_valid == false) {return Err("Both teams data invalid");}
-        if (team_b_valid == false) {return Err("team B data invalid");}
-        if (team_a_valid == false) {return Err("team A data invalid");}
-    }else {
-        push_game_log(255, "team data success", &mut result);
-    }
-    push_game_log(255, "team data success", &mut result);
-    push_game_log(255, "Validating player data", &mut result);
-    push_game_log(255, "player data success", &mut result);
-    // Apply improvements players stats (chemistry, cards, and instructions)
-    // Simulate game using loop()
-    // Return result
-    return Ok(result);
+    // Validate the game data (lineups, etc.)
+    validate_data(&mut result, &game)?;
+
+    // If validation succeeds, return the initialized GameResult
+    Ok(result)
 }
+
+
+pub fn validate_data(result: &mut GameResult, game: &Game) -> Result<(), Error> {
+    // Log the start of validation for debugging/tracking purposes
+    push_game_log(255, "Validating team data", result);
+
+    // Extract the lineup for Team A and Team B as Vec<String> of positions
+    let lineup_a: Vec<String> = game.team_a.players.iter().map(|p| p.position.clone()).collect();
+    let lineup_b: Vec<String> = game.team_b.players.iter().map(|p| p.position.clone()).collect();
+
+    // Validate lineups.
+    validate_lineup(lineup_a).map_err(|err| error::ErrorBadRequest(format!("Team A lineup invalid: {}", err)))?;
+    validate_lineup(lineup_b).map_err(|err| error::ErrorBadRequest(format!("Team B lineup invalid: {}", err)))?;
+
+    // Log success if both lineups are valid
+    push_game_log(255, "Team data validation success", result);
+
+    // Return Ok if validation passes, otherwise the error was already propagated
+    Ok(())
+}
+
+
 
 pub fn main_loop() {
     // let steps_per_minute = 5 - 9;
@@ -53,7 +65,7 @@ pub fn main_loop() {
 }
 
 pub fn action_mechanic() {
-    // use the field map, the position on the map off the player and the number off players of the other team for determine action type 
+    // use the field map, the position on the map of the player and the number of players of the other team for determine action type 
     // (pass, shoot, dribble, advance, 
     // long_pass, cross, penalty, corner,
     // control, Free kick, Goal kick
@@ -64,16 +76,6 @@ pub fn action_mechanic() {
     // Fuera de juego)
     // calculate success based on player stats and random factors
     // update game state based on action outcome if needed
-}
-
-pub fn validate_team_data() -> bool {
-    return false;
-
-}
-
-pub fn validate_player_data() -> bool {
-    return true;
-
 }
 
 pub fn push_game_log(minute: u8, log: &str, game_result: &mut GameResult) {
