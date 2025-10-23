@@ -9,9 +9,9 @@ pub struct GameSimulation {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Team {
     pub name: String,
-    pub players: [Player; 11],       // starting 11
+    pub players: Vec<Player>,       // starting 11
     pub bench_players: Vec<Player>,  // players on the bench
-    pub instructions: Vec<String>,   // instructions
+    pub aura: Vec<String>,   // instructions
     pub substitutions: Vec<GameSubstitution>
 }
 

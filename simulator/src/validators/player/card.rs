@@ -1,4 +1,7 @@
-/// Outfield cards (one card per stat)
+use std::collections::HashSet;
+use crate::models::player::Player;
+
+// Outfield cards (one card per stat)
 pub const OUTFIELD_CARDS: &[&str] = &[
     "Cheetah",        // speed
     "Sniper",         // shooting
@@ -10,77 +13,137 @@ pub const OUTFIELD_CARDS: &[&str] = &[
     "Lion",           // composure
     "Quarterback",    // crossing
     "Killer",         // finishing
+    "NONE"
 ];
 
-/// Goalkeeper cards (one card per stat)
+// Goalkeeper cards (one card per stat)
 pub const GOALKEEPER_CARDS: &[&str] = &[
     "Magnet",         // handling
     "FastHands",      // reflexes
     "Guardian",       // intuition
     "Rocket",         // kicking
+    "NONE"
 ];
 
-/// Validates if a card is allowed for the player based on their position
-pub fn validate_card_for_player(player_position: &str, card_name: &str) -> Result<(), String> {
-    let card_name_upper = card_name.to_uppercase();
-    let is_gk = player_position.to_lowercase() == "goalkeeper";
+/// Validates cards for a list of players based on their position.
+/// Returns `Ok(())` if all cards are valid, or an `Err(String)` describing the first invalid case.
+pub fn validate_cards_for_players(players: &Vec<Player>) -> Result<(), String> {
+    let mut seen_cards = HashSet::new();
 
-    let valid_cards = if is_gk { GOALKEEPER_CARDS } else { OUTFIELD_CARDS };
+    for player in players {
+        let card_name_upper = player.card.to_uppercase();
+        let is_gk = player.position.to_lowercase() == "goalkeeper";
 
-    if valid_cards.iter().any(|&c| c.to_uppercase() == card_name_upper) {
-        Ok(())
-    } else {
-        Err(format!("Card '{}' is NOT valid for {}", card_name, player_position))
+        let valid_cards = if is_gk { GOALKEEPER_CARDS } else { OUTFIELD_CARDS };
+
+        if !valid_cards.iter().any(|&c| c.to_uppercase() == card_name_upper) {
+            return Err(format!("Card '{}' is NOT valid for {}", player.card, player.position));
+        }
+
+        if !seen_cards.insert(player.name.clone()) {
+            return Err(format!("Duplicate player '{}' found in list", player.name));
+        }
     }
+
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::player::{Player, Skills};
 
-    #[test]
-    fn test_valid_outfield_card() {
-        let res = validate_card_for_player("Forward", "Cheetah");
-        assert!(res.is_ok());
-
-        let res = validate_card_for_player("Midfielder", "Killer");
-        assert!(res.is_ok());
+    fn make_player(name: &str, position: &str, card: &str) -> Player {
+        Player {
+            name: name.to_string(),
+            country: "Country".to_string(),
+            position: position.to_string(),
+            current_position: position.to_string(),
+            original_position: position.to_string(),
+            age: 25,
+            is_active: true,
+            injured_until: "".to_string(),
+            max_skill_level: 90,
+            retirement_age: 35,
+            skills: Skills {
+                shooting: 80,
+                passing: 80,
+                dribbling: 80,
+                defense: 80,
+                physical: 80,
+                speed: 80,
+                stamina: 80,
+                vision: 80,
+                crossing: 80,
+                finishing: 80,
+                aggression: 80,
+                composure: 80,
+                control: 80,
+                intuition: 80,
+                handling: 80,
+                kicking: 80,
+                reflexes: 80,
+            },
+            card: card.to_string(),
+            offensive_instructions: vec![],
+            defensive_instructions: vec![],
+            height_cm: 180,
+        }
     }
 
     #[test]
-    fn test_invalid_outfield_card_for_gk() {
-        let res = validate_card_for_player("Goalkeeper", "Cheetah");
-        assert!(res.is_err());
-        assert_eq!(res.unwrap_err(), "Card 'Cheetah' is NOT valid for Goalkeeper");
+    fn test_valid_cards_for_players() {
+        let players = vec![
+            make_player("John", "Forward", "Cheetah"),
+            make_player("Alex", "Goalkeeper", "Magnet"),
+        ];
 
-        let res = validate_card_for_player("Goalkeeper", "Killer");
-        assert!(res.is_err());
+        let result = validate_cards_for_players(&players);
+        assert!(result.is_ok());
     }
 
     #[test]
-    fn test_valid_goalkeeper_card() {
-        let res = validate_card_for_player("Goalkeeper", "Magnet");
-        assert!(res.is_ok());
+    fn test_invalid_outfield_card_for_goalkeeper() {
+        let players = vec![
+            make_player("Mike", "Goalkeeper", "Cheetah"),
+        ];
 
-        let res = validate_card_for_player("Goalkeeper", "FastHands");
-        assert!(res.is_ok());
+        let result = validate_cards_for_players(&players);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Card 'Cheetah' is NOT valid for Goalkeeper");
     }
 
     #[test]
     fn test_invalid_goalkeeper_card_for_outfield() {
-        let res = validate_card_for_player("Forward", "Magnet");
-        assert!(res.is_err());
+        let players = vec![
+            make_player("Leo", "Defender", "Magnet"),
+        ];
 
-        let res = validate_card_for_player("Midfielder", "Guardian");
-        assert!(res.is_err());
+        let result = validate_cards_for_players(&players);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Card 'Magnet' is NOT valid for Defender");
     }
 
     #[test]
     fn test_invalid_card_name() {
-        let res = validate_card_for_player("Forward", "FlyingBoost");
-        assert!(res.is_err());
+        let players = vec![
+            make_player("Sam", "Forward", "UltraBoost"),
+        ];
 
-        let res = validate_card_for_player("Goalkeeper", "UltraReflex");
-        assert!(res.is_err());
+        let result = validate_cards_for_players(&players);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Card 'UltraBoost' is NOT valid for Forward");
+    }
+
+    #[test]
+    fn test_duplicate_players() {
+        let players = vec![
+            make_player("Tom", "Forward", "Cheetah"),
+            make_player("Tom", "Midfielder", "Sniper"),
+        ];
+
+        let result = validate_cards_for_players(&players);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Duplicate player 'Tom' found in list");
     }
 }

@@ -1,5 +1,10 @@
 use crate::models::game::{Game, GameResult};
 use crate::validators::game::lineup::validate_lineup;
+use crate::validators::game::substitutions::validate_substitutions;
+use crate::validators::player::card::validate_cards_for_players;
+use crate::validators::player::instructions::validate_instructions;
+use crate::validators::game::aura::validate_team_aura;
+
 use actix_web::{error, Error};
 
 pub fn simulate_game(game: Game) -> Result<GameResult, Error> {
@@ -23,6 +28,8 @@ pub fn simulate_game(game: Game) -> Result<GameResult, Error> {
     // Validate the game data (lineups, etc.)
     validate_data(&mut result, &game)?;
 
+    // ? Next step, create the update of the players stats, using aura, cards and instructions.
+
     // If validation succeeds, return the initialized GameResult
     Ok(result)
 }
@@ -39,6 +46,27 @@ pub fn validate_data(result: &mut GameResult, game: &Game) -> Result<(), Error> 
     // Validate lineups.
     validate_lineup(lineup_a).map_err(|err| error::ErrorBadRequest(format!("Team A lineup invalid: {}", err)))?;
     validate_lineup(lineup_b).map_err(|err| error::ErrorBadRequest(format!("Team B lineup invalid: {}", err)))?;
+
+    // Validate substitutions
+    validate_substitutions(&game.team_a.substitutions).map_err(|err| error::ErrorBadRequest(format!("Team A substitutions invalid: {}", err)))?;
+    validate_substitutions(&game.team_b.substitutions).map_err(|err| error::ErrorBadRequest(format!("Team B substitutions invalid: {}", err)))?;
+
+    //validate instructions
+    validate_instructions(&game.team_a.players).map_err(|err| error::ErrorBadRequest(format!("Team A player instructions invalid: {}", err)))?;
+    validate_instructions(&game.team_b.players).map_err(|err| error::ErrorBadRequest(format!("Team B player instructions invalid: {}", err)))?;
+    validate_instructions(&game.team_a.bench_players).map_err(|err| error::ErrorBadRequest(format!("Team A bench_player instructions invalid: {}", err)))?;
+    validate_instructions(&game.team_b.bench_players).map_err(|err| error::ErrorBadRequest(format!("Team B bench_player instructions invalid: {}", err)))?;
+
+
+    // Validate cards
+    validate_cards_for_players(&game.team_a.players).map_err(|err| error::ErrorBadRequest(format!("Team A player cards invalid: {}", err)))?;
+    validate_cards_for_players(&game.team_b.players).map_err(|err| error::ErrorBadRequest(format!("Team B player cards invalid: {}", err)))?;
+    validate_cards_for_players(&game.team_a.bench_players).map_err(|err| error::ErrorBadRequest(format!("Team A bench_players cards invalid: {}", err)))?;
+    validate_cards_for_players(&game.team_b.bench_players).map_err(|err| error::ErrorBadRequest(format!("Team A bench_players cards invalid: {}", err)))?;
+
+    //validate aura
+    validate_team_aura(&game.team_a.aura).map_err(|err| error::ErrorBadRequest(format!("Team A auras invalid: {}", err)))?;
+    validate_team_aura(&game.team_b.aura).map_err(|err| error::ErrorBadRequest(format!("Team B auras invalid: {}", err)))?;
 
     // Log success if both lineups are valid
     push_game_log(255, "Team data validation success", result);
