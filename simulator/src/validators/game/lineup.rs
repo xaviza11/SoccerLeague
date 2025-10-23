@@ -1,8 +1,8 @@
-pub fn validate_lineup(lineup: Vec<String>) -> bool {
+pub fn validate_lineup(lineup: Vec<String>) -> (bool, String) {
     use std::collections::HashMap;
 
     if lineup.len() != 11 {
-        return false;
+        return (false, format!("Invalid lineup: expected 11 players, got {}", lineup.len()));
     }
 
     let mut counts: HashMap<&str, usize> = HashMap::new();
@@ -12,7 +12,7 @@ pub fn validate_lineup(lineup: Vec<String>) -> bool {
 
     let goalkeepers = counts.get("Goalkeeper").copied().unwrap_or(0);
     if goalkeepers != 1 {
-        return false;
+        return (false, format!("Invalid lineup: expected 1 Goalkeeper, got {}", goalkeepers));
     }
 
     let defenders = ["Defender", "Left Back", "Right Back"]
@@ -20,7 +20,7 @@ pub fn validate_lineup(lineup: Vec<String>) -> bool {
         .map(|p| counts.get(p).copied().unwrap_or(0))
         .sum::<usize>();
     if !(3..=5).contains(&defenders) {
-        return false;
+        return (false, format!("Invalid lineup: expected 3-5 Defenders, got {}", defenders));
     }
 
     let midfielders = [
@@ -34,7 +34,7 @@ pub fn validate_lineup(lineup: Vec<String>) -> bool {
     .map(|p| counts.get(p).copied().unwrap_or(0))
     .sum::<usize>();
     if !(2..=5).contains(&midfielders) {
-        return false;
+        return (false, format!("Invalid lineup: expected 2-5 Midfielders, got {}", midfielders));
     }
 
     let strikers = ["Striker", "Left Wing", "Right Wing"]
@@ -42,10 +42,10 @@ pub fn validate_lineup(lineup: Vec<String>) -> bool {
         .map(|p| counts.get(p).copied().unwrap_or(0))
         .sum::<usize>();
     if !(1..=3).contains(&strikers) {
-        return false;
+        return (false, format!("Invalid lineup: expected 1-3 Strikers, got {}", strikers));
     }
 
-    true
+    (true, "Valid lineup".to_string())
 }
 
 #[cfg(test)]
@@ -67,7 +67,8 @@ mod tests {
             "Striker".to_string(),
             "Left Wing".to_string(),
         ];
-        assert!(validate_lineup(lineup));
+        let (valid, msg) = validate_lineup(lineup);
+        assert!(valid, "{}", msg);
     }
 
     #[test]
@@ -85,7 +86,8 @@ mod tests {
             "Striker".to_string(),
             "Left Wing".to_string(),
         ];
-        assert!(!validate_lineup(lineup));
+        let (valid, msg) = validate_lineup(lineup);
+        assert!(!valid, "{}", msg);
     }
 
     #[test]
@@ -103,7 +105,8 @@ mod tests {
             "Striker".to_string(),
             "Midfielder".to_string(),
         ];
-        assert!(!validate_lineup(lineup));
+        let (valid, msg) = validate_lineup(lineup);
+        assert!(!valid, "{}", msg);
     }
 
     #[test]
@@ -121,7 +124,8 @@ mod tests {
             "Striker".to_string(),
             "Right Wing".to_string(),
         ];
-        assert!(!validate_lineup(lineup));
+        let (valid, msg) = validate_lineup(lineup);
+        assert!(!valid, "{}", msg);
     }
 
     #[test]
@@ -139,7 +143,8 @@ mod tests {
             "Defender".to_string(),
             "Defender".to_string(),
         ];
-        assert!(!validate_lineup(lineup));
+        let (valid, msg) = validate_lineup(lineup);
+        assert!(!valid, "{}", msg);
     }
 
     #[test]
@@ -157,7 +162,8 @@ mod tests {
             "Striker".to_string(),
             "Right Wing".to_string(),
         ];
-        assert!(!validate_lineup(lineup));
+        let (valid, msg) = validate_lineup(lineup);
+        assert!(!valid, "{}", msg);
     }
 
     #[test]
@@ -175,7 +181,8 @@ mod tests {
             "Striker".to_string(),
             "Right Wing".to_string(),
         ];
-        assert!(!validate_lineup(lineup));
+        let (valid, msg) = validate_lineup(lineup);
+        assert!(!valid, "{}", msg);
     }
 
     #[test]
@@ -193,7 +200,8 @@ mod tests {
             "Defender".to_string(),
             "Midfielder".to_string(),
         ];
-        assert!(!validate_lineup(lineup));
+        let (valid, msg) = validate_lineup(lineup);
+        assert!(!valid, "{}", msg);
     }
 
     #[test]
@@ -209,7 +217,8 @@ mod tests {
             "Left Wing".to_string(),
             "Striker".to_string(),
         ];
-        assert!(!validate_lineup(lineup)); // only 9 players
+        let (valid, msg) = validate_lineup(lineup);
+        assert!(!valid, "{}", msg); // only 9 players
     }
 
     #[test]
@@ -227,6 +236,7 @@ mod tests {
             "Striker".to_string(),
             "Left Wing".to_string(),
         ];
-        assert!(validate_lineup(lineup));
+        let (valid, msg) = validate_lineup(lineup);
+        assert!(valid, "{}", msg);
     }
 }

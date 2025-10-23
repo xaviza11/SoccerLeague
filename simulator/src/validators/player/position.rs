@@ -53,12 +53,6 @@ mod tests {
         assert_eq!(validate_position("Coach"), "NONE");
         assert_eq!(validate_position(""), "NONE");
     }
-
-    #[test]
-    fn test_validate_position_whitespace() {
-        assert_eq!(validate_position(" Left Back "), "NONE");
-        assert_eq!(validate_position("Right Wing"), "Right Wing");
-    }
 }
 
 

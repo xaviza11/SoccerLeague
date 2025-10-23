@@ -20,14 +20,29 @@ pub const GOALKEEPER_CARDS: &[&str] = &[
     "Rocket",         // kicking
 ];
 
+pub struct ValidationResult {
+    pub is_valid: bool,
+    pub message: String,
+}
+
 /// Validates if a card is allowed for the player based on their position
-pub fn validate_card_for_player(player_position: &str, card_name: &str) -> bool {
+pub fn validate_card_for_player(player_position: &str, card_name: &str) -> ValidationResult {
     let card_name_upper = card_name.to_uppercase();
     let is_gk = player_position.to_lowercase() == "goalkeeper";
 
     let valid_cards = if is_gk { GOALKEEPER_CARDS } else { OUTFIELD_CARDS };
 
-    valid_cards.iter().any(|&c| c.to_uppercase() == card_name_upper)
+    if valid_cards.iter().any(|&c| c.to_uppercase() == card_name_upper) {
+        ValidationResult {
+            is_valid: true,
+            message: format!("Card '{}' is valid for {}", card_name, player_position),
+        }
+    } else {
+        ValidationResult {
+            is_valid: false,
+            message: format!("Card '{}' is NOT valid for {}", card_name, player_position),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -36,31 +51,48 @@ mod tests {
 
     #[test]
     fn test_valid_outfield_card() {
-        assert!(validate_card_for_player("Forward", "Cheetah"));
-        assert!(validate_card_for_player("Midfielder", "Killer"));
+        let res = validate_card_for_player("Forward", "Cheetah");
+        assert!(res.is_valid);
+        assert_eq!(res.message, "Card 'Cheetah' is valid for Forward");
+
+        let res = validate_card_for_player("Midfielder", "Killer");
+        assert!(res.is_valid);
     }
 
     #[test]
     fn test_invalid_outfield_card_for_gk() {
-        assert!(!validate_card_for_player("Goalkeeper", "Cheetah"));
-        assert!(!validate_card_for_player("Goalkeeper", "Killer"));
+        let res = validate_card_for_player("Goalkeeper", "Cheetah");
+        assert!(!res.is_valid);
+        assert_eq!(res.message, "Card 'Cheetah' is NOT valid for Goalkeeper");
+
+        let res = validate_card_for_player("Goalkeeper", "Killer");
+        assert!(!res.is_valid);
     }
 
     #[test]
     fn test_valid_goalkeeper_card() {
-        assert!(validate_card_for_player("Goalkeeper", "Magnet"));
-        assert!(validate_card_for_player("Goalkeeper", "FastHands"));
+        let res = validate_card_for_player("Goalkeeper", "Magnet");
+        assert!(res.is_valid);
+
+        let res = validate_card_for_player("Goalkeeper", "FastHands");
+        assert!(res.is_valid);
     }
 
     #[test]
     fn test_invalid_goalkeeper_card_for_outfield() {
-        assert!(!validate_card_for_player("Forward", "Magnet"));
-        assert!(!validate_card_for_player("Midfielder", "Guardian"));
+        let res = validate_card_for_player("Forward", "Magnet");
+        assert!(!res.is_valid);
+
+        let res = validate_card_for_player("Midfielder", "Guardian");
+        assert!(!res.is_valid);
     }
 
     #[test]
     fn test_invalid_card_name() {
-        assert!(!validate_card_for_player("Forward", "FlyingBoost"));
-        assert!(!validate_card_for_player("Goalkeeper", "UltraReflex"));
+        let res = validate_card_for_player("Forward", "FlyingBoost");
+        assert!(!res.is_valid);
+
+        let res = validate_card_for_player("Goalkeeper", "UltraReflex");
+        assert!(!res.is_valid);
     }
 }

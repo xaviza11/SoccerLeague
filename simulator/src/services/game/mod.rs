@@ -1,8 +1,40 @@
-pub fn simulate_game() {
+use crate::models::game::Game;
+use crate::models::game::GameResult;
+
+pub fn simulate_game(game: Game) -> Result<GameResult, &'static str>{
+    // Create game  result object
+    let mut result = GameResult {
+        score: (0, 0),
+        logs: Vec::new(),
+        cards_player_a: Vec::new(),
+        cards_player_b: Vec::new(),
+        scorers_player_a: Vec::new(),
+        scorers_player_b: Vec::new(),
+        injuries_player_a: Vec::new(),
+        injuries_player_b: Vec::new(),
+        assistants_player_a: Vec::new(),
+        assistants_player_b: Vec::new(),
+    };
+    push_game_log(255, "Data loaded", &mut result);
+
     // Validate data
+    push_game_log(255, "Validating team data", &mut result);
+    let team_a_valid = validate_team_data();
+    let team_b_valid = validate_team_data();
+    if !team_a_valid || !team_b_valid {
+        if (team_a_valid == false && team_b_valid == false) {return Err("Both teams data invalid");}
+        if (team_b_valid == false) {return Err("team B data invalid");}
+        if (team_a_valid == false) {return Err("team A data invalid");}
+    }else {
+        push_game_log(255, "team data success", &mut result);
+    }
+    push_game_log(255, "team data success", &mut result);
+    push_game_log(255, "Validating player data", &mut result);
+    push_game_log(255, "player data success", &mut result);
     // Apply improvements players stats (chemistry, cards, and instructions)
     // Simulate game using loop()
     // Return result
+    return Ok(result);
 }
 
 pub fn main_loop() {
@@ -32,4 +64,19 @@ pub fn action_mechanic() {
     // Fuera de juego)
     // calculate success based on player stats and random factors
     // update game state based on action outcome if needed
+}
+
+pub fn validate_team_data() -> bool {
+    return false;
+
+}
+
+pub fn validate_player_data() -> bool {
+    return true;
+
+}
+
+pub fn push_game_log(minute: u8, log: &str, game_result: &mut GameResult) {
+    let formatted_log = format!("{}': {}", minute, log);
+    game_result.logs.push(formatted_log);
 }
