@@ -6,7 +6,6 @@ pub fn validate_position(position: &str) -> String {
         "Right_Back",
         "Defensive_Midfield",
         "Midfielder",
-        "Center_Back",
         "Left_Midfield",
         "Right_Midfield",
         "Attacking_Midfield",
