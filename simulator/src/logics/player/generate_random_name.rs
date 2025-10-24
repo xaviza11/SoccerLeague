@@ -84,19 +84,19 @@ fn generate_single_name(country_name: &str, mixed_mode: bool) -> String {
     let names = load_names(country.file);
     let mut rng = rand::thread_rng();
 
-    // Fallback alien name (solo uno necesario)
+    // Fallback alien name
     let alien_name = "Zorblax Prime".to_string();
 
     let first = names.first.choose(&mut rng);
     let last = names.last.choose(&mut rng);
 
-    // Si falta algo o está vacío, usar nombre alienígena
+    // if miss something return alien name
     let full_name = match (first, last) {
         (Some(f), Some(l)) if !f.is_empty() && !l.is_empty() => format!("{} {}", f, l),
         _ => alien_name.clone(),
     };
 
-    // Garantizar que no devuelva vacío
+    // be sure that never return empty
     if full_name.trim().is_empty() {
         alien_name
     } else {
