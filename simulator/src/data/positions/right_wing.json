@@ -1,0 +1,8 @@
+{
+    "shoot": 20,
+    "pass": 15,
+    "dribble": 35,
+    "advance": 0,
+    "long_pass": 5,
+    "cross": 25
+}
