@@ -1,5 +1,6 @@
 pub mod player;
 pub mod game;
+pub mod utilities;
 
 use actix_web::{HttpResponse, Responder};
 
