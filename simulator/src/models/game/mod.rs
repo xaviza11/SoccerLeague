@@ -48,7 +48,7 @@ pub struct Data {
 
     // (pass, shoot, dribble, advance, 
     // long_pass, cross, penalty, corner,
-    // control, Free kick, Goal kick
+    // control, Free kick, Goal,
     // offside)
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
