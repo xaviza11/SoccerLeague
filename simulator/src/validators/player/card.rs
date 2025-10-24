@@ -3,17 +3,20 @@ use crate::models::player::Player;
 
 // Outfield cards (one card per stat)
 pub const OUTFIELD_CARDS: &[&str] = &[
-    "Cheetah",        // speed
-    "Sniper",         // shooting
-    "Commandant",     // passing & vision
-    "Magician",       // dribbling & control
-    "Wall",           // defense & physical
-    "Horse",          // stamina
-    "Fighter",        // aggression
-    "Lion",           // composure
-    "Quarterback",    // crossing
-    "Killer",         // finishing
-    "NONE"
+    "Sniper",       // shooting
+    "Commandant",   // passing
+    "Magician",     // dribbling
+    "Wall",         // defense
+    "Titan",        // physical
+    "Cheetah",      // speed
+    "Horse",        // stamina
+    "Visionary",    // vision
+    "Quarterback",  // crossing
+    "Killer",       // finishing
+    "Fighter",      // aggression
+    "Lion",         // composure
+    "General",      // control
+    "NONE"          // placeholder/no card
 ];
 
 // Goalkeeper cards (one card per stat)

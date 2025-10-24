@@ -22,6 +22,36 @@ pub struct Game {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct Data {
+    pub passes: i32,
+    pub passes_suc: i32,
+    pub shoots: i32,
+    pub shoots_suc: i32,
+    pub dribbles: i32,
+    pub dribbles_suc: i32,
+    pub advances: i32,
+    pub advances_suc: i32,
+    pub long_pass: i32,
+    pub long_pass_suc: i32,
+    pub cross: i32,
+    pub cross_suc: i32,
+    pub penalties: i32,
+    pub penalties_goals: i32,
+    pub corners: i32,
+    pub corners_goals: i32,
+    pub controls: i32,
+    pub controls_suc: i32,
+    pub free_kicks: i32,
+    pub free_kicks_suc: i32,
+    pub offsides: i32,
+}
+
+    // (pass, shoot, dribble, advance, 
+    // long_pass, cross, penalty, corner,
+    // control, Free kick, Goal kick
+    // offside)
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct GameResult {
     pub score: (u8, u8),
     pub logs: Vec<String>,
@@ -33,6 +63,7 @@ pub struct GameResult {
     pub injuries_player_b: Vec<String>,
     pub assistants_player_a: Vec<String>,
     pub assistants_player_b: Vec<String>,
+    pub data: Data
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]

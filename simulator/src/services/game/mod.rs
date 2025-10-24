@@ -1,13 +1,17 @@
-use crate::models::game::{Game, GameResult};
+use crate::models::game::{Game, GameResult, Data};
 use crate::validators::game::lineup::validate_lineup;
 use crate::validators::game::substitutions::validate_substitutions;
 use crate::validators::player::card::validate_cards_for_players;
 use crate::validators::player::instructions::validate_instructions;
 use crate::validators::game::aura::validate_team_aura;
 
+use crate::logics::game::update_players_stats_by_cards::update_players_stats_by_cards;
+use crate::logics::game::chemistry_calculator::calculate_chemistry;
+use crate::logics::game::aura::calculate_aura;
+
 use actix_web::{error, Error};
 
-pub fn simulate_game(game: Game) -> Result<GameResult, Error> {
+pub fn simulate_game(mut game: Game) -> Result<GameResult, Error> {
     // Initialize the GameResult struct with default values
     let mut result = GameResult {
         score: (0, 0),
@@ -20,7 +24,30 @@ pub fn simulate_game(game: Game) -> Result<GameResult, Error> {
         injuries_player_b: Vec::new(),
         assistants_player_a: Vec::new(),
         assistants_player_b: Vec::new(),
-    };
+        data: Data {
+             passes: 0,
+             passes_suc: 0,
+             shoots: 0,
+             shoots_suc: 0,
+             dribbles: 0,
+             dribbles_suc: 0,
+             advances: 0,
+             advances_suc: 0,
+             long_pass: 0,
+             long_pass_suc: 0,
+             cross: 0,
+             cross_suc: 0,
+             penalties: 0,
+             penalties_goals: 0,
+             corners: 0,
+             corners_goals: 0,
+             controls: 0,
+             controls_suc: 0,
+             free_kicks: 0,
+             free_kicks_suc: 0,
+             offsides: 0,
+            }
+        };
 
     // Log that the data has been loaded successfully
     push_game_log(255, "Data loaded", &mut result);
@@ -29,6 +56,7 @@ pub fn simulate_game(game: Game) -> Result<GameResult, Error> {
     validate_data(&mut result, &game)?;
 
     // ? Next step, create the update of the players stats, using aura, cards and instructions.
+    update_player_stats(&mut result, &mut game);
 
     // If validation succeeds, return the initialized GameResult
     Ok(result)
@@ -73,6 +101,27 @@ pub fn validate_data(result: &mut GameResult, game: &Game) -> Result<(), Error> 
 
     // Return Ok if validation passes, otherwise the error was already propagated
     Ok(())
+}
+
+pub fn update_player_stats(result: &mut GameResult, game: &mut Game) {
+    // 1. Log start
+    push_game_log(255, "Starting to update the player stats", result);
+
+    // 2. Apply player card bonuses (+5 in a single stat)
+    update_players_stats_by_cards(&mut game.team_a.players);
+    update_players_stats_by_cards(&mut game.team_b.players);
+    update_players_stats_by_cards(&mut game.team_a.bench_players);
+    update_players_stats_by_cards(&mut game.team_b.bench_players);
+
+    // 3. Apply team chemistry bonuses (+10 in each stat max)
+    calculate_chemistry(&mut game.team_a.players);
+    calculate_chemistry(&mut game.team_b.players);
+
+    // 4. Apply aura bonuses (+3 in one stat)
+    calculate_aura(&game.team_a.aura, &mut game.team_a.players);
+    calculate_aura(&game.team_b.aura, &mut game.team_b.players);
+
+    push_game_log(255, "Players stats are updated", result);
 }
 
 
