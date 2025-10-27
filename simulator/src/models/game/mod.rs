@@ -17,8 +17,7 @@ pub struct Team {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Game {
-    pub team_a: Team,
-    pub team_b: Team,
+    pub teams: [Team; 2]
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
