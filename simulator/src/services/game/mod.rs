@@ -221,8 +221,7 @@ pub fn action_mechanic(
     let team_index = player_possession[0] as usize;
     let player_index = player_possession[1] as usize;
 
-    select_action(game.teams[team_index].players[player_index].clone(), "NONE");
-    println!("{:?}", current_minute);
+    select_action(game, "NONE", team_index, player_index);
 }
 
 pub fn push_game_log(minute: u8, log: &str, game_result: &mut GameResult) {
