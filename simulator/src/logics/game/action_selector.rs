@@ -3,6 +3,7 @@ use serde_json::Value;
 use crate::models::game::Game;
 use rand::Rng;
 
+// This function load the file whit the probabilities for chose one action
 pub fn select_action(game: &mut Game, last_action: &str, team_index: usize, player_index: usize) {
     let player = game.teams[team_index].players[player_index].clone();
     let position = player.position;
@@ -38,6 +39,7 @@ fn value_from_f64(n: f64) -> Value {
     }
 }
 
+// This function adjust the probabilities when the opponents are 0 change advance for dribble 
 pub fn adjust_probabilities_for_opponents(
     game: &Game,
     team_index: usize,
@@ -80,6 +82,7 @@ pub fn adjust_probabilities_for_opponents(
     }
 }
 
+// This function Increase the probabilities of 0-3 actions using the instructions 
 pub fn apply_offensive_instructions(
     json: &mut Value,
     offensive_instructions: &[String],
@@ -99,6 +102,7 @@ pub fn apply_offensive_instructions(
     }
 }
 
+// This function chose the action
 pub fn choose_action(json: &Value) -> Option<String> {
     if let Some(map) = json.as_object() {
         // Collect actions and their probabilities (skip zero/negative values)
@@ -131,46 +135,4 @@ pub fn choose_action(json: &Value) -> Option<String> {
         }
     }
     None
-}
-
-pub fn solve_dribble(team_index: usize, position: &str) {
-    
-    //Need the other team for calculate the dribble. 
-    let opponent_index = if team_index == 0 { 1 } else { 0 };
-}
-
-pub fn solve_shoot() { //This function is created for solve the shoot
-
-}
-
-pub fn control_ball() { // This script is needed for calculate the control
-
-}
-
-pub fn free_kick() { // This solve the free_kick
-
-}
-
-pub fn solve_pass() { //This solve the pass
-
-}
-
-pub fn solve_long_pass() { //this solve the long pass
-
-}
-
-pub fn solve_penalty() { //this solve the penalty
-
-}
-
-pub fn solve_advance() { //this change the position of the player
-
-}
-
-pub fn reset_position() { //This function is for the player return to the position
-
-}
-
-pub fn solve_cross() { //this function is for solve cross
-
 }
