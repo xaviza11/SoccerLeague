@@ -1,99 +1,129 @@
 use rand::seq::SliceRandom;
-use rand::thread_rng;
+use crate::models::player::countries::Country;
 use rand::prelude::IndexedRandom;
 
-pub fn generate_random_country() -> String {
-    // Countries list
-    const COUNTRIES: &[&str] = &[
-        "Spain",
-        "Mexico",
-        "Argentina",
-        "Colombia",
-        "Peru",
-        "Venezuela",
-        "Chile",
-        "Ecuador",
-        "Guatemala",
-        "Cuba",
-        "Bolivia",
-        "Dominican Republic",
-        "Honduras",
-        "Paraguay",
-        "El Salvador",
-        "Nicaragua",
-        "Costa Rica",
-        "Uruguay",
-        "Panama",
-        "Puerto Rico",
-        "Brazil",
-        "Portugal",
-        "Croatia",
-        "Germany",
-        "Denmark",
-        "Sweden",
-        "Norway",
-        "Finland",
-        "Netherlands",
-        "England",
-        "Romania",
-        "Hungary",
-        "Italy",
-        "Belgium",
-        "Switzerland",
-        "Austria",
-        "Poland",
-        "Czech Republic",
-        "Slovakia",
-        "Slovenia",
+pub fn generate_random_country() -> Country {
+    const COUNTRIES: &[Country] = &[
+        Country::Spain,
+        Country::Mexico,
+        Country::Argentina,
+        Country::Colombia,
+        Country::Peru,
+        Country::Venezuela,
+        Country::Chile,
+        Country::Ecuador,
+        Country::Guatemala,
+        Country::Cuba,
+        Country::Bolivia,
+        Country::DominicanRepublic,
+        Country::Honduras,
+        Country::Paraguay,
+        Country::ElSalvador,
+        Country::Nicaragua,
+        Country::CostaRica,
+        Country::Uruguay,
+        Country::Panama,
+        Country::PuertoRico,
+        Country::Brazil,
+        Country::Portugal,
+        Country::Croatia,
+        Country::Germany,
+        Country::Denmark,
+        Country::Sweden,
+        Country::Norway,
+        Country::Finland,
+        Country::Netherlands,
+        Country::England,
+        Country::Romania,
+        Country::Hungary,
+        Country::Italy,
+        Country::Belgium,
+        Country::Switzerland,
+        Country::Austria,
+        Country::Poland,
+        Country::CzechRepublic,
+        Country::Slovakia,
+        Country::Slovenia,
+        Country::Serbia,
+        Country::French
     ];
 
-    // Select a random country
-    let mut rng = thread_rng();
-    COUNTRIES.choose(&mut rng).unwrap_or(&"Unknown").to_string()
+    let mut rng = rand::rng();
+    COUNTRIES.choose(&mut rng).expect("No countries available").clone()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashSet;
 
     #[test]
-    fn test_country_is_not_empty() {
+    fn test_country_is_valid_enum() {
         let country = generate_random_country();
-        assert!(
-            !country.is_empty(),
-            "Expected non-empty country name, got empty string"
-        );
+        // Simplemente validar que es un Country, si compila y no es None, está bien
+        println!("{:?}", country);
     }
 
     #[test]
     fn test_country_is_in_list() {
-        const COUNTRIES: &[&str] = &[
-            "Spain", "Mexico", "Argentina", "Colombia", "Peru", "Venezuela", "Chile",
-            "Ecuador", "Guatemala", "Cuba", "Bolivia", "Dominican Republic", "Honduras",
-            "Paraguay", "El Salvador", "Nicaragua", "Costa Rica", "Uruguay", "Panama",
-            "Puerto Rico", "Brazil", "Portugal", "Croatia", "Germany", "Denmark", "Sweden",
-            "Norway", "Finland", "Netherlands", "England", "Romania", "Hungary", "Italy",
-            "Belgium", "Switzerland", "Austria", "Poland", "Czech Republic", "Slovakia",
-            "Slovenia",
+        const VALID_COUNTRIES: &[Country] = &[
+            Country::Spain,
+            Country::Mexico,
+            Country::Argentina,
+            Country::Colombia,
+            Country::Peru,
+            Country::Venezuela,
+            Country::Chile,
+            Country::Ecuador,
+            Country::Guatemala,
+            Country::Cuba,
+            Country::Bolivia,
+            Country::DominicanRepublic,
+            Country::Honduras,
+            Country::Paraguay,
+            Country::ElSalvador,
+            Country::Nicaragua,
+            Country::CostaRica,
+            Country::Uruguay,
+            Country::Panama,
+            Country::PuertoRico,
+            Country::Brazil,
+            Country::Portugal,
+            Country::Croatia,
+            Country::Germany,
+            Country::Denmark,
+            Country::Sweden,
+            Country::Norway,
+            Country::Finland,
+            Country::Netherlands,
+            Country::England,
+            Country::Romania,
+            Country::Hungary,
+            Country::Italy,
+            Country::Belgium,
+            Country::Switzerland,
+            Country::Austria,
+            Country::Poland,
+            Country::CzechRepublic,
+            Country::Slovakia,
+            Country::Slovenia,
+            Country::Serbia,
+            Country::French
         ];
 
         let country = generate_random_country();
         assert!(
-            COUNTRIES.contains(&country.as_str()),
-            "Generated country '{}' is not in the predefined list",
+            VALID_COUNTRIES.contains(&country),
+            "Generated country {:?} is not in the expected Country enum list",
             country
         );
     }
 
     #[test]
     fn test_multiple_random_countries_vary() {
-        let samples: Vec<String> = (0..20).map(|_| generate_random_country()).collect();
+        let samples: Vec<Country> = (0..20).map(|_| generate_random_country()).collect();
+        let unique_count = samples.iter().collect::<HashSet<_>>().len();
 
-        let unique_count = samples.iter().collect::<std::collections::HashSet<_>>().len();
-
-        assert!(
-            unique_count > 1,
-            "Expected more than one unique country across samples, got only one"
-        );
+        assert!(unique_count > 1, "Expected variation in random countries, but all were the same");
     }
 }

@@ -1,13 +1,13 @@
-mod models;
-mod handlers;
 mod routes;
-mod services;
+mod handlers;
+mod models;
 mod logics;
+mod utils;
+mod services;
 mod validators;
 
 use actix_web::{App, HttpServer, web};
 use routes::init_routes;
-use handlers::handle_404;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -16,7 +16,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .configure(init_routes)
-            .default_service(web::route().to(handle_404))
+            .default_service(web::route().to(handlers::errors::handle_404::handle_404))
     })
     .bind(("0.0.0.0", 4001))?
     .run()

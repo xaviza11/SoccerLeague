@@ -1,16 +1,15 @@
-use rand::Rng;
-use crate::models::player::Skills;
+use crate::models::player::skills::Skills;
+use crate::utils::generate_random_number::generate_number_by_range;
 
 pub fn generate_goalkeeper_skills(target_avg: f32) -> Skills {
     const GK_SKILLS: usize = 4;
-    let mut rng = rand::thread_rng();
 
     // Step 1: Generate initial random skills 0–99
     let mut gk_array: [u8; GK_SKILLS] = [
-        rng.gen_range(0..=99),
-        rng.gen_range(0..=99),
-        rng.gen_range(0..=99),
-        rng.gen_range(0..=99),
+        generate_number_by_range(0, 99),
+        generate_number_by_range(0, 99),
+        generate_number_by_range(0, 99),
+        generate_number_by_range(0, 99),
     ];
 
     // Step 2: Compute current and target sum

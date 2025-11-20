@@ -1,14 +1,13 @@
-use rand::Rng;
-use crate::models::player::Skills;
+use crate::models::player::skills::Skills;
+use crate::utils::generate_random_number::generate_number_by_range;
 
 pub fn generate_player_skills(target_avg: f32) -> Skills {
     const FIELD_SKILLS: usize = 13;
-    let mut rng = rand::thread_rng();
 
     // Step 1: Generate initial random skills
     let mut skills: [u8; FIELD_SKILLS] = [0; FIELD_SKILLS];
     for skill in skills.iter_mut() {
-        *skill = rng.gen_range(40..=99);
+        *skill = generate_number_by_range(40, 99);
     }
 
     // Step 2: Calculate current sum and target sum
