@@ -3,6 +3,7 @@ use crate::models::player::skills::Skills;
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum AuraSkill {
+    None,
     Shooting,
     Passing,
     Dribbling,
@@ -32,6 +33,13 @@ pub struct Aura {
 impl Aura {
     pub fn from_name(name: &str) -> Option<Self> {
         match name {
+            "None" | "" =>
+                Some(Self {
+                    name: "None".to_string(),
+                    skill: AuraSkill::None,
+                    amount: 0,
+                }),
+
             // --- Shooting ---
             "Deadeye" =>
                 Some(Self {
@@ -225,6 +233,7 @@ impl Aura {
             AuraSkill::Kicking => {
                 skills.kicking += self.amount;
             }
+            AuraSkill::None => {}
         }
     }
 }

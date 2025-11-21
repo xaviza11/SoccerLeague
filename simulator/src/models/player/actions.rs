@@ -1,6 +1,7 @@
 use crate::models::game::team::Team;
 use crate::models::player::player::Player;
 use crate::models::player::position::Position;
+use crate::models::game::log::Log;
 use crate::utils::generate_random_number::generate_number_by_range;
 use rand::prelude::*;
 use rand_distr::{ Normal, Distribution };
@@ -8,8 +9,6 @@ use rand_distr::{ Normal, Distribution };
 #[derive(Debug, Clone)]
 pub struct Actions;
 
-//? Missing create the penalty and free_kick functions the shooter needs become of Teams Instructions!!!
-//? Missing create the logs system to register what happen in the match!!!
 //? Missing create the fatigue system to decrease the stamina of the players as the match goes on!!!
 //? Missing create the stats system to register the actions of each player during the match!!!
 //? Missing create the resume of the match to show the match result in frontend and calculate the elo increase!!
@@ -28,11 +27,15 @@ impl Actions {
     pub fn pass(
         teams: &mut [Team; 2],
         ball_possession: &mut [u8; 2],
-        last_pass_player: &mut [u8; 2]
+        last_pass_player: &mut [u8; 2],
+        logs: &mut Vec<Log>,
+        minute: u8
     ) -> bool {
         // Current ball holder
         let passer =
             teams[ball_possession[0] as usize].players[ball_possession[1] as usize].clone();
+
+        let passer_team = ball_possession[0] as usize;
 
         // Calculate pass quality
         let pass_quality =
@@ -49,12 +52,20 @@ impl Actions {
             // Successful pass → choose new teammate
             let (team_id, player_id) = Self::select_pass_target(teams, ball_possession);
 
+            logs.push(Log {
+                player_name: passer.name.clone(),
+                player_number: passer.number,
+                minute,
+                team_name: teams[passer_team].name.clone(),
+                description: "success.pass".to_string(),
+            });
+
             // Update possession tentatively
             ball_possession[0] = team_id;
             ball_possession[1] = player_id;
 
             // Attempt to control the ball
-            let control_success = Self::control(teams, ball_possession);
+            let control_success = Self::control(teams, ball_possession, logs, minute);
 
             if control_success {
                 // Control successful → update last passer
@@ -66,89 +77,83 @@ impl Actions {
             }
         } else {
             // Pass failed → trigger rebound
+            logs.push(Log {
+                player_name: passer.name.clone(),
+                player_number: passer.number,
+                minute,
+                team_name: teams[passer_team].name.clone(),
+                description: "failed.pass".to_string(),
+            });
             Self::rebound(teams, ball_possession, last_pass_player);
         }
 
         true // action completed
     }
 
-    pub fn dribble(teams: &mut [Team; 2], ball_possession: &mut [u8; 2]) -> bool {
-        let team_id = ball_possession[0] as usize;
-        let player_id = ball_possession[1] as usize;
+ pub fn dribble(
+    teams: &mut [Team; 2],
+    ball_possession: &mut [u8; 2],
+    logs: &mut Vec<Log>,
+    minute: u8
+) -> bool {
+    let team_id = ball_possession[0] as usize;
+    let player_id = ball_possession[1] as usize;
 
-        let attacker = &teams[team_id].players[player_id];
+    let attacker = &teams[team_id].players[player_id];
 
-        // Opponent team
-        let opponent_team = if team_id == 0 { 1 } else { 0 };
+    // Opponent team
+    let opponent_team = if team_id == 0 { 1 } else { 0 };
 
-        // Find ideal defender
-        let needed_def_pos = Self::matchup_position(&attacker.current_position);
+    // Find ideal defender
+    let needed_def_pos = Self::matchup_position(&attacker.current_position);
 
-        let defender_index_opt = teams[opponent_team].players
-            .iter()
-            .enumerate()
-            .find(|(_, p)| p.current_position == needed_def_pos)
-            .map(|(i, _)| i);
+    let defender_index_opt = teams[opponent_team].players
+        .iter()
+        .enumerate()
+        .find(|(_, p)| p.current_position == needed_def_pos)
+        .map(|(i, _)| i);
 
-        let defender_index = match defender_index_opt {
-            Some(i) => i,
-            None =>
-                generate_number_by_range(
-                    0,
-                    (teams[opponent_team].players.len() as u8) - 1
-                ) as usize,
-        };
+    let defender_index = match defender_index_opt {
+        Some(i) => i,
+        None =>
+            generate_number_by_range(
+                0,
+                (teams[opponent_team].players.len() as u8) - 1
+            ) as usize,
+    };
 
-        let defender = &teams[opponent_team].players[defender_index];
+    let defender = &teams[opponent_team].players[defender_index];
 
-        // --- DRIBBLE VS DEFENSE ---
-        let attacker_score = (attacker.skills.dribbling as i32) + (attacker.skills.speed as i32);
-        let defender_score =(defender.skills.defense as i32) + (defender.skills.physical as i32) + (defender.skills.aggression as i32);
+    // --- DRIBBLE VS DEFENSE ---
+    let attacker_score = (attacker.skills.dribbling as i32) + (attacker.skills.speed as i32);
+    let defender_score =
+        (defender.skills.defense as i32) +
+        (defender.skills.physical as i32) +
+        (defender.skills.aggression as i32);
 
-        let difficulty = defender_score - attacker_score;
+    let difficulty = defender_score - attacker_score;
 
-        let dribble_chance = (50 - difficulty).clamp(5, 95);
-        let roll = generate_number_by_range(0, 100);
+    let dribble_chance = (50 - difficulty).clamp(5, 95);
+    let roll = generate_number_by_range(0, 100);
 
-        let success = roll < (dribble_chance as u8);
+    let success = roll < (dribble_chance as u8);
 
-        // --- CARD CHECK (separate functions) ---
-        let red = Self::check_red(defender.skills.aggression);
-
-        if red && !success {
-            // REMOVE defender from opponent team
-            teams[opponent_team].players.remove(defender_index);
-
-            // If the defender had the ball (on failed dribble), reset possession
-            if !success {
-                // after removal, we must give ball to another random player
-                if !teams[opponent_team].players.is_empty() {
-                    let new_player = generate_number_by_range(
-                        0,
-                        (teams[opponent_team].players.len() as u8) - 1
-                    ) as u8;
-
-                    ball_possession[0] = opponent_team as u8;
-                    ball_possession[1] = new_player;
-                }
-            }
-
-            // Team now plays with one less player. No further action needed.
-        }
-
-        // --- POSSESSION CHANGE ON FAILURE ---
-        if !success {
-            ball_possession[0] = opponent_team as u8;
-            ball_possession[1] = defender_index as u8;
-        }
-
-        success
+    // --- POSSESSION CHANGE ON FAILURE ---
+    if !success {
+        ball_possession[0] = opponent_team as u8;
+        ball_possession[1] = defender_index as u8;
     }
+
+    success
+}
+
 
     pub fn shoot(
         teams: &mut [Team; 2],
         ball_possession: &mut [u8; 2],
-        last_pass_player: &mut [u8; 2]
+        last_pass_player: &mut [u8; 2],
+        logs: &mut Vec<Log>,
+        minute: u8
     ) -> bool {
         let team_id = ball_possession[0] as usize;
         let player_id = ball_possession[1] as usize;
@@ -161,7 +166,7 @@ impl Actions {
         // Opponent team
         let opponent_team = if team_id == 0 { 1 } else { 0 };
 
-        // Find goalkeeper of opponent team
+        // Find goalkeeper
         let goalkeeper_index = teams[opponent_team].players
             .iter()
             .enumerate()
@@ -177,34 +182,63 @@ impl Actions {
             (goalkeeper.skills.intuition as i32) +
             (goalkeeper.skills.reflexes as i32);
 
-        // Compute difficulty
+        // Compute scoring chance
         let difficulty = gk_score - attack_score;
-
-        // Base scoring chance: 50%, modified by difficulty
-        // Large positive difficulty → harder to score.
-        // Clamp between 5% and 85%
         let scoring_chance = (50 - difficulty).clamp(5, 85);
 
         let roll = generate_number_by_range(0, 100);
 
-        // --- GOAL ---
         if roll < (scoring_chance as u8) {
-            return true; // attacker scores
+            // --- GOAL ---
+            logs.push(Log {
+                player_name: attacker.name.clone(),
+                player_number: attacker.number,
+                minute,
+                team_name: teams[team_id].name.clone(),
+                description: "goal.shoot".to_string(),
+            });
+
+            println!("GOAL by {}, {}!", attacker.name, teams[team_id].name);
+
+            // Clear last passer
+            last_pass_player[0] = 255;
+            last_pass_player[1] = 255;
+
+            // Give ball to opponent goalkeeper (kickoff)
+            ball_possession[0] = opponent_team as u8;
+            ball_possession[1] = goalkeeper_index as u8;
+
+            return true;
         }
 
         // Clear last passer
         last_pass_player[0] = 255;
         last_pass_player[1] = 255;
 
-        // --- MISS — GK WINS ---
-        // Decide whether it is a corner or rebound
+        // Decide if rebound or corner
         let outcome = generate_number_by_range(0, 100);
 
         if outcome < 30 {
-            // 30% chance → GK saves but gives corner
-            Self::corner(teams, ball_possession, last_pass_player);
+            // GK saves → corner
+            logs.push(Log {
+                player_name: attacker.name.clone(),
+                player_number: attacker.number,
+                minute,
+                team_name: teams[team_id].name.clone(),
+                description: "corner.shoot".to_string(),
+            });
+
+            Self::corner(teams, ball_possession, last_pass_player, logs, minute);
         } else {
-            // 70% → ball stays in play → rebound battle
+            // Ball stays in play → rebound
+            logs.push(Log {
+                player_name: attacker.name.clone(),
+                player_number: attacker.number,
+                minute,
+                team_name: teams[team_id].name.clone(),
+                description: "miss.shoot".to_string(),
+            });
+
             Self::rebound(teams, ball_possession, last_pass_player);
         }
 
@@ -232,7 +266,12 @@ impl Actions {
         true
     }
 
-    pub fn cross(teams: &mut [Team; 2], ball_possession: &mut [u8; 2]) -> bool {
+    pub fn cross(
+        teams: &mut [Team; 2],
+        ball_possession: &mut [u8; 2],
+        logs: &mut Vec<Log>,
+        minute: u8
+    ) -> bool {
         let crosser = Self::get_player(teams, ball_possession);
 
         let cross_quality =
@@ -245,10 +284,30 @@ impl Actions {
 
         let roll = (generate_number_by_range(0, 100) as f32) / 100.0;
 
-        roll <= success_chance
+        let success = roll <= success_chance;
+
+        // --- LOGGING ---
+        logs.push(Log {
+            player_name: crosser.name.clone(),
+            player_number: crosser.number,
+            minute,
+            team_name: teams[ball_possession[0] as usize].name.clone(),
+            description: if success {
+                "success.cross".to_string()
+            } else {
+                "failed.cross".to_string()
+            },
+        });
+
+        success
     }
 
-    pub fn long_pass(teams: &mut [Team; 2], ball_possession: &mut [u8; 2]) -> bool {
+    pub fn long_pass(
+        teams: &mut [Team; 2],
+        ball_possession: &mut [u8; 2],
+        logs: &mut Vec<Log>,
+        minute: u8
+    ) -> bool {
         let team_id = ball_possession[0] as usize;
         let passer_index = ball_possession[1] as usize;
 
@@ -271,8 +330,8 @@ impl Actions {
 
         for i in 0..players_len {
             if i == passer_index {
-                continue; // cannot pass to self
-            }
+                continue;
+            } // cannot pass to self
 
             let mut weight = ((passer_index as i32) - (i as i32)).abs() as f32;
 
@@ -280,9 +339,8 @@ impl Actions {
             if i == 0 {
                 weight *= 0.35;
             }
-
             if weight < 0.5 {
-                weight = 0.5; // avoid zero-weight cases
+                weight = 0.5;
             }
 
             weights.push(weight);
@@ -291,10 +349,9 @@ impl Actions {
 
         // Weighted random selection
         let total_weight: f32 = weights.iter().sum();
-        let mut rnd = (generate_number_by_range(0, 100) as f32 / 100.0) * total_weight;
+        let mut rnd = ((generate_number_by_range(0, 100) as f32) / 100.0) * total_weight;
 
         let mut receiver_index = indices[0];
-
         for (i, w) in weights.iter().enumerate() {
             if rnd < *w {
                 receiver_index = indices[i];
@@ -305,10 +362,20 @@ impl Actions {
 
         // --- 3. LONG PASS SUCCESS ROLL ---
         let roll = (generate_number_by_range(0, 100) as f32) / 100.0;
+        let success = roll <= success_chance;
 
-        if roll <= success_chance {
+        if success {
             // PASS SUCCESSFUL → update possession
             ball_possession[1] = receiver_index as u8;
+
+            logs.push(Log {
+                player_name: passer.name.clone(),
+                player_number: passer.number,
+                minute,
+                team_name: teams[team_id].name.clone(),
+                description: "success.long_pass".to_string(),
+            });
+
             return true;
         }
 
@@ -316,10 +383,23 @@ impl Actions {
         ball_possession[0] = if team_id == 0 { 1 } else { 0 };
         ball_possession[1] = 0; // goalkeeper receives failed long balls
 
+        logs.push(Log {
+            player_name: passer.name.clone(),
+            player_number: passer.number,
+            minute,
+            team_name: teams[team_id].name.clone(),
+            description: "failed.long_pass".to_string(),
+        });
+
         false
     }
 
-    pub fn control(teams: &mut [Team; 2], ball_possession: &mut [u8; 2]) -> bool {
+    pub fn control(
+        teams: &mut [Team; 2],
+        ball_possession: &mut [u8; 2],
+        logs: &mut Vec<Log>,
+        minute: u8
+    ) -> bool {
         let receiver = Self::get_player(teams, ball_possession);
 
         let ctrl_quality =
@@ -331,8 +411,22 @@ impl Actions {
         let success_chance = base_chance * Self::stamina_factor(receiver);
 
         let roll = (generate_number_by_range(0, 100) as f32) / 100.0;
+        let success = roll <= success_chance;
 
-        roll <= success_chance
+        // --- LOGGING ---
+        logs.push(Log {
+            player_name: receiver.name.clone(),
+            player_number: receiver.number,
+            minute,
+            team_name: teams[ball_possession[0] as usize].name.clone(),
+            description: if success {
+                "success.control".to_string()
+            } else {
+                "failed.control".to_string()
+            },
+        });
+
+        success
     }
 
     pub fn finish(teams: &mut [Team; 2], ball_possession: &mut [u8; 2]) -> bool {
@@ -425,6 +519,93 @@ impl Actions {
         }
     }
 
+    pub fn penalty(
+        teams: &mut [Team; 2],
+        ball_possession: &mut [u8; 2],
+        last_pass_player: &mut [u8; 2],
+        logs: &mut Vec<Log>,
+        minute: u8
+    ) -> bool {
+        let team_id = ball_possession[0] as usize;
+        let player_id = ball_possession[1] as usize;
+
+        let opponent_team = if team_id == 0 { 1 } else { 0 };
+
+        let shooter = &teams[team_id].players[player_id];
+
+        let gk_index = teams[opponent_team].players
+            .iter()
+            .enumerate()
+            .find(|(_, p)| matches!(p.position, Position::Goalkeeper))
+            .map(|(i, _)| i)
+            .unwrap_or(0);
+
+        let goalkeeper = &teams[opponent_team].players[gk_index];
+
+        // --- Shooter & GK ability ---
+        let shoot_value =
+            (shooter.skills.finishing as f32) * 0.6 + (shooter.skills.composure as f32) * 0.4;
+        let gk_value =
+            (goalkeeper.skills.intuition as f32) * 0.4 +
+            (goalkeeper.skills.handling as f32) * 0.3 +
+            (goalkeeper.skills.reflexes as f32) * 0.3;
+
+        let mut score_chance = 0.6 + (shoot_value - gk_value) * 0.01;
+        let mut rebound_chance = 0.15 + (gk_value - shoot_value) * 0.005;
+
+        score_chance = score_chance.clamp(0.05, 0.9);
+        rebound_chance = rebound_chance.clamp(0.05, 0.3);
+
+        let score_pct = (score_chance * 100.0).round() as i32;
+        let rebound_pct = (rebound_chance * 100.0).round() as i32;
+        let mut corner_pct = (100 - score_pct - rebound_pct).max(5);
+
+        let roll = generate_number_by_range(0, 100);
+
+        if roll < (score_pct as u8) {
+            // --- GOAL ---
+            logs.push(Log {
+                player_name: shooter.name.clone(),
+                player_number: shooter.number,
+                minute,
+                team_name: teams[team_id].name.clone(),
+                description: "goal.penalty".to_string(),
+            });
+
+            last_pass_player[0] = 255;
+            last_pass_player[1] = 255;
+
+            // possession to opponent GK
+            ball_possession[0] = opponent_team as u8;
+            ball_possession[1] = gk_index as u8;
+
+            true
+        } else if roll < (score_pct as u8) + (rebound_pct as u8) {
+            // --- REBOUND ---
+            logs.push(Log {
+                player_name: shooter.name.clone(),
+                player_number: shooter.number,
+                minute,
+                team_name: teams[team_id].name.clone(),
+                description: "rebound.penalty".to_string(),
+            });
+
+            Self::rebound(teams, ball_possession, last_pass_player);
+            false
+        } else {
+            // --- CORNER ---
+            logs.push(Log {
+                player_name: shooter.name.clone(),
+                player_number: shooter.number,
+                minute,
+                team_name: teams[team_id].name.clone(),
+                description: "corner.penalty".to_string(),
+            });
+
+            Self::corner(teams, ball_possession, last_pass_player, logs, minute)
+        }
+    }
+
     pub fn reset_position(teams: &mut [Team; 2], _ball_possession: &mut [u8; 2]) {
         for team in teams.iter_mut() {
             for player in team.players.iter_mut() {
@@ -458,7 +639,9 @@ impl Actions {
     pub fn corner(
         teams: &mut [Team; 2],
         ball_possession: &mut [u8; 2],
-        last_pass_player: &mut [u8; 2]
+        last_pass_player: &mut [u8; 2],
+        logs: &mut Vec<Log>,
+        minute: u8
     ) -> bool {
         let attacking_team = ball_possession[0] as usize;
         let defending_team = if attacking_team == 0 { 1 } else { 0 };
@@ -474,18 +657,15 @@ impl Actions {
             .map(|p| p.height_cm)
             .collect();
 
-        // Sort descending (tallest first)
         atk_heights.sort_by(|a, b| b.cmp(a));
         def_heights.sort_by(|a, b| b.cmp(a));
 
-        // Take top 5 or fewer
         let atk_top5: f32 =
             atk_heights
                 .iter()
                 .take(5)
                 .map(|h| *h as f32)
                 .sum::<f32>() / (atk_heights.len().min(5) as f32);
-
         let def_top5: f32 =
             def_heights
                 .iter()
@@ -493,16 +673,25 @@ impl Actions {
                 .map(|h| *h as f32)
                 .sum::<f32>() / (def_heights.len().min(5) as f32);
 
-        // Height advantage influences scoring
         let height_advantage = atk_top5 - def_top5;
 
-        // Base chance: 20%, modified by height
         let scoring_chance = (height_advantage / 1.8 + 20.0).clamp(2.0, 35.0) as u8;
 
         let roll = generate_number_by_range(0, 100);
 
         // --- GOAL ---
         if roll < scoring_chance {
+            if last_pass_player[0] != 255 {
+                let shooter =
+                    &teams[last_pass_player[0] as usize].players[last_pass_player[1] as usize];
+                logs.push(Log {
+                    player_name: shooter.name.clone(),
+                    player_number: shooter.number,
+                    minute,
+                    team_name: teams[attacking_team].name.clone(),
+                    description: "goal.corner".to_string(),
+                });
+            }
             return true;
         }
 
@@ -511,7 +700,6 @@ impl Actions {
 
         if outcome < 40 {
             // 40% → GK catches the ball
-            // Possession → defending team GK
             let gk_index = teams[defending_team].players
                 .iter()
                 .enumerate()
@@ -521,8 +709,31 @@ impl Actions {
 
             ball_possession[0] = defending_team as u8;
             ball_possession[1] = gk_index as u8;
+
+            if last_pass_player[0] != 255 {
+                let shooter =
+                    &teams[last_pass_player[0] as usize].players[last_pass_player[1] as usize];
+                logs.push(Log {
+                    player_name: shooter.name.clone(),
+                    player_number: shooter.number,
+                    minute,
+                    team_name: teams[attacking_team].name.clone(),
+                    description: "saved.corner".to_string(),
+                });
+            }
         } else {
-            // 60% → REBOUND BATTLE INSIDE BOX
+            // 60% → REBOUND BATTLE
+            if last_pass_player[0] != 255 {
+                let shooter =
+                    &teams[last_pass_player[0] as usize].players[last_pass_player[1] as usize];
+                logs.push(Log {
+                    player_name: shooter.name.clone(),
+                    player_number: shooter.number,
+                    minute,
+                    team_name: teams[attacking_team].name.clone(),
+                    description: "rebound.corner".to_string(),
+                });
+            }
             Self::rebound(teams, ball_possession, last_pass_player);
         }
 

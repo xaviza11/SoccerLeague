@@ -9,7 +9,7 @@ pub struct Team {
     pub player_name: String,
     pub players: Vec<Player>,
     pub bench_players: Vec<Player>,
-    pub aura: [Aura; 3],
+    pub aura: [String; 3],
 }
 
 impl Team {
@@ -24,7 +24,7 @@ impl Team {
 
     pub fn apply_auras(&mut self) {
         for aura_name in &self.aura {
-            if let Some(aura) = Aura::from_name(aura_name.name.as_str()) {
+            if let Some(aura) = Aura::from_name(aura_name.as_str()) {
                 for player in &mut self.players {
                     aura.apply_to_player(&mut player.skills);
                 }

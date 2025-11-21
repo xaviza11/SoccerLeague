@@ -10,7 +10,7 @@ pub enum OffensiveInstruction {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "PascalCase")]
 pub enum DefensiveInstruction {
     Destroy,
     Normal,

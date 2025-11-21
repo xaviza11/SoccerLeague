@@ -3,6 +3,7 @@ use crate::models::game::game_result::GameResult;
 use crate::models::game::log::Log;
 use crate::models::game::team::Team;
 use crate::models::player::position::Position;
+use crate::models::player::action_selector::ActionSelector;
 
 use crate::validators::game::lineup::validate_lineup;
 
@@ -16,6 +17,10 @@ pub struct Game {
     pub ball_possession: [u8; 2],
     pub minute: u8,
     pub action: i32,
+}
+
+pub struct GameReturn {
+    pub logs: Vec<Log>,
 }
 
 impl Game {
@@ -62,6 +67,8 @@ impl Game {
             team_name: "game".to_string(),
         });
 
+        game.play_full_match();
+
         Ok(game)
     }
 
@@ -71,7 +78,7 @@ impl Game {
 
         let team_with_ball = 0 as u8;
         let random_player = generate_number_by_range(0, (self.teams[0].players.len() - 1) as u8);
-        
+
         self.ball_possession = [team_with_ball, random_player];
         let last_pass_player = [team_with_ball, random_player];
 
@@ -107,5 +114,52 @@ impl Game {
         };
 
         self.logs.push(log);
+    }
+
+    pub fn play_first_half(&mut self) {
+        self.start_match();
+        let mut last_pass_player = self.ball_possession.clone();
+
+        for minute in 0..45 {
+            self.minute = minute;
+
+            for _ in 0..5 {
+                // 5 actions per minute
+                ActionSelector::select_and_execute(
+                    &mut self.teams,
+                    &mut self.ball_possession,
+                    &mut last_pass_player,
+                    self.minute,
+                    &mut self.logs
+                );
+                self.action += 1;
+            }
+        }
+    }
+
+    pub fn play_second_half(&mut self) {
+        self.start_half_time();
+        let mut last_pass_player = self.ball_possession.clone();
+
+        for minute in 45..91 {
+            self.minute = minute;
+
+            for _ in 0..5 {
+                // 5 actions per minute
+                ActionSelector::select_and_execute(
+                    &mut self.teams,
+                    &mut self.ball_possession,
+                    &mut last_pass_player,
+                    self.minute,
+                    &mut self.logs
+                );
+                self.action += 1;
+            }
+        }
+    }
+
+    pub fn play_full_match(&mut self) {
+        self.play_first_half();
+        self.play_second_half();
     }
 }

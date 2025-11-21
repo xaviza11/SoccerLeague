@@ -7,6 +7,7 @@ use crate::utils::generate_random_number::generate_number_by_range;
 use crate::models::player::actions::Actions;
 use crate::models::game::team::Team;
 use crate::models::player::instructions::OffensiveInstruction;
+use crate::models::game::log::Log;
 
 pub struct ActionSelector;
 
@@ -40,16 +41,16 @@ impl Position {
 }
 
 impl ActionSelector {
-    pub fn select_and_execute(teams: &mut [Team; 2], ball_possession: &mut [u8; 2], last_pass_player: &mut [u8; 2]) {
+    pub fn select_and_execute(teams: &mut [Team; 2], ball_possession: &mut [u8; 2], last_pass_player: &mut [u8; 2], minutes: u8, logs: &mut Vec<Log>) {
         let team_idx = ball_possession[0] as usize;
         let player_idx = ball_possession[1] as usize;
 
         // Read player's position BEFORE mutable borrow
         let pos = &teams[team_idx].players[player_idx].current_position;
         let file = pos.file_name();
-        let path = format!("data/positions/{}", file);
+        let path = format!("src/data/positions/{}", file);
 
-        let raw = fs::read_to_string(&path).expect("Could not read position JSON");
+        let raw = fs::read_to_string(&path).expect("Could not read position JSON {}");
         let mut p: ActionProbabilities = from_str(&raw).expect("Could not parse JSON");
 
         // Adjust probabilities (immutable access)
@@ -75,12 +76,12 @@ impl ActionSelector {
             sum += weight;
             if roll < sum as u8 {
                 match action {
-                    "shoot" => Actions::shoot(teams, ball_possession, last_pass_player),
-                    "pass" => Actions::pass(teams, ball_possession, last_pass_player),
-                    "dribble" => Actions::dribble(teams, ball_possession),
+                    "shoot" => Actions::shoot(teams, ball_possession, last_pass_player, logs, minutes),
+                    "pass" => Actions::pass(teams, ball_possession, last_pass_player, logs, minutes),
+                    "dribble" => Actions::dribble(teams, ball_possession, logs, minutes),
                     "advance" => Actions::advance(teams, ball_possession),
-                    "long_pass" => Actions::long_pass(teams, ball_possession),
-                    "cross" => Actions::cross(teams, ball_possession),
+                    "long_pass" => Actions::long_pass(teams, ball_possession, logs, minutes),
+                    "cross" => Actions::cross(teams, ball_possession, logs, minutes),
                     _ => unreachable!(),
                 };
                 return;
