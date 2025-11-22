@@ -6,12 +6,6 @@ use crate::models::game::game_result::GameResult;
 use crate::models::game::log::Log;
 use crate::utils::generate_random_number::generate_number_by_range;
 
-fn load_team_from_json(path: &str) -> Team {
-    let raw = fs::read_to_string(path).expect("Failed to read team JSON file");
-
-    from_str::<Team>(&raw).expect("Failed to parse Team JSON")
-}
-
 pub struct TestGame {
     pub teams: [Team; 2],
     pub game_result: GameResult,
@@ -19,20 +13,6 @@ pub struct TestGame {
     pub ball_possession: [u8; 2],
     pub minute: u8,
     pub action: i32,
-}
-
-pub fn create_test_game(path: &str) -> TestGame {
-    let team_a = load_team_from_json(path);
-    let team_b = load_team_from_json(path);
-
-    TestGame {
-        teams: [team_a, team_b],
-        game_result: GameResult { score: [0, 0] },
-        logs: vec![],
-        ball_possession: [1, 7],
-        minute: 0,
-        action: 0,
-    }
 }
 
 #[cfg(test)]
