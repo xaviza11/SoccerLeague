@@ -5,6 +5,7 @@ use serde_json::from_str;
 use crate::models::player::position::Position;
 use crate::utils::generate_random_number::generate_number_by_range;
 use crate::models::player::actions::Actions;
+use crate::models::game::game_result::GameResult;
 use crate::models::game::team::Team;
 use crate::models::player::instructions::OffensiveInstruction;
 use crate::models::game::log::Log;
@@ -41,7 +42,7 @@ impl Position {
 }
 
 impl ActionSelector {
-    pub fn select_and_execute(teams: &mut [Team; 2], ball_possession: &mut [u8; 2], last_pass_player: &mut [u8; 2], minutes: u8, logs: &mut Vec<Log>) {
+    pub fn select_and_execute(teams: &mut [Team; 2], ball_possession: &mut [u8; 2], last_pass_player: &mut [u8; 2], minutes: u8, logs: &mut Vec<Log>, game_result: &mut GameResult) {
         let team_idx = ball_possession[0] as usize;
         let player_idx = ball_possession[1] as usize;
 
@@ -76,11 +77,11 @@ impl ActionSelector {
             sum += weight;
             if roll < sum as u8 {
                 match action {
-                    "shoot" => Actions::shoot(teams, ball_possession, last_pass_player, logs, minutes),
+                    "shoot" => Actions::shoot(teams, ball_possession, last_pass_player, logs, minutes, game_result),
                     "pass" => Actions::pass(teams, ball_possession, last_pass_player, logs, minutes),
                     "dribble" => Actions::dribble(teams, ball_possession, logs, minutes),
                     "advance" => Actions::advance(teams, ball_possession),
-                    "long_pass" => Actions::long_pass(teams, ball_possession, logs, minutes),
+                    "long_pass" => Actions::long_pass(teams, ball_possession, logs, minutes, last_pass_player),
                     "cross" => Actions::cross(teams, ball_possession, logs, minutes),
                     _ => unreachable!(),
                 };

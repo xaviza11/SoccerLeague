@@ -43,7 +43,6 @@ pub fn validate_lineup(lineup: Vec<Position>) -> Result<(), String> {
         return Err(format!("Invalid lineup: expected 2-5 midfielders, got {}", midfielders));
     }
 
-    // ✅ Delanteros: 1-3
     let strikers = ["striker", "left_wing", "right_wing"]
         .iter()
         .map(|p| counts.get(p).copied().unwrap_or(0))
@@ -63,17 +62,17 @@ mod tests {
     #[test]
     fn test_valid_lineup() {
         let lineup = vec![
-            "goalkeeper".to_string(),
-            "defender".to_string(),
-            "defender".to_string(),
-            "left_back".to_string(),
-            "right_back".to_string(),
-            "midfielder".to_string(),
-            "left_midfield".to_string(),
-            "right_midfield".to_string(),
-            "attacking_midfield".to_string(),
-            "striker".to_string(),
-            "right_wing".to_string(),
+            Position::Goalkeeper,
+            Position::Defender,
+            Position::Defender,
+            Position::Left_Back,
+            Position::Right_Back,
+            Position::Midfielder,
+            Position::Left_Midfield,
+            Position::Right_Midfield,
+            Position::Attacking_Midfield,
+            Position::Striker,
+            Position::Right_Wing,
         ];
 
         assert!(validate_lineup(lineup).is_ok());
@@ -82,99 +81,115 @@ mod tests {
     #[test]
     fn test_invalid_number_of_players() {
         let lineup = vec![
-            "goalkeeper".to_string(),
-            "defender".to_string(),
+            Position::Goalkeeper,
+            Position::Defender,
         ]; // Only 2 players
 
         let result = validate_lineup(lineup);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "Invalid lineup: expected 11 players, got 2");
+        assert_eq!(
+            result.unwrap_err(),
+            "Invalid lineup: expected 11 players, got 2"
+        );
     }
 
     #[test]
     fn test_invalid_goalkeeper_count() {
         let lineup = vec![
-            "goalkeeper".to_string(),
-            "goalkeeper".to_string(),
-            "defender".to_string(),
-            "defender".to_string(),
-            "left_back".to_string(),
-            "Right Back".to_string(),
-            "midfielder".to_string(),
-            "left_midfield".to_string(),
-            "right_midfield".to_string(),
-            "striker".to_string(),
-            "right_wing".to_string(),
+            Position::Goalkeeper,
+            Position::Goalkeeper, // <-- 2 keepers
+            Position::Defender,
+            Position::Defender,
+            Position::Left_Back,
+            Position::Right_Back,
+            Position::Midfielder,
+            Position::Left_Midfield,
+            Position::Right_Midfield,
+            Position::Striker,
+            Position::Right_Wing,
         ];
 
         let result = validate_lineup(lineup);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "Invalid lineup: expected 1 goalkeeper, got 2");
+        assert_eq!(
+            result.unwrap_err(),
+            "Invalid lineup: expected 1 goalkeeper, got 2"
+        );
     }
 
     #[test]
     fn test_invalid_defenders_count() {
         let lineup = vec![
-            "goalkeeper".to_string(),
-            "defender".to_string(),
-            "midfielder".to_string(),
-            "midfielder".to_string(),
-            "midfielder".to_string(),
-            "midfielder".to_string(),
-            "Attacking Midfield".to_string(),
-            "striker".to_string(),
-            "Left_Wing".to_string(),
-            "right_wing".to_string(),
-            "striker".to_string(),
+            Position::Goalkeeper,
+            Position::Defender,                  // only 1 defender
+            Position::Midfielder,
+            Position::Midfielder,
+            Position::Midfielder,
+            Position::Midfielder,
+            Position::Attacking_Midfield,
+            Position::Striker,
+            Position::Left_Wing,
+            Position::Right_Wing,
+            Position::Striker,
         ];
 
         let result = validate_lineup(lineup);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "Invalid lineup: expected 3-5 defenders, got 1");
+        assert_eq!(
+            result.unwrap_err(),
+            "Invalid lineup: expected 3-5 defenders, got 1"
+        );
     }
 
     #[test]
     fn test_invalid_midfielders_count() {
         let lineup = vec![
-            "goalkeeper".to_string(),
-            "defender".to_string(),
-            "defender".to_string(),
-            "left_back".to_string(),
-            "right_back".to_string(),
-            "striker".to_string(),
-            "striker".to_string(),
-            "Left_Wing".to_string(),
-            "right_wing".to_string(),
-            "striker".to_string(),
-            "right_wing".to_string(),
+            Position::Goalkeeper,
+            Position::Defender,
+            Position::Defender,
+            Position::Left_Back,
+            Position::Right_Back,
+            Position::Striker,
+            Position::Striker,
+            Position::Left_Wing,
+            Position::Right_Wing,
+            Position::Striker,
+            Position::Right_Wing,
         ];
 
         let result = validate_lineup(lineup);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "Invalid lineup: expected 2-5 midfielders, got 0");
+        assert_eq!(
+            result.unwrap_err(),
+            "Invalid lineup: expected 2-5 midfielders, got 0"
+        );
     }
 
     #[test]
     fn test_invalid_strikers_count() {
         let lineup = vec![
-            "goalkeeper".to_string(),
-            "defender".to_string(),
-            "defender".to_string(),
-            "left_back".to_string(),
-            "right_back".to_string(),
-            "midfielder".to_string(),
-            "left_midfield".to_string(),
-            "right_midfield".to_string(),
-            "attacking_midfield".to_string(),
-            "defender".to_string(),
-            "left_midfield".to_string(),
+            Position::Goalkeeper,
+            Position::Defender,
+            Position::Defender,
+            Position::Left_Back,
+            Position::Right_Back,
+            Position::Midfielder,
+            Position::Left_Midfield,
+            Position::Right_Midfield,
+            Position::Attacking_Midfield,
+            Position::Defender,
+            Position::Left_Midfield,
         ];
 
         let result = validate_lineup(lineup);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "Invalid lineup: expected 1-3 strikers, got 0");
+        assert_eq!(
+            result.unwrap_err(),
+            "Invalid lineup: expected 1-3 strikers, got 0"
+        );
     }
 }
+
 
 
 

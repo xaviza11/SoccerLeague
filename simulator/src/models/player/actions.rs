@@ -1,6 +1,7 @@
 use crate::models::game::team::Team;
 use crate::models::player::player::Player;
 use crate::models::player::position::Position;
+use crate::models::game::game_result::GameResult;
 use crate::models::game::log::Log;
 use crate::utils::generate_random_number::generate_number_by_range;
 use rand::prelude::*;
@@ -90,70 +91,70 @@ impl Actions {
         true // action completed
     }
 
- pub fn dribble(
-    teams: &mut [Team; 2],
-    ball_possession: &mut [u8; 2],
-    logs: &mut Vec<Log>,
-    minute: u8
-) -> bool {
-    let team_id = ball_possession[0] as usize;
-    let player_id = ball_possession[1] as usize;
+    pub fn dribble(
+        teams: &mut [Team; 2],
+        ball_possession: &mut [u8; 2],
+        logs: &mut Vec<Log>,
+        minute: u8
+    ) -> bool {
+        let team_id = ball_possession[0] as usize;
+        let player_id = ball_possession[1] as usize;
 
-    let attacker = &teams[team_id].players[player_id];
+        let attacker = &teams[team_id].players[player_id];
 
-    // Opponent team
-    let opponent_team = if team_id == 0 { 1 } else { 0 };
+        // Opponent team
+        let opponent_team = if team_id == 0 { 1 } else { 0 };
 
-    // Find ideal defender
-    let needed_def_pos = Self::matchup_position(&attacker.current_position);
+        // Find ideal defender
+        let needed_def_pos = Self::matchup_position(&attacker.current_position);
 
-    let defender_index_opt = teams[opponent_team].players
-        .iter()
-        .enumerate()
-        .find(|(_, p)| p.current_position == needed_def_pos)
-        .map(|(i, _)| i);
+        let defender_index_opt = teams[opponent_team].players
+            .iter()
+            .enumerate()
+            .find(|(_, p)| p.current_position == needed_def_pos)
+            .map(|(i, _)| i);
 
-    let defender_index = match defender_index_opt {
-        Some(i) => i,
-        None =>
-            generate_number_by_range(
-                0,
-                (teams[opponent_team].players.len() as u8) - 1
-            ) as usize,
-    };
+        let defender_index = match defender_index_opt {
+            Some(i) => i,
+            None =>
+                generate_number_by_range(
+                    0,
+                    (teams[opponent_team].players.len() as u8) - 1
+                ) as usize,
+        };
 
-    let defender = &teams[opponent_team].players[defender_index];
+        let defender = &teams[opponent_team].players[defender_index];
 
-    // --- DRIBBLE VS DEFENSE ---
-    let attacker_score = (attacker.skills.dribbling as i32) + (attacker.skills.speed as i32);
-    let defender_score =
-        (defender.skills.defense as i32) +
-        (defender.skills.physical as i32) +
-        (defender.skills.aggression as i32);
+        // --- DRIBBLE VS DEFENSE ---
+        let attacker_score = (attacker.skills.dribbling as i32) + (attacker.skills.speed as i32);
+        let defender_score =
+            (defender.skills.defense as i32) +
+            (defender.skills.physical as i32) +
+            (defender.skills.aggression as i32);
 
-    let difficulty = defender_score - attacker_score;
+        let difficulty = defender_score - attacker_score;
 
-    let dribble_chance = (50 - difficulty).clamp(5, 95);
-    let roll = generate_number_by_range(0, 100);
+        let dribble_chance = (50 - difficulty).clamp(5, 95);
+        let roll = generate_number_by_range(0, 100);
 
-    let success = roll < (dribble_chance as u8);
+        let success = roll < (dribble_chance as u8);
 
-    // --- POSSESSION CHANGE ON FAILURE ---
-    if !success {
-        ball_possession[0] = opponent_team as u8;
-        ball_possession[1] = defender_index as u8;
+        // --- POSSESSION CHANGE ON FAILURE ---
+        if !success {
+            ball_possession[0] = opponent_team as u8;
+            ball_possession[1] = defender_index as u8;
+        }
+
+        success
     }
-
-    success
-}
-
 
     pub fn shoot(
         teams: &mut [Team; 2],
         ball_possession: &mut [u8; 2],
         last_pass_player: &mut [u8; 2],
         logs: &mut Vec<Log>,
-        minute: u8
+        minute: u8,
+        game_result: &mut GameResult
     ) -> bool {
         let team_id = ball_possession[0] as usize;
         let player_id = ball_possession[1] as usize;
@@ -199,6 +200,7 @@ impl Actions {
             });
 
             println!("GOAL by {}, {}!", attacker.name, teams[team_id].name);
+            game_result.score[team_id] += 1;
 
             // Clear last passer
             last_pass_player[0] = 255;
@@ -228,7 +230,7 @@ impl Actions {
                 description: "corner.shoot".to_string(),
             });
 
-            Self::corner(teams, ball_possession, last_pass_player, logs, minute);
+            Self::corner(teams, ball_possession, last_pass_player, logs, minute, game_result);
         } else {
             // Ball stays in play → rebound
             logs.push(Log {
@@ -236,13 +238,13 @@ impl Actions {
                 player_number: attacker.number,
                 minute,
                 team_name: teams[team_id].name.clone(),
-                description: "miss.shoot".to_string(),
+                description: "failed.shoot".to_string(),
             });
 
             Self::rebound(teams, ball_possession, last_pass_player);
         }
 
-        false
+        true
     }
 
     pub fn advance(teams: &mut [Team; 2], ball_possession: &mut [u8; 2]) -> bool {
@@ -306,7 +308,8 @@ impl Actions {
         teams: &mut [Team; 2],
         ball_possession: &mut [u8; 2],
         logs: &mut Vec<Log>,
-        minute: u8
+        minute: u8,
+        last_pass_player: &mut [u8; 2]
     ) -> bool {
         let team_id = ball_possession[0] as usize;
         let passer_index = ball_possession[1] as usize;
@@ -322,7 +325,7 @@ impl Actions {
         let base_chance = (lp_quality / 100.0).clamp(0.03, 0.85);
         let success_chance = base_chance * Self::stamina_factor(passer);
 
-        // --- 2. TARGET SELECTION (WEIGHTED BY DISTANCE IN ARRAY) ---
+        // --- 2. TARGET SELECTION ---
         let players_len = teams[team_id].players.len();
 
         let mut weights: Vec<f32> = Vec::new();
@@ -331,14 +334,14 @@ impl Actions {
         for i in 0..players_len {
             if i == passer_index {
                 continue;
-            } // cannot pass to self
+            }
 
             let mut weight = ((passer_index as i32) - (i as i32)).abs() as f32;
 
-            // Goalkeeper gets reduced chance
             if i == 0 {
                 weight *= 0.35;
             }
+
             if weight < 0.5 {
                 weight = 0.5;
             }
@@ -347,7 +350,6 @@ impl Actions {
             indices.push(i);
         }
 
-        // Weighted random selection
         let total_weight: f32 = weights.iter().sum();
         let mut rnd = ((generate_number_by_range(0, 100) as f32) / 100.0) * total_weight;
 
@@ -365,7 +367,7 @@ impl Actions {
         let success = roll <= success_chance;
 
         if success {
-            // PASS SUCCESSFUL → update possession
+            // Update possession
             ball_possession[1] = receiver_index as u8;
 
             logs.push(Log {
@@ -376,12 +378,21 @@ impl Actions {
                 description: "success.long_pass".to_string(),
             });
 
+            // Player must control the long pass
+            let control_success = Self::control(teams, ball_possession, logs, minute);
+
+            if control_success {
+                last_pass_player[0] = team_id as u8;
+                last_pass_player[1] = receiver_index as u8;
+            }
+
+            // If control fails, rebound() is automatically handled by control()
             return true;
         }
 
-        // LONG PASS FAILS → ball lost to opponent
+        // --- LONG PASS FAILS ---
         ball_possession[0] = if team_id == 0 { 1 } else { 0 };
-        ball_possession[1] = 0; // goalkeeper receives failed long balls
+        ball_possession[1] = 0;
 
         logs.push(Log {
             player_name: passer.name.clone(),
@@ -402,18 +413,19 @@ impl Actions {
     ) -> bool {
         let receiver = Self::get_player(teams, ball_possession);
 
-        let ctrl_quality =
+        // --- CONTROL QUALITY CALCULATION ---
+        let control_quality =
             (receiver.skills.control as f32) * 0.6 +
             (receiver.skills.composure as f32) * 0.25 +
             (receiver.skills.physical as f32) * 0.15;
 
-        let base_chance = (ctrl_quality / 100.0).clamp(0.1, 0.95);
+        let base_chance = (control_quality / 100.0).clamp(0.1, 0.95);
         let success_chance = base_chance * Self::stamina_factor(receiver);
 
         let roll = (generate_number_by_range(0, 100) as f32) / 100.0;
         let success = roll <= success_chance;
 
-        // --- LOGGING ---
+        // --- LOG CONTROL ATTEMPT ---
         logs.push(Log {
             player_name: receiver.name.clone(),
             player_number: receiver.number,
@@ -426,7 +438,15 @@ impl Actions {
             },
         });
 
-        success
+        if success {
+            // The player successfully controls the ball.
+            return true;
+        }
+
+        // --- FAILED CONTROL: TRIGGER REBOUND ---
+        Self::rebound(teams, ball_possession, &mut [0u8; 2]);
+
+        false
     }
 
     pub fn finish(teams: &mut [Team; 2], ball_possession: &mut [u8; 2]) -> bool {
@@ -524,7 +544,8 @@ impl Actions {
         ball_possession: &mut [u8; 2],
         last_pass_player: &mut [u8; 2],
         logs: &mut Vec<Log>,
-        minute: u8
+        minute: u8,
+        game_result: &mut GameResult
     ) -> bool {
         let team_id = ball_possession[0] as usize;
         let player_id = ball_possession[1] as usize;
@@ -571,7 +592,7 @@ impl Actions {
                 team_name: teams[team_id].name.clone(),
                 description: "goal.penalty".to_string(),
             });
-
+ 
             last_pass_player[0] = 255;
             last_pass_player[1] = 255;
 
@@ -602,7 +623,7 @@ impl Actions {
                 description: "corner.penalty".to_string(),
             });
 
-            Self::corner(teams, ball_possession, last_pass_player, logs, minute)
+            Self::corner(teams, ball_possession, last_pass_player, logs, minute, game_result)
         }
     }
 
@@ -641,10 +662,15 @@ impl Actions {
         ball_possession: &mut [u8; 2],
         last_pass_player: &mut [u8; 2],
         logs: &mut Vec<Log>,
-        minute: u8
+        minute: u8,
+        game_result: &mut GameResult
     ) -> bool {
         let attacking_team = ball_possession[0] as usize;
         let defending_team = if attacking_team == 0 { 1 } else { 0 };
+
+        //? wold be nice to take the corner kicker form the instructions of the player
+        last_pass_player[0] = attacking_team as u8;
+        last_pass_player[1] = 7;
 
         // Extract heights
         let mut atk_heights: Vec<u8> = teams[attacking_team].players
@@ -675,15 +701,14 @@ impl Actions {
 
         let height_advantage = atk_top5 - def_top5;
 
-        let scoring_chance = (height_advantage / 1.8 + 20.0).clamp(2.0, 35.0) as u8;
+        let scoring_chance = (height_advantage / 1.8 + 30.0).clamp(2.0, 6.0) as u8;
 
         let roll = generate_number_by_range(0, 100);
 
         // --- GOAL ---
         if roll < scoring_chance {
             if last_pass_player[0] != 255 {
-                let shooter =
-                    &teams[last_pass_player[0] as usize].players[last_pass_player[1] as usize];
+                let shooter =&teams[last_pass_player[0] as usize].players[last_pass_player[1] as usize];
                 logs.push(Log {
                     player_name: shooter.name.clone(),
                     player_number: shooter.number,
@@ -691,6 +716,9 @@ impl Actions {
                     team_name: teams[attacking_team].name.clone(),
                     description: "goal.corner".to_string(),
                 });
+
+                game_result.score[attacking_team] += 1;
+                println!("GOAL from CORNER by {}, {}!", shooter.name, teams[attacking_team].name);
             }
             return true;
         }

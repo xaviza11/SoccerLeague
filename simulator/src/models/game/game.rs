@@ -19,12 +19,14 @@ pub struct Game {
     pub action: i32,
 }
 
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct GameReturn {
     pub logs: Vec<Log>,
+    pub game_result: Option<GameResult>,
 }
 
 impl Game {
-    pub fn create_game(teams: [Team; 2]) -> Result<Self, String> {
+    pub fn create_game(teams: [Team; 2]) -> Result<GameReturn, String> {
         // Validate lineup for each team
         for (i, team) in teams.iter().enumerate() {
             let positions: Vec<Position> = team.players
@@ -62,14 +64,14 @@ impl Game {
         game.logs.push(Log {
             minute: game.minute,
             player_name: "game".to_string(),
-            description: "game start".to_string(),
+            description: "game.start".to_string(),
             player_number: 0,
             team_name: "game".to_string(),
         });
 
         game.play_full_match();
 
-        Ok(game)
+        Ok(GameReturn { logs: game.logs, game_result: Some(game.game_result) })
     }
 
     pub fn start_match(&mut self) {
@@ -87,7 +89,7 @@ impl Game {
         let log = Log {
             minute: self.minute,
             player_name: current_player.name.clone(),
-            description: format!("The game starts — {} has the ball.", current_player.name),
+            description: format!("success.ball"),
             player_number: current_player.number,
             team_name: self.teams[0].name.clone(),
         };
@@ -130,7 +132,8 @@ impl Game {
                     &mut self.ball_possession,
                     &mut last_pass_player,
                     self.minute,
-                    &mut self.logs
+                    &mut self.logs,
+                    &mut self.game_result,
                 );
                 self.action += 1;
             }
@@ -151,7 +154,8 @@ impl Game {
                     &mut self.ball_possession,
                     &mut last_pass_player,
                     self.minute,
-                    &mut self.logs
+                    &mut self.logs,
+                    &mut self.game_result,
                 );
                 self.action += 1;
             }

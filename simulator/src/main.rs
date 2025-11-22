@@ -5,6 +5,7 @@ mod logics;
 mod utils;
 mod services;
 mod validators;
+mod tests;
 
 use actix_web::{App, HttpServer, web};
 use routes::init_routes;

@@ -61,7 +61,7 @@ pub fn generate_player_skills(target_avg: f32) -> Skills {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::player::Skills;
+    use crate::models::player::skills::Skills;
 
     /// Helper to calculate the average of the 13 field skills
     fn field_average(skills: &Skills) -> f32 {

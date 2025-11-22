@@ -1,9 +1,9 @@
-use crate::models::game::game::Game;
+use crate::models::game::game::GameReturn;
 use crate::models::game::team::Team;
 use crate::services::game::simulate_new_game;
 use std::panic;
 
-pub fn handle_simulate_game(teams: [Team; 2]) -> Result<Game, String> {
+pub fn handle_simulate_game(teams: [Team; 2]) -> Result<GameReturn, String> {
     // Validate starters and bench for both teams
     for (i, team) in teams.iter().enumerate() {
         if team.players.len() != 11 {
