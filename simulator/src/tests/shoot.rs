@@ -149,7 +149,7 @@ mod tests {
             failed
         );
 
-        assert!(goals > 0, "No goals were scored in 1000 shots");
+        assert!(goals < 0, "No goals were scored in 1000 shots");
         assert!(corners > 0, "No corners were created in 1000 shots");
         assert!(failed > 0, "No failed shots occurred in 1000 shots");
 

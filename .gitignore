@@ -3,9 +3,6 @@ node_modules/
 dist/
 npm-debug.log*
 
-# Test-models
-test-models/
-
 # Rust / Simulator
 simulator/target/
 simulator/Cargo.lock
