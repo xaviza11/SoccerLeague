@@ -195,7 +195,7 @@ After simulation, the server returns a **`GameResult`** JSON representing the en
 | ----------------------------------------------------- | --------------- | ------------------------------------- |
 | `score`                                               | `(u8, u8)`      | Final score — `[Team A, Team B]`      |
 | `logs`                                                | `array[string]` | Chronological list of match events    |
-| `cards_player_a` / `cards_player_b`==> TODO           | `array[string]` | Players who received yellow/red cards | 
+| `cards_player_a` / `cards_player_b`==> TODO           | `array[string]` | Players who received yellow/red cards |
 | `scorers_player_a` / `scorers_player_b`==> TODO       | `array[string]` | Players who scored goals              |
 | `injuries_player_a` / `injuries_player_b`==> TODO     | `array[string]` | Injured players                       |
 | `assistants_player_a` / `assistants_player_b`==> TODO | `array[string]` | Players who assisted goals            |
@@ -240,8 +240,33 @@ The simulator’s output is serialized as JSON and can be integrated into web se
 
 ---
 
-**Author:** Soccer Simulator Project
-**Language:** Rust 🦀
-**Modules:** `player`, `game`, `simulation`, `data`
+## ⚙️ Mechanics
 
+1. Game starts and first validate the lineup to avoid miss players and wrong positions in the team.
+2. The simulator calculates the aura, card_boosts and country boosts, this actions increase the players skills.
+3. Start the match, for this set the ball possession.
+4. The players loads the data/positions/xxx.json witch provides the probabilities for select an action.
+5. The players execute this actions for ex: teams[0].players[5] pass the ball...
+6. When all sub-actions related to the selected action are finished, another action is selected.
+7. Every 5 actions, the minute is incremented by 1.
+8. Return the result of the match, providing logs (as a comment system) and also the result (as score).
 
+---
+
+## Todo
+
+    This system is unfinished, needs to add penalties, improve the selection of the teams when any kind of pass success,
+    also needs to create a system witch provides a accurate stats in the game and even in the players, for finish needs to
+    define a system to reduce the goals when one team scores a lot of goals, a gaussian bell could be an interesting approach.
+
+    Another important think is update the testing system, just test 99 and 55 teams is not enough.
+
+    For the moment, I am keeping the simulator without these upgrades; creating the backend and frontend is more important now.
+
+---
+
+**Author:** Xavier Zamora Lorente.<br>
+**Objective:** Develop a simulator of football matches trying to provide realistic results related to the tactics and player skills.<br>
+**Language:** Rust 🦀.<br>
+
+---
