@@ -1,1 +1,9 @@
 pub mod shoot;
+pub mod pass;
+pub mod dribble;
+pub mod cross;
+pub mod long_pass;
+pub mod control;
+pub mod finish;
+pub mod corner;
+pub mod full_game;

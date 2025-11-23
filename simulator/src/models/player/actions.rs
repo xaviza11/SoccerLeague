@@ -10,13 +10,11 @@ use rand_distr::{ Normal, Distribution };
 #[derive(Debug, Clone)]
 pub struct Actions;
 
-//? Missing create the fatigue system to decrease the stamina of the players as the match goes on!!!
 //? Missing create the stats system to register the actions of each player during the match!!!
-//? Missing create the resume of the match to show the match result in frontend and calculate the elo increase!!
 
 impl Actions {
     fn stamina_factor(player: &Player) -> f32 {
-        ((player.skills.stamina as f32) / 100.0).clamp(0.4, 1.0)
+        ((player.skills.stamina as f32) / 100.0).clamp(0.7, 1.0)
     }
 
     /// Get mutable reference to player with ball
@@ -134,7 +132,11 @@ impl Actions {
 
         let difficulty = defender_score - attacker_score;
 
-        let dribble_chance = (50 - difficulty).clamp(5, 95);
+        let base_dribble_chance = (65 - difficulty).clamp(10, 95) * 3;
+        let dribble_chance = (
+            (base_dribble_chance as f32) * Self::stamina_factor(attacker)
+        ).round() as u8;
+
         let roll = generate_number_by_range(0, 100);
 
         let success = roll < (dribble_chance as u8);
@@ -185,7 +187,10 @@ impl Actions {
 
         // Compute scoring chance
         let difficulty = gk_score - attack_score;
-        let scoring_chance = (50 - difficulty).clamp(5, 85);
+        let base_scoring_chance = (50 - difficulty).clamp(5, 85);
+        let scoring_chance = (
+            (base_scoring_chance as f32) * Self::stamina_factor(attacker)
+        ).round() as u8;
 
         let roll = generate_number_by_range(0, 100);
 
@@ -282,7 +287,7 @@ impl Actions {
             (crosser.skills.composure as f32) * 0.1;
 
         let base_chance = (cross_quality / 100.0).clamp(0.05, 0.9);
-        let success_chance = base_chance * Self::stamina_factor(crosser);
+        let success_chance = (base_chance * Self::stamina_factor(crosser)).clamp(0.05, 0.9);
 
         let roll = (generate_number_by_range(0, 100) as f32) / 100.0;
 
@@ -462,7 +467,7 @@ impl Actions {
 
         let roll = (generate_number_by_range(0, 100) as f32) / 100.0;
 
-        roll <= success_chance
+        roll >= success_chance
     }
 
     fn select_pass_target(teams: &mut [Team; 2], ball_possession: &[u8; 2]) -> (u8, u8) {
@@ -592,7 +597,7 @@ impl Actions {
                 team_name: teams[team_id].name.clone(),
                 description: "goal.penalty".to_string(),
             });
- 
+
             last_pass_player[0] = 255;
             last_pass_player[1] = 255;
 
@@ -708,7 +713,8 @@ impl Actions {
         // --- GOAL ---
         if roll < scoring_chance {
             if last_pass_player[0] != 255 {
-                let shooter =&teams[last_pass_player[0] as usize].players[last_pass_player[1] as usize];
+                let shooter =
+                    &teams[last_pass_player[0] as usize].players[last_pass_player[1] as usize];
                 logs.push(Log {
                     player_name: shooter.name.clone(),
                     player_number: shooter.number,
