@@ -134,6 +134,7 @@ fn generate_single_name(country_name: &Country) -> String {
     let names = load_names(country.file);
     let mut rng = rand::rng();
 
+    // Fallback alien name in case of empty name parts
     let alien_name = "Zorblax Prime".to_string();
 
     let first = names.first.choose(&mut rng);

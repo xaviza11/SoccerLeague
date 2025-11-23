@@ -125,6 +125,8 @@ fn test_full_game_simulation_alpha_99_vs_55() {
     );
 
     //? This fails, the difference is so big. but I let it for now.
+    //? The difference between both teams is too high, so in all of the games team 99 wins.
+    //? It does't happens when the teams are more similar like 85 vs 99 or 65 vs 55. 
     // Ensure weaker team can win at least once
     //assert!(team55_wins > 0, "Team 55 should win at least one game against team 99");
 

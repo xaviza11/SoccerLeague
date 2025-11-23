@@ -44,10 +44,6 @@ impl Game {
             team.apply_country_chemical(); // assuming you renamed apply_country_synergy
         }
 
-        // Calculate average heights if needed
-        let height_avr_0 = teams[0].average_height();
-        let height_avr_1 = teams[1].average_height();
-
         //? Needs to create a system for define the kickers of the team
 
         // Create game

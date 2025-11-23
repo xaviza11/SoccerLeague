@@ -17,8 +17,8 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 #[get("/player/generate")]
 pub async fn generate_player(query: web::Query<PlayerQuery>) -> HttpResponse {
     let target_avr = match query.target_avr {
-        Some(val) if val >= 40.0 && val <= 85.0 => val,
-        _ => return HttpResponse::BadRequest().body("Missing or invalid parameter: target_avr (40.0 - 85.0)"),
+        Some(val) if val >= 55.0 && val <= 99.0 => val,
+        _ => return HttpResponse::BadRequest().body("Missing or invalid parameter: target_avr (55.0 - 99.0)"),
     };
 
     match handle_create_player(query.position.clone(), target_avr) {
