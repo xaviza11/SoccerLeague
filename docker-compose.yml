@@ -1,17 +1,5 @@
-version: '3.8'
 
 services:
-  frontend:
-    build: ./frontend
-    container_name: nuxt_app
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    environment:
-      - NUXT_PUBLIC_API_URL=http://backend:4000
-    command: ["npm", "run", "dev"]
-
   backend:
     build: ./backend
     container_name: nest_app
@@ -19,28 +7,41 @@ services:
       - "4000:4000"
     depends_on:
       - db
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db
+    env_file:
+      - .env
     command: ["npm", "run", "start:dev"]
 
-  simulator:
-    build: ./simulator
-    container_name: rust_simulator
+  frontend:
+    build: ./frontend
+    container_name: nuxt_app
     ports:
-      - "4001:4001"
-    
+      - "3000:3000"
+    depends_on:
+      - backend
+    env_file:
+      - .env
+    command: ["npm", "run", "dev"]
+
   db:
     image: postgres:15
     container_name: postgres_db
     restart: always
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  db_test:
+    image: postgres:15
+    container_name: app_test_db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: app_db
-    volumes:
-      - db_data:/var/lib/postgresql/data
+      POSTGRES_DB: app_test_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
 volumes:
   db_data:
