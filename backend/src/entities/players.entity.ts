@@ -1,0 +1,1 @@
+// player model, need to add the image because is not created in the simulator api.

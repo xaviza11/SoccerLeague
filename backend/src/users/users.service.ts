@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
+import { User } from '../entities';
 
 @Injectable()
 export class UsersService {
@@ -38,7 +38,7 @@ export class UsersService {
       name,
       email,
       password: hashedPassword,
-      recoveryPassword: hashedRecovery,
+      recovery_password: hashedRecovery,
     });
 
     return this.usersRepo.save(newUser);

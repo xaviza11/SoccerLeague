@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: nest_app_test
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    env_file:
+      - .env.test
+    command: ["npm", "run", "start:test"]
+
+  frontend:
+    build: ./frontend
+    container_name: nuxt_app_test
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    env_file:
+      - .env.test
+    command: ["npm", "run", "dev:test"]
+
+  simulator:
+    build: ./simulator
+    container_name: rust_simulator_test
+    ports:
+      - "4001:4001"
+    command: ["cargo", "run", "--test-mode"]
+
+  db:
+    image: postgres:15
+    container_name: postgres_db_test
+    restart: always
+    env_file:
+      - .env.test
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data_test:/var/lib/postgresql/data
+
+volumes:
+  db_data_test: {}

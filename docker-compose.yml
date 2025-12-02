@@ -22,6 +22,12 @@ services:
       - .env
     command: ["npm", "run", "dev"]
 
+  simulator:
+    build: ./simulator
+    container_name: rust_simulator
+    ports:
+      - "4001:4001"
+    command: ["cargo", "run"]
   db:
     image: postgres:15
     container_name: postgres_db
@@ -32,16 +38,6 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-
-  db_test:
-    image: postgres:15
-    container_name: app_test_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: app_test_db
-    ports:
-      - "5433:5432"
 
 volumes:
   db_data:

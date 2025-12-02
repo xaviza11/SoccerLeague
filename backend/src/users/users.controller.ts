@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Body,
+  Param,
   Req,
   Put,
   Delete,
@@ -26,10 +27,10 @@ export class UsersController {
     return this.usersService.login(body.email, body.password);
   }
 
-  @Get('users')
+ @Get(':id')
   @UseGuards(AuthGuard)
-  findOne(@Req() req) {
-    return this.usersService.findOne(req.user.sub);
+  async findOne(@Param('id') id: string) {
+    return this.usersService.findOne(id);
   }
 
   @Put('users')

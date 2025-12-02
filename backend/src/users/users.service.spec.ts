@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
-import { User } from '../entities/user.entity';
+import { User, Storage, UserStats, Team, PositionChangeCard, Card } from '../entities';
 import * as bcrypt from 'bcrypt';
 import { ConfigModule } from '@nestjs/config';
 import { BadRequestException } from '@nestjs/common';
@@ -18,7 +18,7 @@ describe('UsersService (integration)', () => {
           useFactory: () => ({
             type: 'postgres',
             url: process.env.DATABASE_URL,
-            entities: [User],
+            entities: [User, Storage, UserStats, Team, PositionChangeCard, Card],
             synchronize: true,
           }),
         }),
