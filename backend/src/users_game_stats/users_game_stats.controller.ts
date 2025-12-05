@@ -7,6 +7,7 @@ import {
   Delete,
   Get,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UsersGameStatsService } from './users_game_stats.service';
@@ -14,7 +15,9 @@ import { AuthGuard } from '../guards/auth.guard';
 
 @Controller('users-game-stats')
 export class UsersGameStatsController {
-  constructor(private readonly usersGameStatsService: UsersGameStatsService) {}
+  constructor(
+    private readonly usersGameStatsService: UsersGameStatsService,
+  ) {}
 
   @Post()
   @UseGuards(AuthGuard)
@@ -23,28 +26,47 @@ export class UsersGameStatsController {
   }
 
   @Get()
-  @UseGuards()
   async findAll() {
     return this.usersGameStatsService.findAll();
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard)
   async findOne(@Param('id') id: string) {
     return this.usersGameStatsService.findOne(id);
   }
 
-  @Put() 
+  @Get('/ranking/top')
+  async getTop(@Query('limit') limit: number = 100) {
+    return this.usersGameStatsService.getTop(Number(limit));
+  }
+
+  @Get('/ranking/leaderboard')
+  async getLeaderboard(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 50,
+  ) {
+    return this.usersGameStatsService.getLeaderboard(
+      Number(page),
+      Number(limit),
+    );
+  }
+
+  @Get('/ranking/rank/:userId')
+  async getUserRank(@Param('userId') userId: string) {
+    return this.usersGameStatsService.getUserRank(userId);
+  }
+
+  @Put()
   @UseGuards(AuthGuard)
   async update(@Body() body: any, @Request() req) {
-    const userId = req.user.id; 
-    return this.usersGameStatsService.update(userId, body);
+    const statsId = req.user.statsId;
+    return this.usersGameStatsService.update(statsId, body);
   }
 
   @Delete()
   @UseGuards(AuthGuard)
   async remove(@Request() req) {
-    const userId = req.user.id;
-    return this.usersGameStatsService.delete(userId);
+    const statsId = req.user.statsId;
+    return this.usersGameStatsService.delete(statsId);
   }
 }
