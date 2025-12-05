@@ -17,22 +17,22 @@ export class UsersGameStatsService {
     private readonly UserStatsRepo: Repository<UserStats>,
 
     @InjectRepository(User)
-    private readonly UsersRepo: Repository<User>
+    private readonly UsersRepo: Repository<User>,
   ) {}
 
-async create(userId: string): Promise<UserStats> {
-  const user = await this.UsersRepo.findOne({ where: { id: userId } });
-  if (!user) throw new NotFoundException('User not found');
+  async create(userId: string): Promise<UserStats> {
+    const user = await this.UsersRepo.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
 
-  const stats = this.UserStatsRepo.create({
-    elo: 10000,
-    total_games: 0,
-    money: 100000,
-    user,
-  });
+    const stats = this.UserStatsRepo.create({
+      elo: 10000,
+      total_games: 0,
+      money: 100000,
+      user,
+    });
 
-  return this.UserStatsRepo.save(stats);
-}
+    return this.UserStatsRepo.save(stats);
+  }
 
   async findAll(): Promise<UserStats[]> {
     return this.UserStatsRepo.find({ relations: ['user'] });
@@ -43,7 +43,10 @@ async create(userId: string): Promise<UserStats> {
       throw new NotFoundException('Storage not found');
     }
 
-    const data = await this.UserStatsRepo.findOne({ where: { id }, relations: ['user'] });
+    const data = await this.UserStatsRepo.findOne({
+      where: { id },
+      relations: ['user'],
+    });
 
     if (!data) throw new NotFoundException(`UserStats ${id} not found`);
     return data;
@@ -67,6 +70,10 @@ async create(userId: string): Promise<UserStats> {
   }
 
   async getUserRank(userId: string) {
+    if (!isUUID(userId)) {
+      throw new NotFoundException('Storage not found');
+    }
+
     const stats = await this.UserStatsRepo.findOne({
       where: { user: { id: userId } },
     });
