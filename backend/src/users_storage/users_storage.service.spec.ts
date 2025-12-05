@@ -2,7 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersStorageService } from './users_storage.service';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { Storage, Team, PositionChangeCard, Card, User, UserStats } from '../entities';
+import {
+  Storage,
+  Team,
+  PositionChangeCard,
+  Card,
+  User,
+  UserStats,
+} from '../entities';
 import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 
@@ -22,7 +29,14 @@ describe('UsersStorageService (integration)', () => {
           useFactory: () => ({
             type: 'postgres',
             url: process.env.DATABASE_URL,
-            entities: [Storage, Team, PositionChangeCard, Card, User, UserStats],
+            entities: [
+              Storage,
+              Team,
+              PositionChangeCard,
+              Card,
+              User,
+              UserStats,
+            ],
             synchronize: true,
           }),
         }),
@@ -52,7 +66,7 @@ describe('UsersStorageService (integration)', () => {
     const storage = await service.createStorage();
     const card = await pcRepo.save(pcRepo.create({}));
     const updated = await service.addPositionChangeCard(storage.id, card.id);
-    expect(updated.position_change_cards.map(c => c.id)).toContain(card.id);
+    expect(updated.position_change_cards.map((c) => c.id)).toContain(card.id);
   });
 
   it('should add a card', async () => {
@@ -62,7 +76,7 @@ describe('UsersStorageService (integration)', () => {
 
     const updated = await service.addCard(storage.id, card.id);
 
-    expect(updated.cards.map(c => c.id)).toContain(card.id);
+    expect(updated.cards.map((c) => c.id)).toContain(card.id);
   });
 
   it('should add a team', async () => {
@@ -98,14 +112,31 @@ describe('UsersStorageService (integration)', () => {
 
     await service.deleteStorage(storage.id);
 
-    await expect(service.findOne(storage.id)).rejects.toThrow(NotFoundException);
+    await expect(service.findOne(storage.id)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('should throw if deleting non-existent storage', async () => {
-    await expect(service.deleteStorage('no-id')).rejects.toThrow(NotFoundException);
+    await expect(service.deleteStorage('no-id')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('should throw when adding card to non-existent storage', async () => {
-    await expect(service.addCard('invalid', 'CARD')).rejects.toThrow(NotFoundException);
+    await expect(service.addCard('invalid', 'CARD')).rejects.toThrow(
+      NotFoundException,
+    );
+  });
+
+  afterEach(async () => {
+    await pcRepo.createQueryBuilder().delete().execute();
+    await cardRepo.createQueryBuilder().delete().execute();
+    await teamRepo.createQueryBuilder().delete().execute();
+    await moduleRef
+      .get(getRepositoryToken(Storage))
+      .createQueryBuilder()
+      .delete()
+      .execute();
   });
 });

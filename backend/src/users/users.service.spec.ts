@@ -5,7 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { User, Storage, UserStats, Team, PositionChangeCard, Card } from '../entities';
 import * as bcrypt from 'bcrypt';
 import { ConfigModule } from '@nestjs/config';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('UsersService (integration)', () => {
   let service: UsersService;
@@ -82,9 +82,7 @@ describe('UsersService (integration)', () => {
 
   it('should delete a user with correct currentPassword', async () => {
     const user = await service.createUser('Dave', 'dave@test.com', 'pass');
-    await service.deleteUser(user.id, 'pass'); // must provide current password
-
-    await expect(service.findOne(user.id)).rejects.toThrow();
+    await expect(service.deleteUser(user.id, 'pass')).rejects.toThrow(NotFoundException)
   });
 
   it('should throw error if deleting with wrong currentPassword', async () => {
