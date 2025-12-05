@@ -60,14 +60,12 @@ export class Player {
     @Column()
     name: string;
 
-    // ⭐ Usando el enum Countries
     @Column({
         type: "enum",
         enum: Countries
     })
     country: Countries;
 
-    // ⭐ Usando Position enum
     @Column({
         type: "enum",
         enum: Positions
