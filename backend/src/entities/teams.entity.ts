@@ -1,11 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
-import { Storage } from './';
+import { Entity, PrimaryGeneratedColumn, OneToOne, OneToMany } from 'typeorm';
+import { Storage, Player } from './';
 
 @Entity()
 export class Team {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => Storage, storage => storage.team, { onDelete: 'CASCADE' })
+  @OneToMany(() => Player, (player) => player.team)
+  players: Player[];
+
+  @OneToOne(() => Storage, (storage) => storage.team, { onDelete: 'CASCADE' })
   storage: Storage;
 }

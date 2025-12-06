@@ -1,6 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Storage, UserStats } from './';
- 
+
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -15,14 +21,17 @@ export class User {
   @Column()
   password: string; // hashed
 
-  @Column()
-  recovery_password: string; // hashed
+  @Column({ nullable: false, default: () => "' '" })
+  recovery_password: string;
 
   @OneToOne(() => Storage, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn()
   storage: Storage;
 
-  @OneToOne(() => UserStats, stats => stats.user, { cascade: true, onDelete: 'CASCADE' })
+  @OneToOne(() => UserStats, (stats) => stats.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   stats: UserStats;
 }

@@ -1,42 +1,79 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from '../entities';
-import { JwtModule } from '@nestjs/jwt';
+import { AuthGuard } from '../guards/auth.guard';
+import { ExecutionContext, BadRequestException } from '@nestjs/common';
 
-describe('UsersService', () => {
-  let service: UsersService;
+describe('UsersController', () => {
+  let controller: UsersController;
 
-  const mockUserRepository = {
-    create: jest.fn(),
-    save: jest.fn(),
-    findOne: jest.fn(),
-    find: jest.fn(),
-    delete: jest.fn(),
-    update: jest.fn(),
+  const mockUsersService = {
+    createUser: jest.fn().mockResolvedValue('user created'),
+    login: jest.fn().mockResolvedValue('token'),
+    findOne: jest.fn().mockResolvedValue('user found'),
+    updateUser: jest.fn().mockResolvedValue('user updated'),
+    deleteUser: jest.fn().mockResolvedValue('user deleted'),
+  };
+
+  const mockAuthGuard = {
+    canActivate: jest.fn((context: ExecutionContext) => true),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        JwtModule.register({
-          secret: 'TEST_SECRET',
-          signOptions: { expiresIn: '1h' },
-        }),
-      ],
+      controllers: [UsersController],
       providers: [
-        UsersService,
         {
-          provide: getRepositoryToken(User),
-          useValue: mockUserRepository,
+          provide: UsersService,
+          useValue: mockUsersService,
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(AuthGuard)
+      .useValue(mockAuthGuard)
+      .compile();
 
-    service = module.get<UsersService>(UsersService);
+    controller = module.get<UsersController>(UsersController);
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(controller).toBeDefined();
   });
+
+  it('should create a user', async () => {
+    const body = { name: 'John', email: 'john@example.com', password: '1234' };
+    const result = await controller.create(body);
+    expect(result).toBe('user created');
+    expect(mockUsersService.createUser).toHaveBeenCalledWith(body.name, body.email, body.password);
+  });
+
+  it('should login a user', async () => {
+    const body = { email: 'john@example.com', password: '1234' };
+    const result = await controller.login(body);
+    expect(result).toBe('token');
+    expect(mockUsersService.login).toHaveBeenCalledWith(body.email, body.password);
+  });
+
+  it('should find one user', async () => {
+    const result = await controller.findOne('123');
+    expect(result).toBe('user found');
+    expect(mockUsersService.findOne).toHaveBeenCalledWith('123');
+  });
+
+  it('should update a user', async () => {
+    const req = { user: { sub: 'user123' } };
+    const body = { name: 'NewName', currentPassword: '1234' };
+    const result = await controller.update(req, body);
+    expect(result).toBe('user updated');
+    expect(mockUsersService.updateUser).toHaveBeenCalledWith('user123', body);
+  });
+
+  it('should delete a user', async () => {
+    const req = { user: { sub: 'user123' } };
+    const body = { currentPassword: '1234' };
+    const result = await controller.delete(req, body);
+    expect(result).toBe('user deleted');
+    expect(mockUsersService.deleteUser).toHaveBeenCalledWith('user123');
+  });
+
 });

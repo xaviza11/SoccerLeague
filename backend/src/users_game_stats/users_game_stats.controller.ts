@@ -21,8 +21,8 @@ export class UsersGameStatsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async createUserGameStats() {
-    return this.usersGameStatsService.create();
+  async createUserGameStats(@Param('id') id: string) {
+    return this.usersGameStatsService.create(id);
   }
 
   @Get()

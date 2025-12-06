@@ -1,4 +1,61 @@
-import { Controller } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Req,
+  UseGuards,
+  BadRequestException,
+} from '@nestjs/common';
+import { PlayerService } from './player.service';
+import { AuthGuard } from '../guards/auth.guard';
+import { Player } from '../entities';
 
 @Controller('player')
-export class PlayerController {}
+export class PlayerController {
+  constructor(private readonly playerService: PlayerService) {}
+
+  @Post()
+  @UseGuards(AuthGuard)
+  async create(@Req() req, @Body() body: Partial<Player>) {
+    if (!body.name || !body.team) {
+      throw new BadRequestException('Name and team are required');
+    }
+    return this.playerService.create({
+      ...body,
+    });
+  }
+
+  @Get()
+  @UseGuards(AuthGuard)
+  async findAll() {
+    return this.playerService.findAll();
+  }
+
+  @Get(':id')
+  @UseGuards(AuthGuard)
+  async findOne(@Param('id') id: string) {
+    return this.playerService.findOne(id);
+  }
+
+  @Put(':id')
+  @UseGuards(AuthGuard)
+  async update(@Param('id') id: string, @Body() body: Partial<Player>) {
+    return this.playerService.update(id, body);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  async delete(@Param('id') id: string) {
+    return this.playerService.delete(id);
+  }
+
+  @Get('user/:userId')
+  @UseGuards(AuthGuard)
+  async findAllByUser(@Param('userId') userId: string) {
+    return this.playerService.findAllPlayersByUser(userId);
+  }
+}

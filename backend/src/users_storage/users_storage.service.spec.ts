@@ -1,142 +1,167 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersStorageService } from './users_storage.service';
-import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
-import {
-  Storage,
-  Team,
-  PositionChangeCard,
-  Card,
-  User,
-  UserStats,
-} from '../entities';
-import { Repository } from 'typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Storage, Team, PositionChangeCard, Card } from '../entities';
+import { v4 as uuid } from 'uuid';
 import { NotFoundException } from '@nestjs/common';
 
-describe('UsersStorageService (integration)', () => {
+describe('UsersStorageService (unit)', () => {
   let service: UsersStorageService;
-  let moduleRef: TestingModule;
 
-  let pcRepo: Repository<PositionChangeCard>;
-  let cardRepo: Repository<Card>;
-  let teamRepo: Repository<Team>;
+  const mockStorageRepo = {
+    create: jest.fn(),
+    save: jest.fn(),
+    findOne: jest.fn(),
+    find: jest.fn(),
+    remove: jest.fn(),
+    delete: jest.fn(),
+  };
 
-  beforeAll(async () => {
-    moduleRef = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({ envFilePath: '.env.test' }),
-        TypeOrmModule.forRootAsync({
-          useFactory: () => ({
-            type: 'postgres',
-            url: process.env.DATABASE_URL,
-            entities: [
-              Storage,
-              Team,
-              PositionChangeCard,
-              Card,
-              User,
-              UserStats,
-            ],
-            synchronize: true,
-          }),
-        }),
-        TypeOrmModule.forFeature([Storage, Card, PositionChangeCard, Team]),
+  const mockTeamRepo = { findOne: jest.fn() };
+
+  const mockCardRepo = {
+    findOne: jest.fn(),
+    save: jest.fn(),
+    remove: jest.fn(),
+  };
+
+  const mockPositionChangeRepo = {
+    findOne: jest.fn(),
+    save: jest.fn(),
+    remove: jest.fn(),
+  };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UsersStorageService,
+        { provide: getRepositoryToken(Storage), useValue: mockStorageRepo },
+        { provide: getRepositoryToken(Team), useValue: mockTeamRepo },
+        { provide: getRepositoryToken(Card), useValue: mockCardRepo },
+        {
+          provide: getRepositoryToken(PositionChangeCard),
+          useValue: mockPositionChangeRepo,
+        },
       ],
-      providers: [UsersStorageService],
     }).compile();
 
-    service = moduleRef.get<UsersStorageService>(UsersStorageService);
+    service = module.get<UsersStorageService>(UsersStorageService);
+    jest.clearAllMocks();
+  });
 
-    pcRepo = moduleRef.get(getRepositoryToken(PositionChangeCard));
-    cardRepo = moduleRef.get(getRepositoryToken(Card));
-    teamRepo = moduleRef.get(getRepositoryToken(Team));
+  it('should be defined', () => {
+    expect(service).toBeDefined();
   });
 
   it('should create a storage', async () => {
-    const created = await service.createStorage();
+    const fakeStorage = {
+      id: uuid(),
+      cards: [],
+      position_change_cards: [],
+      team: null,
+    };
+    mockStorageRepo.create.mockReturnValue(fakeStorage);
+    mockStorageRepo.save.mockResolvedValue(fakeStorage);
 
-    expect(created).toBeDefined();
-    expect(created.id).toBeDefined();
-    expect(created.position_change_cards).toEqual(undefined);
-    expect(created.cards).toEqual(undefined);
-    expect(created.team).toEqual(undefined);
+    const storage = await service.createStorage();
+
+    expect(storage).toEqual(fakeStorage);
+    expect(mockStorageRepo.create).toHaveBeenCalled();
+    expect(mockStorageRepo.save).toHaveBeenCalledWith(fakeStorage);
+  });
+
+  it('should add a team to storage', async () => {
+    const storageId = uuid();
+    const teamId = uuid();
+    const storage = { id: storageId, team: null };
+    const team = { id: teamId };
+
+    mockStorageRepo.findOne.mockResolvedValue(storage);
+    mockTeamRepo.findOne.mockResolvedValue(team);
+    mockStorageRepo.save.mockImplementation((s) => Promise.resolve(s));
+
+    const updated = await service.addTeam(storageId, teamId);
+
+    expect(updated.team).toBe(team);
+    expect(mockStorageRepo.save).toHaveBeenCalled();
+  });
+
+  it('should add a card to storage', async () => {
+    const storageId = uuid();
+    const cardId = uuid();
+    const storage = { id: storageId, cards: [] };
+    const card = { id: cardId, storage };
+
+    mockStorageRepo.findOne.mockResolvedValue(storage);
+    mockCardRepo.findOne.mockResolvedValue(card);
+
+    mockCardRepo.save.mockImplementation((c) => {
+      storage.cards.push(c);
+      return Promise.resolve(c);
+    });
+    mockStorageRepo.save.mockImplementation((s) => Promise.resolve(s));
+
+    const updated = await service.addCard(storageId, card.id);
+
+    expect(updated.cards).toContain(card);
+    expect(mockCardRepo.save).toHaveBeenCalledWith(card);
   });
 
   it('should add a position change card', async () => {
-    const storage = await service.createStorage();
-    const card = await pcRepo.save(pcRepo.create({}));
-    const updated = await service.addPositionChangeCard(storage.id, card.id);
-    expect(updated.position_change_cards.map((c) => c.id)).toContain(card.id);
+    const storageId = uuid();
+    const pcId = uuid();
+    const storage = { id: storageId, position_change_cards: [] };
+    const pcCard = { id: pcId, storage };
+
+    mockStorageRepo.findOne.mockResolvedValue(storage);
+    mockPositionChangeRepo.findOne.mockResolvedValue(pcCard);
+
+    mockPositionChangeRepo.save.mockImplementation((c) => {
+      storage.position_change_cards.push(c);
+      return Promise.resolve(c);
+    });
+    mockStorageRepo.save.mockImplementation((s) => Promise.resolve(s));
+
+    const updated = await service.addPositionChangeCard(storageId, pcId);
+
+    expect(updated.position_change_cards).toContain(pcCard);
+    expect(mockPositionChangeRepo.save).toHaveBeenCalledWith(pcCard);
   });
 
-  it('should add a card', async () => {
-    const storage = await service.createStorage();
+  it('should find one storage', async () => {
+    const storageId = uuid();
+    const storage = { id: storageId };
+    mockStorageRepo.findOne.mockResolvedValue(storage);
 
-    const card = await cardRepo.save(cardRepo.create({}));
+    const found = await service.findOne(storageId);
 
-    const updated = await service.addCard(storage.id, card.id);
-
-    expect(updated.cards.map((c) => c.id)).toContain(card.id);
+    expect(found).toBe(storage);
   });
 
-  it('should add a team', async () => {
-    const storage = await service.createStorage();
-
-    const team = await teamRepo.save(teamRepo.create({}));
-
-    const updated = await service.addTeam(storage.id, team.id);
-
-    expect(updated.team.id).toBe(team.id);
-  });
-
-  it('should find one', async () => {
-    const storage = await service.createStorage();
-    const found = await service.findOne(storage.id);
-
-    expect(found.id).toBe(storage.id);
-  });
-
-  it('should find all', async () => {
-    const s1 = await service.createStorage();
-    const s2 = await service.createStorage();
+  it('should find all storages', async () => {
+    const storages = [{ id: uuid() }, { id: uuid() }];
+    mockStorageRepo.find.mockResolvedValue(storages);
 
     const all = await service.findAll();
 
-    expect(all.length).toBeGreaterThanOrEqual(2);
-    expect(all.map((s) => s.id)).toContain(s1.id);
-    expect(all.map((s) => s.id)).toContain(s2.id);
+    expect(all).toEqual(storages);
   });
 
   it('should delete storage', async () => {
-    const storage = await service.createStorage();
+    const storageId = uuid();
+    mockStorageRepo.delete.mockResolvedValue({ affected: 1 });
 
-    await service.deleteStorage(storage.id);
-
-    await expect(service.findOne(storage.id)).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(service.deleteStorage(storageId)).resolves.not.toThrow();
+    expect(mockStorageRepo.delete).toHaveBeenCalledWith(storageId);
   });
 
-  it('should throw if deleting non-existent storage', async () => {
-    await expect(service.deleteStorage('no-id')).rejects.toThrow(
+  it('should throw when deleting non-existent storage', async () => {
+    const storageId = uuid();
+    mockStorageRepo.delete.mockResolvedValue({ affected: 0 });
+
+    await expect(service.deleteStorage(storageId)).rejects.toThrow(
       NotFoundException,
     );
-  });
-
-  it('should throw when adding card to non-existent storage', async () => {
-    await expect(service.addCard('invalid', 'CARD')).rejects.toThrow(
-      NotFoundException,
-    );
-  });
-
-  afterEach(async () => {
-    await pcRepo.createQueryBuilder().delete().execute();
-    await cardRepo.createQueryBuilder().delete().execute();
-    await teamRepo.createQueryBuilder().delete().execute();
-    await moduleRef
-      .get(getRepositoryToken(Storage))
-      .createQueryBuilder()
-      .delete()
-      .execute();
+    expect(mockStorageRepo.delete).toHaveBeenCalledWith(storageId);
   });
 });

@@ -4,5 +4,6 @@ import { UserStats } from "./users_stats.entity";
 import { Team } from "./teams.entity"
 import { PositionChangeCard } from "./position_change_cards.entity";
 import { Card } from "./cards.entity"
+import { Player } from "./players.entity"
 
-export {User, Storage, UserStats, Team, PositionChangeCard, Card}
+export {User, Storage, UserStats, Team, PositionChangeCard, Card, Player}
