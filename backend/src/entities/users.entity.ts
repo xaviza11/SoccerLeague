@@ -19,7 +19,7 @@ export class User {
   email: string;
 
   @Column()
-  password: string; // hashed
+  password: string;
 
   @Column({ nullable: false, default: () => "' '" })
   recovery_password: string;

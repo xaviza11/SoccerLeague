@@ -17,7 +17,7 @@ import { AuthGuard } from '../guards/auth.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('users')
+  @Post('')
   create(@Body() body: { name: string; email: string; password: string }) {
     return this.usersService.createUser(body.name, body.email, body.password);
   }

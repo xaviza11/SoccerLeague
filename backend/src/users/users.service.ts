@@ -29,6 +29,14 @@ export class UsersService {
       throw new BadRequestException('Email is already in use');
     }
 
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      throw new BadRequestException(
+        'The password must be 8 characters long, 1 must be a number, 1 must be uppercase and 1 lowercase.',
+      );
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const rawRecovery = Math.random().toString(36).substring(2, 10);
