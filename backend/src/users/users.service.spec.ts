@@ -45,7 +45,7 @@ describe('UsersService (unit)', () => {
   }
 
   it('should create a user', async () => {
-    const password = 'password123';
+    const password = 'password123ASD';
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = createFakeUser('Alice', 'alice@test.com', hashedPassword);
 

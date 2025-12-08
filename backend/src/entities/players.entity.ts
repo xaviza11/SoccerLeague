@@ -4,7 +4,7 @@ import {
   Column,
   OneToOne,
   JoinColumn,
-  ManyToOne
+  ManyToOne,
 } from 'typeorm';
 import { Card, Team } from './';
 import {
@@ -126,4 +126,7 @@ export class Player {
 
   @ManyToOne(() => Team, (team) => team.players, { nullable: false })
   team: Team;
+
+  @Column({ default: true })
+  isBench: boolean;
 }
