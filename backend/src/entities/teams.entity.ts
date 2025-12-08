@@ -6,7 +6,7 @@ export class Team {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToMany(() => Player, (player) => player.team)
+  @OneToMany(() => Player, (player) => player.team, {onDelete: 'CASCADE'})
   players: Player[];
 
   @OneToOne(() => Storage, (storage) => storage.team, { onDelete: 'CASCADE' })
