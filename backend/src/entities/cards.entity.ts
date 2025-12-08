@@ -12,12 +12,12 @@ export class Card {
     enum: Cards,
     default: Cards.NONE
   })
-  name: Cards
+  name: Cards;
 
-  @ManyToOne(() => Storage, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'storageId' })
+  @Column("uuid")
+  storage_id: string;
+
+  @ManyToOne(() => Storage, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "storage_id" })
   storage: Storage;
-
-  @Column('uuid')
-  storageId: string; 
 }

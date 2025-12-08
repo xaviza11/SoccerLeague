@@ -9,8 +9,8 @@ import { v4 as uuid } from 'uuid';
 
 describe('CardsService', () => {
   let service: CardsService;
-  let cardRepo: Repository<Card>;
-  let userRepo: Repository<User>;
+  let cardRepo: jest.Mocked<Repository<Card>>;
+  let userRepo: jest.Mocked<Repository<User>>;
 
   const mockCardRepo = {
     create: jest.fn(),
@@ -24,7 +24,6 @@ describe('CardsService', () => {
     findOne: jest.fn(),
   };
 
-  // Generate valid UUIDs for tests
   const validUserId = uuid();
   const validCardId = uuid();
   const validStorageId = uuid();
@@ -55,7 +54,7 @@ describe('CardsService', () => {
   describe('create', () => {
     it('should create a card for a user with storage', async () => {
       const user = { id: validUserId, storage: { id: validStorageId } };
-      const card = { id: validCardId, name: Cards.NONE, storage: user.storage };
+      const card = { id: validCardId, name: Cards.NONE, storage_id: validStorageId };
 
       mockUserRepo.findOne.mockResolvedValue(user);
       mockCardRepo.create.mockReturnValue(card);
@@ -70,7 +69,7 @@ describe('CardsService', () => {
       });
       expect(mockCardRepo.create).toHaveBeenCalledWith({
         name: expect.any(String),
-        storage: user.storage,
+        storage_id: validStorageId,
       });
     });
 
@@ -79,7 +78,7 @@ describe('CardsService', () => {
       await expect(service.create(validUserId)).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw NotFoundException if user storage is missing', async () => {
+    it('should throw NotFoundException if user storage missing', async () => {
       mockUserRepo.findOne.mockResolvedValue({ id: validUserId, storage: null });
       await expect(service.create(validUserId)).rejects.toThrow(NotFoundException);
     });
@@ -88,13 +87,14 @@ describe('CardsService', () => {
   describe('findOne', () => {
     it('should return a card if it exists', async () => {
       const card = { id: validCardId, storage: { user: { id: validUserId } } };
+
       mockCardRepo.findOne.mockResolvedValue(card);
 
       const result = await service.findOne(validCardId, validUserId);
 
       expect(result).toEqual(card);
       expect(mockCardRepo.findOne).toHaveBeenCalledWith({
-        where: { id: validCardId, storage: { user: { id: validUserId } } },
+        where: { id: validCardId },
         relations: ['storage', 'storage.user'],
       });
     });
@@ -105,8 +105,8 @@ describe('CardsService', () => {
     });
 
     it('should throw BadRequestException for invalid UUIDs', async () => {
-      await expect(service.findOne('invalid-uuid', validUserId)).rejects.toThrow(BadRequestException);
-      await expect(service.findOne(validCardId, 'invalid-uuid')).rejects.toThrow(BadRequestException);
+      await expect(service.findOne('invalid', validUserId)).rejects.toThrow(BadRequestException);
+      await expect(service.findOne(validCardId, 'invalid')).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -114,6 +114,7 @@ describe('CardsService', () => {
     it('should return all cards for a user', async () => {
       const user = { id: validUserId, storage: { id: validStorageId } };
       const cards = [{ id: uuid() }, { id: uuid() }];
+
       mockUserRepo.findOne.mockResolvedValue(user);
       mockCardRepo.find.mockResolvedValue(cards);
 
@@ -121,13 +122,18 @@ describe('CardsService', () => {
 
       expect(result).toEqual(cards);
       expect(mockCardRepo.find).toHaveBeenCalledWith({
-        where: { storage: { id: validStorageId } },
+        where: { storage_id: validStorageId },
         relations: ['storage'],
       });
     });
 
-    it('should throw NotFoundException if user/storage missing', async () => {
+    it('should throw NotFoundException if user not found', async () => {
       mockUserRepo.findOne.mockResolvedValue(null);
+      await expect(service.findAllByUser(validUserId)).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw NotFoundException if storage missing', async () => {
+      mockUserRepo.findOne.mockResolvedValue({ id: validUserId, storage: null });
       await expect(service.findAllByUser(validUserId)).rejects.toThrow(NotFoundException);
     });
   });
@@ -135,6 +141,7 @@ describe('CardsService', () => {
   describe('delete', () => {
     it('should delete a card successfully', async () => {
       const card = { id: validCardId, storage: { user: { id: validUserId } } };
+
       mockCardRepo.findOne.mockResolvedValue(card);
       mockCardRepo.delete.mockResolvedValue({});
 

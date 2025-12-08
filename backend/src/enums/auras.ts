@@ -1,0 +1,21 @@
+export enum Auras {
+  NONE = "None",
+  SHOOTING = "Shooting",
+  PASSING = "Passing",
+  DRIBBLING = "Dribbling",
+  DEFENSE = "Defense",
+  PHYSICAL = "Physical",
+  SPEED = "Speed",
+  STAMINA = "Stamina",
+  VISION = "Vision",
+  CROSSING = "Crossing",
+  FINISHING = "Finishing",
+  AGGRESSION = "Aggression",
+  COMPOSURE = "Composure",
+  CONTROL = "Control",
+  HANDLING = "Handling",
+  REFLEXES = "Reflexes",
+  KICKING = "Kicking",
+  INTUITION = "Intuition",
+}
+export default Auras

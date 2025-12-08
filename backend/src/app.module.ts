@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { CardsController } from './cards/cards.controller';
 import { CardsModule } from './cards/cards.module';
+import { AurasModule } from './auras/auras.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CardsModule } from './cards/cards.module';
       signOptions: { expiresIn: '1h' },
       global: true
     }),
+    AurasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
