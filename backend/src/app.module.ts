@@ -8,6 +8,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PlayerModule } from './player/player.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
+import { CardsController } from './cards/cards.controller';
+import { CardsModule } from './cards/cards.module';
 
 @Module({
   imports: [
@@ -15,6 +17,7 @@ import { ConfigModule } from '@nestjs/config';
     UsersStorageModule,
     UsersGameStatsModule,
     PlayerModule,
+    CardsModule,
     ConfigModule.forRoot({
         isGlobal: true, 
     }),

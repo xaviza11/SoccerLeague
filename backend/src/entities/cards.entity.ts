@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, JoinColumn, ManyToOne, Column } from "typeorm";
 import { Storage } from './'
 import { Cards } from "../enums";
 
@@ -14,6 +14,10 @@ export class Card {
   })
   name: Cards
 
-  @ManyToOne(() => Storage, (storage) => storage.cards, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Storage, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'storageId' })
   storage: Storage;
+
+  @Column('uuid')
+  storageId: string; 
 }
