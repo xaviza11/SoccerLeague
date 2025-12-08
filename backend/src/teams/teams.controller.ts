@@ -41,7 +41,7 @@ export class TeamsController {
     const teamId = req.user.teamId;
 
     if (!teamId) {
-      throw new BadRequestException('El usuario no tiene un team asignado');
+      throw new BadRequestException('User not have one team assigned');
     }
 
     return this.teamsService.findOne(teamId);
@@ -53,7 +53,7 @@ export class TeamsController {
     const teamId = req.user.teamId;
 
     if (!teamId) {
-      throw new BadRequestException('El usuario no tiene un team asignado');
+      throw new BadRequestException('User not have one team assigned');
     }
 
     return this.teamsService.update(teamId, body);
@@ -65,7 +65,7 @@ export class TeamsController {
     const teamId = req.user.teamId;
 
     if (!teamId) {
-      throw new BadRequestException('El usuario no tiene un team asignado');
+      throw new BadRequestException('User not have one team assigned');
     }
 
     return this.teamsService.delete(teamId);
