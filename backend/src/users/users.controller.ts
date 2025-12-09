@@ -33,6 +33,11 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  @Get('')
+  async getAll() {
+    return this.usersService.findAll();
+  }
+
   @Put('users')
   @UseGuards(AuthGuard)
   update(

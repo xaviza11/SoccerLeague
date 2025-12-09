@@ -6,5 +6,7 @@ import { PositionChangeCard } from "./position_change_cards.entity";
 import { Card } from "./cards.entity"
 import { Player } from "./players.entity"
 import { Aura } from "./auras.entity"
+import { Game } from "./games.entity";
+import { GameHistory } from "./played_games.entity";
 
-export {User, Storage, UserStats, Team, PositionChangeCard, Card, Player, Aura}
+export {User, Storage, UserStats, Team, PositionChangeCard, Card, Player, Aura, Game, GameHistory}

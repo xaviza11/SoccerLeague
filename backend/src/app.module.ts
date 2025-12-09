@@ -11,6 +11,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CardsController } from './cards/cards.controller';
 import { CardsModule } from './cards/cards.module';
 import { AurasModule } from './auras/auras.module';
+import { PlayedGamesModule } from './played_games/played_games.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AurasModule } from './auras/auras.module';
       global: true
     }),
     AurasModule,
+    PlayedGamesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

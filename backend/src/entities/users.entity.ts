@@ -34,4 +34,7 @@ export class User {
   })
   @JoinColumn()
   stats: UserStats;
+
+  @Column({default: false})
+  has_game: boolean
 }

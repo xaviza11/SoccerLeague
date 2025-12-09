@@ -72,9 +72,9 @@ export class UsersService {
     return { accessToken, name: user.name };
   }
 
-  /*async findAll(): Promise<User[]> {
+  async findAll(): Promise<User[]> {
     return this.usersRepo.find();
-  }*/
+  }
 
   async findOne(id: string): Promise<User> {
     const user = await this.usersRepo.findOne({ where: { id } });
