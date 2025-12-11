@@ -1,17 +1,20 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
-import { UsersStorageModule } from './users_storage/users_storage.module';
-import { UsersGameStatsModule } from './users_game_stats/users_game_stats.module';
+import { UsersModule } from './modules/users/users.module';
+import { UsersStorageModule } from './modules/users_storage/users_storage.module';
+import { UsersGameStatsModule } from './modules/users_game_stats/users_game_stats.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PlayerModule } from './player/player.module';
+import { PlayerModule } from './modules/player/player.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
-import { CardsController } from './cards/cards.controller';
-import { CardsModule } from './cards/cards.module';
-import { AurasModule } from './auras/auras.module';
-import { PlayedGamesModule } from './played_games/played_games.module';
+import { CardsModule } from './modules/cards/cards.module';
+import { AurasModule } from './modules/auras/auras.module';
+import { PlayedGamesModule } from './modules/played_games/played_games.module';
+import { MarketAurasModule } from './modules/market_auras/market_auras.module';
+import { MarketCardsModule } from './modules/market_cards/market_cards.module';
+import { MarketPlayersModule } from './modules/market_players/market_players.module';
+import { ChangePositionCardsModule } from './modules/market_change_position_cards/change_position_cards.module';
 
 @Module({
   imports: [
@@ -20,8 +23,14 @@ import { PlayedGamesModule } from './played_games/played_games.module';
     UsersGameStatsModule,
     PlayerModule,
     CardsModule,
+    AurasModule,
+    PlayedGamesModule,
+    MarketAurasModule,
+    MarketCardsModule,
+    MarketPlayersModule,
+    ChangePositionCardsModule,
     ConfigModule.forRoot({
-        isGlobal: true, 
+      isGlobal: true,
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -32,10 +41,8 @@ import { PlayedGamesModule } from './played_games/played_games.module';
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'your-secret-key',
       signOptions: { expiresIn: '1h' },
-      global: true
+      global: true,
     }),
-    AurasModule,
-    PlayedGamesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

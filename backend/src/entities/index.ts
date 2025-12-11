@@ -8,5 +8,9 @@ import { Player } from "./players.entity"
 import { Aura } from "./auras.entity"
 import { Game } from "./games.entity";
 import { GameHistory } from "./played_games.entity";
+import { MarketAura } from "./market_auras.entity";
+import { MarketCard } from "./market_cards.entity";
+import { MarketPlayer } from "./market_players.entity";
+import { MarketPositionChangeCard } from "./market_position_change_cards";
 
-export {User, Storage, UserStats, Team, PositionChangeCard, Card, Player, Aura, Game, GameHistory}
+export {User, Storage, UserStats, Team, PositionChangeCard, Card, Player, Aura, Game, GameHistory, MarketAura, MarketCard, MarketPlayer, MarketPositionChangeCard}
