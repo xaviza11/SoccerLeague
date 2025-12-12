@@ -22,7 +22,7 @@ describe('UsersService (unit)', () => {
       update: jest.fn(),
       delete: jest.fn(),
       clear: jest.fn(),
-      searchUsersByName: jest.fn()
+      searchUsersByName: jest.fn(),
     };
 
     mockJwtService = {
@@ -59,8 +59,7 @@ describe('UsersService (unit)', () => {
       'alice@test.com',
       password,
     );
-    expect(result).toEqual(user);
-    expect(await bcrypt.compare(password, result.password)).toBe(true);
+    expect(result).toEqual({email: user.email, id: user.id, name: user.name});
   });
 
   it('should update user with correct currentPassword', async () => {
@@ -82,7 +81,6 @@ describe('UsersService (unit)', () => {
 
     expect(updated.name).toBe('Bob Updated');
     expect(updated.email).toBe('bob2@test.com');
-    expect(await bcrypt.compare('newsecret', updated.password)).toBe(true);
   });
 
   it('should throw if updating with wrong currentPassword', async () => {
@@ -109,7 +107,11 @@ describe('UsersService (unit)', () => {
 
     const result = await service.searchUsersByName('John');
 
-    expect(result).toEqual(users);
+    const expected = users.map(
+      ({ password, recovery_password, ...rest }) => rest,
+    );
+
+    expect(result).toEqual(expected);
     expect(mockUsersRepo.find).toHaveBeenCalledWith({
       where: { name: 'John' },
       take: 20,
@@ -121,7 +123,7 @@ describe('UsersService (unit)', () => {
     mockUsersRepo.findOne.mockResolvedValue(user);
 
     const found = await service.findOne(user.id);
-    expect(found).toEqual(user);
+    expect(found).toEqual({ email: user.email, id: user.id, name: user.name });
   });
 
   it('should throw if user not found', async () => {

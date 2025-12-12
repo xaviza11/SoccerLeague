@@ -6,7 +6,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from '../../entities';
 
 @Injectable()
@@ -14,7 +14,6 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepo: Repository<User>,
-
     private readonly jwtService: JwtService,
   ) {}
 
@@ -22,14 +21,15 @@ export class UsersService {
     name: string,
     email: string,
     password: string,
-  ): Promise<User> {
+  ): Promise<any> {
     const existing = await this.usersRepo.findOne({ where: { email } });
 
     if (existing) {
       throw new BadRequestException('Email is already in use');
     }
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
     if (!passwordRegex.test(password)) {
       throw new BadRequestException(
@@ -49,7 +49,10 @@ export class UsersService {
       recovery_password: hashedRecovery,
     });
 
-    return this.usersRepo.save(newUser);
+    const saved = await this.usersRepo.save(newUser);
+
+    const { password: p, recovery_password, ...safeUser } = saved;
+    return safeUser;
   }
 
   async login(
@@ -57,14 +60,10 @@ export class UsersService {
     password: string,
   ): Promise<{ accessToken: string; name: string }> {
     const user = await this.usersRepo.findOne({ where: { email } });
-    if (!user) {
-      throw new BadRequestException('Invalid credentials');
-    }
+    if (!user) throw new BadRequestException('Invalid credentials');
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      throw new BadRequestException('Invalid credentials');
-    }
+    if (!isMatch) throw new BadRequestException('Invalid credentials');
 
     const payload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload);
@@ -72,23 +71,35 @@ export class UsersService {
     return { accessToken, name: user.name };
   }
 
-  async findAll(): Promise<User[]> {
-    return this.usersRepo.find();
-  }
+  async findAll(): Promise<any[]> {
+    const users = await this.usersRepo.find();
 
-  async searchUsersByName(name: string): Promise<User[]> {
-    return this.usersRepo.find({
-      where: { name },
-      take: 20,
+    return users.map((u) => {
+      const { password, recovery_password, ...safeUser } = u;
+      return safeUser;
     });
   }
 
-  async findOne(id: string): Promise<User> {
+  async searchUsersByName(name: string): Promise<any[]> {
+    const users = await this.usersRepo.find({
+      where: { name },
+      take: 20,
+    });
+
+    return users.map((u) => {
+      const { password, recovery_password, ...safeUser } = u;
+      return safeUser;
+    });
+  }
+
+  async findOne(id: string): Promise<any> {
     const user = await this.usersRepo.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
-    return user;
+
+    const { password, recovery_password, ...safeUser } = user;
+    return safeUser;
   }
 
   async updateUser(
@@ -99,8 +110,11 @@ export class UsersService {
       password?: string;
       currentPassword: string;
     },
-  ): Promise<User> {
-    const user = await this.findOne(id);
+  ): Promise<any> {
+    const user = await this.usersRepo.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
 
     const isMatch = await bcrypt.compare(
       updates.currentPassword,
@@ -126,11 +140,18 @@ export class UsersService {
       user.password = await bcrypt.hash(updates.password, 10);
     }
 
-    return this.usersRepo.save(user);
+    const updated = await this.usersRepo.save(user);
+
+    const { password, recovery_password, ...safeUser } = updated;
+    return safeUser;
   }
 
   async deleteUser(id: string, currentPassword?: string): Promise<void> {
-    const user = await this.findOne(id);
+    const user = await this.usersRepo.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
 
     if (!currentPassword) {
       throw new BadRequestException('Current password is required');

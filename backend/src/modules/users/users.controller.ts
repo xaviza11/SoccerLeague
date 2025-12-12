@@ -46,7 +46,7 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Put('users')
+  @Put('')
   @UseGuards(AuthGuard)
   update(
     @Req() req,
@@ -64,7 +64,7 @@ export class UsersController {
     return this.usersService.updateUser(req.user.sub, body);
   }
 
-  @Delete('users')
+  @Delete('')
   @UseGuards(AuthGuard)
   delete(@Req() req, @Body() body: { currentPassword: string }) {
     if (!body.currentPassword) {
