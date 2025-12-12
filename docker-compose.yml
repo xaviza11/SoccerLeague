@@ -1,5 +1,17 @@
 
 services:
+
+  bff:
+    build: ./bff
+    container_name: backend_for_frontend
+    ports:
+      - "4002:4002"
+    depends_on:
+      - backend
+    env_file:
+      - .env
+    command: ["npm", "start"]
+
   backend:
     build: ./backend
     container_name: nest_app
@@ -17,7 +29,7 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      - bff
     env_file:
       - .env
     command: ["npm", "run", "dev"]
@@ -41,3 +53,7 @@ services:
 
 volumes:
   db_data:
+
+## The idea is to create one private network, where just the bff could request to the CRUD api.
+## This approach should have some problems because can be insecure. Needs to create a register of the user requests.
+## For the moment perhaps it's better just close the requests from outside of the container 

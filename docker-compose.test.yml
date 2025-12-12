@@ -1,4 +1,14 @@
 services:
+  bff:
+    build: ./bff
+    container_name: backend_for_frontend
+    ports:
+      - "4002:4002"
+    depends_on:
+      - backend
+    env_file:
+      - .env.test
+    command: ["npm", "start"]
   backend:
     build: ./backend
     container_name: nest_app_test
