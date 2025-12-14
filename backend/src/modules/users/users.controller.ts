@@ -36,7 +36,7 @@ export class UsersController {
   @Get('search/name/:name')
   async searchByName(@Param('name') name: string) {
     if (!name || name.trim() === '') {
-      throw new BadRequestException('Name cannot be empty');
+      throw new BadRequestException('Name cannot be empty - CRUD');
     }
     return this.usersService.searchUsersByName(name);
   }
@@ -59,7 +59,7 @@ export class UsersController {
     },
   ) {
     if (!body.currentPassword) {
-      throw new BadRequestException('Current password is required');
+      throw new BadRequestException('Current password is required - CRUD');
     }
     return this.usersService.updateUser(req.user.sub, body);
   }
@@ -68,7 +68,7 @@ export class UsersController {
   @UseGuards(AuthGuard)
   delete(@Req() req, @Body() body: { currentPassword: string }) {
     if (!body.currentPassword) {
-      throw new BadRequestException('Current password is required');
+      throw new BadRequestException('Current password is required - CRUD');
     }
     return this.usersService.deleteUser(req.user.sub);
   }

@@ -10,7 +10,7 @@ const fastify = Fastify({
 fastify.register(userRoutes, {prefix: 'api'})
 
 try {
-  await fastify.listen({ port: configService.PORT})
+  await fastify.listen({ port: parseInt(configService.BFF_PORT), host: '0.0.0.0'})
 } catch (err) {
   fastify.log.error(err)
   process.exit(1)

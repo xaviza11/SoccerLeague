@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../entities';
+import { validatePassword, validateEmail } from '../../validators';
 
 @Injectable()
 export class UsersService {
@@ -22,19 +23,24 @@ export class UsersService {
     email: string,
     password: string,
   ): Promise<any> {
-    const existing = await this.usersRepo.findOne({ where: { email } });
+    if (name.length === 0)
+      throw new BadRequestException(
+        'Name must have almost one character  - CRUD',
+      );
 
-    if (existing) {
-      throw new BadRequestException('Email is already in use');
+    if (!validateEmail(email)) {
+      throw new BadRequestException('Invalid email format - CRUD');
     }
 
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-
-    if (!passwordRegex.test(password)) {
+    if (!validatePassword(password)) {
       throw new BadRequestException(
-        'The password must be 8 characters long, 1 must be a number, 1 must be uppercase and 1 lowercase.',
+        'The password must be at least 8 characters long, include uppercase, lowercase and a number. - CRUD',
       );
+    }
+
+    const existing = await this.usersRepo.findOne({ where: { email } });
+    if (existing) {
+      throw new BadRequestException('Email is already in use - CRUD');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -59,11 +65,21 @@ export class UsersService {
     email: string,
     password: string,
   ): Promise<{ accessToken: string; name: string }> {
+    if (!validateEmail(email)) {
+      throw new BadRequestException('Invalid email format - CRUD');
+    }
+
+    if (!validatePassword(password)) {
+      throw new BadRequestException(
+        'The password must be at least 8 characters long, include uppercase, lowercase and a number. - CRUD',
+      );
+    }
+
     const user = await this.usersRepo.findOne({ where: { email } });
-    if (!user) throw new BadRequestException('Invalid credentials');
+    if (!user) throw new BadRequestException('Invalid credentials - CRUD');
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new BadRequestException('Invalid credentials');
+    if (!isMatch) throw new BadRequestException('Invalid credentials - CRUD');
 
     const payload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload);
@@ -81,6 +97,11 @@ export class UsersService {
   }
 
   async searchUsersByName(name: string): Promise<any[]> {
+    if (name.length === 0)
+      throw new BadRequestException(
+        'Name must have almost one character  - CRUD',
+      );
+
     const users = await this.usersRepo.find({
       where: { name },
       take: 20,
@@ -95,7 +116,7 @@ export class UsersService {
   async findOne(id: string): Promise<any> {
     const user = await this.usersRepo.findOne({ where: { id } });
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException(`User with id ${id} not found - CRUD`);
     }
 
     const { password, recovery_password, ...safeUser } = user;
@@ -111,9 +132,30 @@ export class UsersService {
       currentPassword: string;
     },
   ): Promise<any> {
+    if (updates.name) {
+      if (updates.name.length === 0)
+        throw new BadRequestException(
+          'Name must have almost one character  - CRUD',
+        );
+    }
+
+    if (updates.email) {
+      if (!validateEmail(updates.email)) {
+        throw new BadRequestException('Invalid email format - CRUD');
+      }
+    }
+
+    if (updates.password) {
+      if (!validatePassword(updates.password)) {
+        throw new BadRequestException(
+          'The password must be at least 8 characters long, include uppercase, lowercase and a number. - CRUD',
+        );
+      }
+    }
+
     const user = await this.usersRepo.findOne({ where: { id } });
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException(`User with id ${id} not found - CRUD`);
     }
 
     const isMatch = await bcrypt.compare(
@@ -121,7 +163,7 @@ export class UsersService {
       user.password,
     );
     if (!isMatch) {
-      throw new BadRequestException('Current password is incorrect');
+      throw new BadRequestException('Current password is incorrect - CRUD');
     }
 
     if (updates.email) {
@@ -129,7 +171,7 @@ export class UsersService {
         where: { email: updates.email },
       });
       if (exists && exists.id !== id) {
-        throw new BadRequestException('Email already in use');
+        throw new BadRequestException('Email already in use - CRUD');
       }
       user.email = updates.email;
     }
@@ -147,24 +189,32 @@ export class UsersService {
   }
 
   async deleteUser(id: string, currentPassword?: string): Promise<void> {
+    if (currentPassword) {
+      if (!validatePassword(currentPassword)) {
+        throw new BadRequestException(
+          'The password must be at least 8 characters long, include uppercase, lowercase and a number. - CRUD',
+        );
+      }
+    }
+
     const user = await this.usersRepo.findOne({ where: { id } });
 
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException(`User with id ${id} not found - CRUD`);
     }
 
     if (!currentPassword) {
-      throw new BadRequestException('Current password is required');
+      throw new BadRequestException('Current password is required - CRUD');
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
-      throw new BadRequestException('Current password is incorrect');
+      throw new BadRequestException('Current password is incorrect - CRUD');
     }
 
     const result = await this.usersRepo.delete(id);
     if (result.affected === 0) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException(`User with id ${id} not found - CRUD`);
     }
   }
 }

@@ -1,5 +1,9 @@
 import axios from "axios";
-import { isUUID } from "../validators/index.js";
+import {
+  isUUID,
+  validateEmail,
+  validatePassword,
+} from "../validators/index.js";
 import { configService, handleError } from "../helpers/index.js";
 import type {
   UserRegistrationPayload,
@@ -18,6 +22,10 @@ import type {
   UserUpdateResponse,
   UserFindAllResponse,
 } from "../dto/responses/user/index.js";
+import {
+  AuthError,
+  ValidationError,
+} from "../errors/index.js";
 
 export class UserClient {
   private registrationEndpoint = "/users";
@@ -36,56 +44,68 @@ export class UserClient {
 
   public async create(
     payload: UserRegistrationPayload
-  ): Promise<UserRegistrationResponse | undefined> {
+  ): Promise<UserRegistrationResponse> {
     try {
+
+      if(payload.name.length === 0) throw new ValidationError("Name must have almost one character - BFF")
+
+      if (!validateEmail(payload.email)) {
+        throw new ValidationError("Invalid email format - BFF");
+      }
+
+      if (!validatePassword(payload.password)) {
+        throw new ValidationError(
+          "Password must be at least 8 characters long and include uppercase, lowercase and a number - BFF"
+        );
+      }
+
       const url = `${this.CRUD_API}${this.registrationEndpoint}`;
       const response = await axios.post<UserRegistrationResponse>(url, payload);
       return response.data;
     } catch (error) {
-      handleError(error)
-      if(!error) throw new Error('handler contains error')
+      handleError(error);
     }
   }
 
   public async login(payload: UserLoginPayload): Promise<UserLoginResponse> {
     try {
+      if (!validateEmail(payload.email)) {
+        throw new ValidationError("Invalid email format - BFF");
+      }
+
+      if (!validatePassword(payload.password)) {
+        throw new AuthError("Invalid credentials - BFF");
+      }
+
       const url = `${this.CRUD_API}${this.loginEndpoint}`;
       const response = await axios.post<UserLoginResponse>(url, payload);
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) throw error;
-      if (error instanceof Error) throw error;
-      throw new Error("Unexpected Error in CURD API - Login");
+      handleError(error);
     }
   }
 
-  public async update(payload: UserUpdatePayload): Promise<UserUpdatePayload> {
+  public async update(payload: UserUpdatePayload): Promise<UserUpdateResponse> {
     try {
       const url = `${this.CRUD_API}${this.updateEndpoint}`;
       const response = await axios.put<UserUpdateResponse>(url, payload);
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) throw error;
-      if (error instanceof Error) throw error;
-      throw new Error("Unexpected Error in CRUD API - Update");
+      handleError(error);
     }
   }
 
-  public async findOne(
-    payload: UserFindOnePayload
-  ): Promise<UserFindOneResponse> {
+  public async findOne(payload: UserFindOnePayload): Promise<UserFindOneResponse> {
     try {
       if (!isUUID(payload.id)) {
-        throw new Error("Invalid ID format. Expected UUID");
+        throw new ValidationError("Invalid ID format. Expected UUID - BFF");
       }
 
       const url = `${this.CRUD_API}${this.findOneEndpoint}${payload.id}`;
       const response = await axios.get<UserFindOneResponse>(url);
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) throw error;
-      if (error instanceof Error) throw error;
-      throw new Error("Unexpected Error in CRUD API - FindOne");
+      handleError(error);
     }
   }
 
@@ -95,9 +115,7 @@ export class UserClient {
       const response = await axios.get<UserFindAllResponse>(url);
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) throw error;
-      if (error instanceof Error) throw error;
-      throw new Error("Unexpected Error in CRUD API - FindAll");
+      handleError(error);
     }
   }
 
@@ -109,9 +127,7 @@ export class UserClient {
       const response = await axios.get<UserFindByNameResponse>(url);
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) throw error;
-      if (error instanceof Error) throw error;
-      throw new Error("Unexpected Error in CRUD API - FindByName");
+      handleError(error);
     }
   }
 
@@ -123,9 +139,7 @@ export class UserClient {
       const response = await axios.delete<UserDeleteOneResponse>(url, payload);
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) throw error;
-      if (error instanceof Error) throw error;
-      throw new Error("Unexpected Error in CRUD API - DeleteOne");
+      handleError(error);
     }
   }
 }

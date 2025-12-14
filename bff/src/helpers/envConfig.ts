@@ -5,14 +5,14 @@ export class ConfigService {
   public readonly BFF_API: string;
   public readonly SIMULATOR_API: string;
   public readonly CLIENT_URL: string;
-  public readonly PORT: number;
+  public readonly BFF_PORT: string;
 
   constructor() {
     this.CRUD_API = this.getEnvVar('CRUD_API');
     this.BFF_API = this.getEnvVar('BFF_API');
     this.SIMULATOR_API = this.getEnvVar('SIMULATOR_API');
     this.CLIENT_URL = this.getEnvVar('CLIENT_URL');
-    this.PORT = Number(this.getEnvVar('PORT'));
+    this.BFF_PORT = this.getEnvVar('BFF_PORT')
   }
 
   private getEnvVar(key: string): string {

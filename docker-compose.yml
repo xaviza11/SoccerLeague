@@ -10,7 +10,7 @@ services:
       - backend
     env_file:
       - .env
-    command: ["npm", "start"]
+    command: ["npm", "run", "up"]
 
   backend:
     build: ./backend
@@ -19,9 +19,10 @@ services:
       - "4000:4000"
     depends_on:
       - db
+      - simulator
     env_file:
       - .env
-    command: ["npm", "run", "start:dev"]
+    command: ["npm", "start"]
 
   frontend:
     build: ./frontend
@@ -39,7 +40,6 @@ services:
     container_name: rust_simulator
     ports:
       - "4001:4001"
-    command: ["cargo", "run"]
   db:
     image: postgres:15
     container_name: postgres_db
