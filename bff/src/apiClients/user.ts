@@ -26,6 +26,7 @@ import {
   AuthError,
   ValidationError,
 } from "../errors/index.js";
+import type { NormalizedError } from "../dto/errors/index.js";
 
 export class UserClient {
   private registrationEndpoint = "/users";
@@ -44,58 +45,37 @@ export class UserClient {
 
   public async create(
     payload: UserRegistrationPayload
-  ): Promise<UserRegistrationResponse> {
+  ): Promise<UserRegistrationResponse | NormalizedError> {
     try {
-
-      if(payload.name.length === 0) throw new ValidationError("Name must have almost one character - BFF")
-
-      if (!validateEmail(payload.email)) {
-        throw new ValidationError("Invalid email format - BFF");
-      }
-
-      if (!validatePassword(payload.password)) {
-        throw new ValidationError(
-          "Password must be at least 8 characters long and include uppercase, lowercase and a number - BFF"
-        );
-      }
-
       const url = `${this.CRUD_API}${this.registrationEndpoint}`;
       const response = await axios.post<UserRegistrationResponse>(url, payload);
       return response.data;
     } catch (error) {
-      handleError(error);
+      return handleError(error);
     }
   }
 
-  public async login(payload: UserLoginPayload): Promise<UserLoginResponse> {
+  public async login(payload: UserLoginPayload): Promise<UserLoginResponse | NormalizedError> {
     try {
-      if (!validateEmail(payload.email)) {
-        throw new ValidationError("Invalid email format - BFF");
-      }
-
-      if (!validatePassword(payload.password)) {
-        throw new AuthError("Invalid credentials - BFF");
-      }
-
       const url = `${this.CRUD_API}${this.loginEndpoint}`;
       const response = await axios.post<UserLoginResponse>(url, payload);
       return response.data;
     } catch (error) {
-      handleError(error);
+      return handleError(error);
     }
   }
 
-  public async update(payload: UserUpdatePayload): Promise<UserUpdateResponse> {
+  public async update(payload: UserUpdatePayload): Promise<UserUpdateResponse | NormalizedError> {
     try {
       const url = `${this.CRUD_API}${this.updateEndpoint}`;
       const response = await axios.put<UserUpdateResponse>(url, payload);
       return response.data;
     } catch (error) {
-      handleError(error);
+      return handleError(error);
     }
   }
 
-  public async findOne(payload: UserFindOnePayload): Promise<UserFindOneResponse> {
+  public async findOne(payload: UserFindOnePayload): Promise<UserFindOneResponse | NormalizedError> {
     try {
       if (!isUUID(payload.id)) {
         throw new ValidationError("Invalid ID format. Expected UUID - BFF");
@@ -105,41 +85,41 @@ export class UserClient {
       const response = await axios.get<UserFindOneResponse>(url);
       return response.data;
     } catch (error) {
-      handleError(error);
+      return handleError(error);
     }
   }
 
-  public async findAll(): Promise<UserFindAllResponse> {
+  public async findAll(): Promise<UserFindAllResponse | NormalizedError> {
     try {
       const url = `${this.CRUD_API}${this.findAllEndpoint}`;
       const response = await axios.get<UserFindAllResponse>(url);
       return response.data;
     } catch (error) {
-      handleError(error);
+      return handleError(error);
     }
   }
 
   public async findByName(
     payload: UserFindByNamePayload
-  ): Promise<UserFindByNameResponse> {
+  ): Promise<UserFindByNameResponse | NormalizedError> {
     try {
       const url = `${this.CRUD_API}${this.findByNameEndpoint}${payload.name}`;
       const response = await axios.get<UserFindByNameResponse>(url);
       return response.data;
     } catch (error) {
-      handleError(error);
+      return handleError(error);
     }
   }
 
   public async deleteOne(
     payload: UserDeleteOnePayload
-  ): Promise<UserDeleteOneResponse> {
+  ): Promise<UserDeleteOneResponse | NormalizedError> {
     try {
-      const url = `${this.CRUD_API}${this.userDeleteEndpoint}`;
-      const response = await axios.delete<UserDeleteOneResponse>(url, payload);
+      const url = `${this.CRUD_API}${this.userDeleteEndpoint}${payload.id}`;
+      const response = await axios.delete<UserDeleteOneResponse>(url);
       return response.data;
     } catch (error) {
-      handleError(error);
+      return handleError(error);
     }
   }
 }

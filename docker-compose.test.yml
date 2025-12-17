@@ -42,13 +42,10 @@ services:
   db:
     image: postgres:15
     container_name: postgres_db
-    restart: always
+    tmpfs:
+    - /var/lib/postgresql/data
     env_file:
-      - .env
+    - .env
     ports:
-      - "5432:5432"
-    volumes:
-      - db_data_test:/var/lib/postgresql/data
+    - "5432:5432"
 
-volumes:
-  db_data_test: {}

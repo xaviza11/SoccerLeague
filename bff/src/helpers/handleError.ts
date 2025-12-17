@@ -1,25 +1,39 @@
 import axios from "axios";
 
-export function handleError(error: any): never {
+import type { NormalizedError } from "../dto/errors/index.js";
+
+export function handleError(error: unknown): NormalizedError {
   if (axios.isAxiosError(error)) {
     if (error.response) {
-      const { message, error: errMsg, statusCode } = error.response.data;
+      const data = error.response.data as any;
 
-      const err: any = new Error(
-        Array.isArray(message) ? message.join(", ") : message
-      );
-
-      err.statusCode = statusCode ?? error.response.status;
-      err.error = errMsg ?? "Error";
-
-      throw err;
+      return {
+        statusCode: data?.statusCode ?? error.response.status,
+        error: data?.error ?? "Error",
+        message: Array.isArray(data?.message)
+          ? data.message.join(", ")
+          : data?.message ?? "Request failed",
+      };
     }
 
-    const err: any = new Error("Service unavailable");
-    err.statusCode = 503;
-    err.error = "Service Unavailable";
-    throw err;
+    return {
+      statusCode: 503,
+      error: "Service Unavailable",
+      message: "Service unavailable",
+    };
   }
 
-  throw error instanceof Error ? error : new Error("Unexpected error");
+  if (error instanceof Error) {
+    return {
+      statusCode: 500,
+      error: "Internal Server Error",
+      message: error.message,
+    };
+  }
+
+  return {
+    statusCode: 500,
+    error: "Unexpected Error",
+    message: "An unexpected error occurred",
+  };
 }

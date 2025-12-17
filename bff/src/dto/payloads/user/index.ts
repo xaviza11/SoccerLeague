@@ -9,7 +9,13 @@ interface UserLoginPayload {
     password: string;
 }
 
-interface UserUpdatePayload {}
+interface UserUpdatePayload {
+  id: string,
+  name?: string;
+  email?: string;
+  password?: string;
+  currentPassword: string;
+}
 
 interface UserFindOnePayload {
     id: string;
@@ -19,7 +25,10 @@ interface UserFindByNamePayload {
     name: string;
 }
 
-interface UserDeleteOnePayload {}
+interface UserDeleteOnePayload {
+    id: string;
+    currentPassword: string
+}
 
 export type {
     UserRegistrationPayload,

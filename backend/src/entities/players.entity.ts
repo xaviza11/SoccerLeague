@@ -35,10 +35,6 @@ class Skills {
 }
 
 class Instructions {
-  @Column({ default: 0 }) penalty_kicker: number;
-  @Column({ default: 0 }) corner_kicker: number;
-  @Column({ default: 0 }) free_kick_kicker: number;
-
   @Column('enum', { enum: OffensiveInstructions, array: true, default: [] })
   offensive: OffensiveInstructions[];
 

@@ -43,6 +43,11 @@ export class UsersService {
       throw new BadRequestException('Email is already in use - CRUD');
     }
 
+    const existingName = await this.usersRepo.findOne({ where: { name } });
+    if (existingName) {
+      throw new BadRequestException('Name is already in use - CRUD');
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const rawRecovery = Math.random().toString(36).substring(2, 10);
