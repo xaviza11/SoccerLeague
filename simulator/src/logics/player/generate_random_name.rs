@@ -3,6 +3,7 @@ use serde::Deserialize;
 use std::fs;
 use rand::prelude::IndexedRandom;
 use crate::models::player::countries::Country;
+use crate::logics::player::names::{at, be, ch, cr, cz, de, dk, en, es, fi, fr, hu, it, nl, no, pl, pt, ro, se, si, sk, sr};
 
 #[derive(Deserialize)]
 struct NamesData {
@@ -10,59 +11,88 @@ struct NamesData {
     last: Vec<String>,
 }
 
-struct CountryData {
-    name: &'static str,
-    file: &'static str,
+pub struct CountryData {
+    pub name: &'static str,
+    pub first_names: &'static [&'static str],
+    pub last_names: &'static [&'static str],
 }
 
-const COUNTRIES: &[CountryData] = &[
-    // Spanish speaking countries
-    CountryData { name: "Spain", file: "es.json" },
-    CountryData { name: "Mexico", file: "es.json" },
-    CountryData { name: "Argentina", file: "es.json" },
-    CountryData { name: "Colombia", file: "es.json" },
-    CountryData { name: "Peru", file: "es.json" },
-    CountryData { name: "Venezuela", file: "es.json" },
-    CountryData { name: "Chile", file: "es.json" },
-    CountryData { name: "Ecuador", file: "es.json" },
-    CountryData { name: "Guatemala", file: "es.json" },
-    CountryData { name: "Cuba", file: "es.json" },
-    CountryData { name: "Bolivia", file: "es.json" },
-    CountryData { name: "Dominican Republic", file: "es.json" },
-    CountryData { name: "Honduras", file: "es.json" },
-    CountryData { name: "Paraguay", file: "es.json" },
-    CountryData { name: "El Salvador", file: "es.json" },
-    CountryData { name: "Nicaragua", file: "es.json" },
-    CountryData { name: "Costa Rica", file: "es.json" },
-    CountryData { name: "Uruguay", file: "es.json" },
-    CountryData { name: "Panama", file: "es.json" },
-    CountryData { name: "Puerto Rico", file: "es.json" },
+pub const COUNTRIES: &[CountryData] = &[
+    // Spanish speaking
+    CountryData { name: "Spain", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Mexico", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Argentina", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Colombia", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Peru", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Venezuela", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Chile", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Ecuador", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Guatemala", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Cuba", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Bolivia", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Dominican Republic", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Honduras", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Paraguay", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "El Salvador", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Nicaragua", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Costa Rica", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Uruguay", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Panama", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
+    CountryData { name: "Puerto Rico", first_names: &es::FIRST_NAMES, last_names: &es::LAST_NAMES },
 
-    // Portuguese speaking countries
-    CountryData { name: "Brazil", file: "pt.json" },//?
-    CountryData { name: "Portugal", file: "pt.json" },//?
+    // Portuguese
+    CountryData { name: "Brazil", first_names: &pt::FIRST_NAMES, last_names: &pt::LAST_NAMES },
+    CountryData { name: "Portugal", first_names: &pt::FIRST_NAMES, last_names: &pt::LAST_NAMES },
 
-    // Other countries
-    CountryData { name: "Croatia", file: "cr.json" },//?
-    CountryData { name: "French", file: "fr.json" },//?
-    CountryData { name: "Germany", file: "de.json" },//?
-    CountryData { name: "Denmark", file: "dk.json" },//?
-    CountryData { name: "Sweden", file: "se.json" },//?
-    CountryData { name: "Norway", file: "no.json" },//?
-    CountryData { name: "Finland", file: "fi.json" },//?
-    CountryData { name: "Netherlands", file: "nl.json" },//?
-    CountryData { name: "England", file: "en.json" },//?
-    CountryData { name: "Romania", file: "ro.json" },//?
-    CountryData { name: "Hungary", file: "hu.json" },//?
-    CountryData { name: "Italy", file: "it.json" },//?
-    CountryData { name: "Belgium", file: "be.json" }, //?
-    CountryData { name: "Switzerland", file: "ch.json" },//?
-    CountryData { name: "Austria", file: "at.json" }, //?
-    CountryData { name: "Poland", file: "pl.json" },//?
-    CountryData { name: "Czech Republic", file: "cz.json" },//?
-    CountryData { name: "Slovakia", file: "sk.json" },//?
-    CountryData { name: "Slovenia", file: "si.json" },//?
-    CountryData { name: "Serbia", file: "sr.json" },//?
+    // German-speaking
+    CountryData { name: "Germany", first_names: &de::FIRST_NAMES, last_names: &de::LAST_NAMES },
+    CountryData { name: "Austria", first_names: &at::FIRST_NAMES, last_names: &at::LAST_NAMES },
+    CountryData { name: "Switzerland", first_names: &ch::FIRST_NAMES, last_names: &ch::LAST_NAMES },
+
+    // French-speaking
+    CountryData { name: "France", first_names: &fr::FIRST_NAMES, last_names: &fr::LAST_NAMES },
+
+    // English-speaking
+    CountryData { name: "England", first_names: &en::FIRST_NAMES, last_names: &en::LAST_NAMES },
+
+    // Nordic countries
+    CountryData { name: "Denmark", first_names: &dk::FIRST_NAMES, last_names: &dk::LAST_NAMES },
+    CountryData { name: "Sweden", first_names: &se::FIRST_NAMES, last_names: &se::LAST_NAMES },
+    CountryData { name: "Norway", first_names: &no::FIRST_NAMES, last_names: &no::LAST_NAMES },
+    CountryData { name: "Finland", first_names: &fi::FIRST_NAMES, last_names: &fi::LAST_NAMES },
+
+    // Italy
+    CountryData { name: "Italy", first_names: &it::FIRST_NAMES, last_names: &it::LAST_NAMES },
+
+    // Belgium
+    CountryData { name: "Belgium", first_names: &be::FIRST_NAMES, last_names: &be::LAST_NAMES },
+
+    // Netherlands
+    CountryData { name: "Netherlands", first_names: &nl::FIRST_NAMES, last_names: &nl::LAST_NAMES },
+
+    // Poland
+    CountryData { name: "Poland", first_names: &pl::FIRST_NAMES, last_names: &pl::LAST_NAMES },
+
+    // Czech Republic
+    CountryData { name: "Czech Republic", first_names: &cz::FIRST_NAMES, last_names: &cz::LAST_NAMES },
+
+    // Slovakia
+    CountryData { name: "Slovakia", first_names: &sk::FIRST_NAMES, last_names: &sk::LAST_NAMES },
+
+    // Slovenia
+    CountryData { name: "Slovenia", first_names: &si::FIRST_NAMES, last_names: &si::LAST_NAMES },
+
+    // Serbia
+    CountryData { name: "Serbia", first_names: &sr::FIRST_NAMES, last_names: &sr::LAST_NAMES },
+
+    // Romania
+    CountryData { name: "Romania", first_names: &ro::FIRST_NAMES, last_names: &ro::LAST_NAMES },
+
+    // Croatia
+    CountryData { name: "Croatia", first_names: &cr::FIRST_NAMES, last_names: &cr::LAST_NAMES },
+
+    // Hungary
+    CountryData { name: "Hungary", first_names: &hu::FIRST_NAMES, last_names: &hu::LAST_NAMES },
 ];
 
 fn get_json_path(file: &str) -> String {
@@ -70,14 +100,16 @@ fn get_json_path(file: &str) -> String {
 }
 
 fn load_names(file: &str) -> NamesData {
-    let path = get_json_path(file);
-    let data = fs::read_to_string(&path).expect(&format!("Failed to read JSON file at {}", path));
-    serde_json::from_str(&data).expect("Invalid JSON format")
+    let path = get_json_path(file); // la ruta
+    let json_str = std::fs::read_to_string(&path)
+        .expect(&format!("Failed to read JSON file at {}", path));
+    serde_json::from_str(&json_str).expect("Invalid JSON format")
 }
+
 
 fn country_to_str(country: &Country) -> &'static str {
     match country {
-      Country::Spain => "Spain",
+        Country::Spain => "Spain",
         Country::Mexico => "Mexico",
         Country::Argentina => "Argentina",
         Country::Colombia => "Colombia",
@@ -123,36 +155,27 @@ fn country_to_str(country: &Country) -> &'static str {
     }
 }
 
-fn generate_single_name(country_name: &Country) -> String {
-    let country_str = country_to_str(country_name);
+fn generate_single_name(country: &Country) -> String {
+    let country_str = country_to_str(country);
 
-    let country = COUNTRIES
-        .iter()
+    let country_data = COUNTRIES.iter()
         .find(|c| c.name.eq_ignore_ascii_case(country_str))
-        .unwrap_or_else(|| panic!("Country '{:?}' not found in list", country_name));
+        .unwrap_or_else(|| panic!("Country '{:?}' not found", country));
 
-    let names = load_names(country.file);
-    let mut rng = rand::rng();
+    let mut rng = rand::thread_rng();
+    let first = country_data.first_names.choose(&mut rng).unwrap_or(&"Zorblax");
+    let last = country_data.last_names.choose(&mut rng).unwrap_or(&"Prime");
 
-    // Fallback alien name in case of empty name parts
-    let alien_name = "Zorblax Prime".to_string();
-
-    let first = names.first.choose(&mut rng);
-    let last = names.last.choose(&mut rng);
-
-    match (first, last) {
-        (Some(f), Some(l)) if !f.is_empty() && !l.is_empty() => format!("{} {}", f, l),
-        _ => alien_name,
-    }
+    format!("{} {}", first, last)
 }
 
-pub fn generate_random_name(country_name: &Country) -> String {
-    let normal = generate_single_name(country_name);
-    let mixed1 = generate_single_name(country_name);
-    let mixed2 = generate_single_name(country_name);
+pub fn generate_random_name(country: &Country) -> String {
+    let normal = generate_single_name(country);
+    let mixed1 = generate_single_name(country);
+    let mixed2 = generate_single_name(country);
 
-    let mut rng = rand::rng();
-    let roll: u8 = rng.random_range(0..100);
+    let mut rng = rand::thread_rng();
+    let roll: u8 = rng.gen_range(0..100);
 
     match roll {
         0..=95 => normal,

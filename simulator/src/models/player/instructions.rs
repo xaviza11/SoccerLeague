@@ -22,9 +22,6 @@ pub enum DefensiveInstruction {
 pub struct Instructions {
     pub offensive: Vec<OffensiveInstruction>,
     pub defensive: Vec<DefensiveInstruction>,
-    pub penalty_kicker: u8,
-    pub corner_kicker: u8,
-    pub free_kick_kicker: u8
 }
 
 impl Instructions {
@@ -32,9 +29,6 @@ impl Instructions {
         Self {
             offensive: vec![],
             defensive: vec![],
-            penalty_kicker: 7,
-            corner_kicker: 7,
-            free_kick_kicker: 7
         }
     }
 }

@@ -1,0 +1,12 @@
+pub mod attacking_midfield;
+pub mod defender;
+pub mod defensive_midfield;
+pub mod goalkeeper;
+pub mod left_back;
+pub mod left_midfield;
+pub mod left_wing;
+pub mod midfielder;
+pub mod right_midfield;
+pub mod right_back;
+pub mod right_wing;
+pub mod striker;

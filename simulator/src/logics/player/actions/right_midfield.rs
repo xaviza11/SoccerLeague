@@ -1,0 +1,8 @@
+pub const ACTIONS: &[(&str, u8)] = &[
+    ("shoot", 15),
+    ("pass", 35),
+    ("dribble", 20),
+    ("advance", 0),
+    ("long_pass", 15),
+    ("cross", 15),
+];

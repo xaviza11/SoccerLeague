@@ -1,7 +1,3 @@
-use serde::Deserialize;
-use std::fs;
-use serde_json::from_str;
-
 use crate::models::player::position::Position;
 use crate::utils::generate_random_number::generate_number_by_range;
 use crate::models::player::actions::Actions;
@@ -12,7 +8,7 @@ use crate::models::game::log::Log;
 
 pub struct ActionSelector;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Copy)]
 pub struct ActionProbabilities {
     pub shoot: u32,
     pub pass: u32,
@@ -22,51 +18,77 @@ pub struct ActionProbabilities {
     pub cross: u32,
 }
 
+// Esta función convierte tu array de tuplas en ActionProbabilities
+fn tuple_to_probs(actions: &[(&str, u8)]) -> ActionProbabilities {
+    let mut probs = ActionProbabilities {
+        shoot: 0,
+        pass: 0,
+        dribble: 0,
+        advance: 0,
+        long_pass: 0,
+        cross: 0,
+    };
+    for (name, val) in actions.iter() {
+        match *name {
+            "shoot" => probs.shoot = *val as u32,
+            "pass" => probs.pass = *val as u32,
+            "dribble" => probs.dribble = *val as u32,
+            "advance" => probs.advance = *val as u32,
+            "long_pass" => probs.long_pass = *val as u32,
+            "cross" => probs.cross = *val as u32,
+            _ => {}
+        }
+    }
+    probs
+}
+
+// Cada módulo de posición define esto:
+// pub const ACTIONS: &[(&str, u8)] = &[("shoot",25),("pass",40), ...];
+
 impl Position {
-    pub fn file_name(&self) -> &'static str {
+    pub fn actions(&self) -> ActionProbabilities {
         match self {
-            Position::Goalkeeper => "goalkeeper.json",
-            Position::Defender => "defender.json",
-            Position::Left_Back => "left_back.json",
-            Position::Right_Back => "right_back.json",
-            Position::Defensive_Midfield => "defensive_midfield.json",
-            Position::Midfielder => "midfielder.json",
-            Position::Left_Midfield => "left_midfield.json",
-            Position::Right_Midfield => "right_midfield.json",
-            Position::Attacking_Midfield => "attacking_midfield.json",
-            Position::Left_Wing => "left_wing.json",
-            Position::Right_Wing => "right_wing.json",
-            Position::Striker => "striker.json",
+            Position::Goalkeeper => tuple_to_probs(crate::logics::player::actions::goalkeeper::ACTIONS),
+            Position::Defender => tuple_to_probs(crate::logics::player::actions::defender::ACTIONS),
+            Position::Left_Back => tuple_to_probs(crate::logics::player::actions::left_back::ACTIONS),
+            Position::Right_Back => tuple_to_probs(crate::logics::player::actions::right_back::ACTIONS),
+            Position::Defensive_Midfield => tuple_to_probs(crate::logics::player::actions::defensive_midfield::ACTIONS),
+            Position::Midfielder => tuple_to_probs(crate::logics::player::actions::midfielder::ACTIONS),
+            Position::Left_Midfield => tuple_to_probs(crate::logics::player::actions::left_midfield::ACTIONS),
+            Position::Right_Midfield => tuple_to_probs(crate::logics::player::actions::right_midfield::ACTIONS),
+            Position::Attacking_Midfield => tuple_to_probs(crate::logics::player::actions::attacking_midfield::ACTIONS),
+            Position::Left_Wing => tuple_to_probs(crate::logics::player::actions::left_wing::ACTIONS),
+            Position::Right_Wing => tuple_to_probs(crate::logics::player::actions::right_wing::ACTIONS),
+            Position::Striker => tuple_to_probs(crate::logics::player::actions::striker::ACTIONS),
         }
     }
 }
 
 impl ActionSelector {
-    pub fn select_and_execute(teams: &mut [Team; 2], ball_possession: &mut [u8; 2], last_pass_player: &mut [u8; 2], minutes: u8, logs: &mut Vec<Log>, game_result: &mut GameResult) {
+    pub fn select_and_execute(
+        teams: &mut [Team; 2],
+        ball_possession: &mut [u8; 2],
+        last_pass_player: &mut [u8; 2],
+        minutes: u8,
+        logs: &mut Vec<Log>,
+        game_result: &mut GameResult,
+    ) {
         let team_idx = ball_possession[0] as usize;
         let player_idx = ball_possession[1] as usize;
 
-        // Read player's position BEFORE mutable borrow
-        let pos = &teams[team_idx].players[player_idx].current_position;
-        let file = pos.file_name();
-        let path = format!("src/data/positions/{}", file);
+        let player = &teams[team_idx].players[player_idx];
+        let mut probs = player.current_position.actions();
 
-        let raw = fs::read_to_string(&path).expect("Could not read position JSON {}");
-        let mut p: ActionProbabilities = from_str(&raw).expect("Could not parse JSON");
+        adjust_probabilities_if_alone(&mut probs, teams, team_idx as u8, player_idx as u8);
+        adjust_probabilities_by_player_instructions(&mut probs, &player.instructions);
 
-        // Adjust probabilities (immutable access)
-        adjust_probabilities_if_alone(&mut p, teams, team_idx as u8, player_idx as u8);
-        let player_instructions = &teams[team_idx].players[player_idx].instructions;
-        adjust_probabilities_by_player_instructions(&mut p, player_instructions);
-
-        // Select action using weighted random
         let weights = [
-            ("shoot", p.shoot),
-            ("pass", p.pass),
-            ("dribble", p.dribble),
-            ("advance", p.advance),
-            ("long_pass", p.long_pass),
-            ("cross", p.cross),
+            ("shoot", probs.shoot),
+            ("pass", probs.pass),
+            ("dribble", probs.dribble),
+            ("advance", probs.advance),
+            ("long_pass", probs.long_pass),
+            ("cross", probs.cross),
         ];
 
         let total: u32 = weights.iter().map(|(_, w)| *w).sum();
@@ -95,7 +117,7 @@ fn adjust_probabilities_if_alone(
     probs: &mut ActionProbabilities,
     teams: &[Team; 2],
     current_team: u8,
-    current_player: u8,
+    current_player: u8
 ) {
     let current_team = current_team as usize;
     let current_player = current_player as usize;
@@ -103,7 +125,6 @@ fn adjust_probabilities_if_alone(
     let player = &teams[current_team].players[current_player];
     let pos = player.current_position.clone();
 
-    // Check if any other player shares the same position
     let mut someone_else_in_position = false;
 
     for (team_index, team) in teams.iter().enumerate() {
@@ -116,12 +137,9 @@ fn adjust_probabilities_if_alone(
                 break;
             }
         }
-        if someone_else_in_position {
-            break;
-        }
+        if someone_else_in_position { break; }
     }
 
-    // If no one else is in this position, swap dribble and advance probabilities
     if !someone_else_in_position {
         std::mem::swap(&mut probs.dribble, &mut probs.advance);
     }
@@ -129,15 +147,16 @@ fn adjust_probabilities_if_alone(
 
 fn adjust_probabilities_by_player_instructions(
     probs: &mut ActionProbabilities,
-    player_instructions: &crate::models::player::instructions::Instructions,
+    player_instructions: &crate::models::player::instructions::Instructions
 ) {
     for instr in player_instructions.offensive.iter().take(3) {
         match instr {
-            OffensiveInstruction::Shoot => { probs.shoot = probs.shoot.saturating_add(5); }
-            OffensiveInstruction::Pass => { probs.pass = probs.pass.saturating_add(5); }
-            OffensiveInstruction::Dribble => { probs.dribble = probs.dribble.saturating_add(5); }
-            OffensiveInstruction::Cross => { probs.cross = probs.cross.saturating_add(5); }
-            OffensiveInstruction::LongBall => { probs.long_pass = probs.long_pass.saturating_add(5); }
+            OffensiveInstruction::Shoot => probs.shoot = probs.shoot.saturating_add(5),
+            OffensiveInstruction::Pass => probs.pass = probs.pass.saturating_add(5),
+            OffensiveInstruction::Dribble => probs.dribble = probs.dribble.saturating_add(5),
+            OffensiveInstruction::Cross => probs.cross = probs.cross.saturating_add(5),
+            OffensiveInstruction::LongBall => probs.long_pass = probs.long_pass.saturating_add(5),
         }
     }
 }
+
