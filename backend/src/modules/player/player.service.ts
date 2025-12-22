@@ -4,7 +4,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, Player } from '../../entities';
+import { User, Player, Team } from '../../entities';
 
 @Injectable()
 export class PlayerService {
@@ -13,12 +13,21 @@ export class PlayerService {
     private readonly usersRepo: Repository<User>,
     @InjectRepository(Player)
     private readonly playersRepo: Repository<Player>,
+    @InjectRepository(Team)
+    private readonly teamsRepo: Repository<Team>
   ) {}
 
   async create(data: Partial<Player>): Promise<Player> {
 
     const user = await this.usersRepo.findOne({ where: { id: data.id } });
     if (!user) throw new NotFoundException('User not found');
+
+    if(!data.team || !data.team.id) {
+      throw new NotFoundException('Team information is required');
+    }
+
+    const team = await this.teamsRepo.findOne({where: {id: data.team.id}});
+    if (!team) throw new NotFoundException('Team not found');
 
     const player = this.playersRepo.create({
       ...data,

@@ -17,25 +17,19 @@ describe('UsersStorageController', () => {
     findAll: jest.fn().mockResolvedValue(['all storages']),
   };
 
-  const mockAuthGuard = {
-    canActivate: jest.fn((context: ExecutionContext) => true),
-  };
+  const mockAuthGuard = { canActivate: jest.fn((ctx: ExecutionContext) => true) };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersStorageController],
-      providers: [
-        {
-          provide: UsersStorageService,
-          useValue: mockUsersStorageService,
-        },
-      ],
+      providers: [{ provide: UsersStorageService, useValue: mockUsersStorageService }],
     })
       .overrideGuard(AuthGuard)
       .useValue(mockAuthGuard)
       .compile();
 
     controller = module.get<UsersStorageController>(UsersStorageController);
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -43,50 +37,56 @@ describe('UsersStorageController', () => {
   });
 
   it('should create storage', async () => {
-    const result = await controller.createStorage({ user: { id: '1' } });
+    const req = { user: { id: 'user1' } };
+    const result = await controller.createStorage(req);
     expect(result).toBe('storage created');
-    expect(mockUsersStorageService.createStorage).toHaveBeenCalled();
+    expect(mockUsersStorageService.createStorage).toHaveBeenCalledWith(req.user.id);
   });
 
   it('should add a position change card', async () => {
-    const card = 'card123';
-    const req = { user: { id: '1' } };
-    const result = await controller.addPositionCard(req, card);
+    const req = { user: { id: 'user1' } };
+    const card = 'card123'
+    const storageId = 'storage1' 
+    const result = await controller.addPositionCard(req, card, storageId);
     expect(result).toBe('position card added');
-    expect(mockUsersStorageService.addPositionChangeCard).toHaveBeenCalledWith('1', card);
+    expect(mockUsersStorageService.addPositionChangeCard).toHaveBeenCalledWith(storageId, card);
   });
 
   it('should add a card', async () => {
-    const card = 'card456';
-    const req = { user: { id: '1' } };
-    const result = await controller.addCard(req, card);
+    const req = { user: { id: 'user1' } };
+    const card = 'card456' 
+    const storageId = 'storage2'
+    const result = await controller.addCard(req, card, storageId);
     expect(result).toBe('card added');
-    expect(mockUsersStorageService.addCard).toHaveBeenCalledWith('1', card);
+    expect(mockUsersStorageService.addCard).toHaveBeenCalledWith(storageId, card);
   });
 
   it('should add a team', async () => {
-    const teamId = 'team789';
-    const req = { user: { id: '1' } };
-    const result = await controller.addTeam(req, teamId);
+    const req = { user: { id: 'user1' } };
+    const teamId = 'team789' 
+    const storageId = 'storage3'
+    const result = await controller.addTeam(req, teamId, storageId);
     expect(result).toBe('team added');
-    expect(mockUsersStorageService.addTeam).toHaveBeenCalledWith('1', teamId);
+    expect(mockUsersStorageService.addTeam).toHaveBeenCalledWith(req.user.id, teamId, storageId);
   });
 
   it('should delete storage', async () => {
-    const req = { user: { id: '1' } };
-    const result = await controller.deleteStorage(req);
+    const req = { user: { id: 'user1' } };
+    const body = 'storage4'
+    const result = await controller.deleteStorage(req, body);
     expect(result).toBe('storage deleted');
-    expect(mockUsersStorageService.deleteStorage).toHaveBeenCalledWith('1');
+    expect(mockUsersStorageService.deleteStorage).toHaveBeenCalledWith(req.user.id, body);
   });
 
   it('should find one storage', async () => {
-    const result = await controller.findOne('1');
+    const id = 'storage5';
+    const result = await controller.findOne(id);
     expect(result).toBe('found one');
-    expect(mockUsersStorageService.findOne).toHaveBeenCalledWith('1');
+    expect(mockUsersStorageService.findOne).toHaveBeenCalledWith(id);
   });
 
   it('should find all storages', async () => {
-    const req = { user: { id: '1' } };
+    const req = { user: { id: 'user1' } };
     const result = await controller.findAll(req);
     expect(result).toEqual(['all storages']);
     expect(mockUsersStorageService.findAll).toHaveBeenCalled();

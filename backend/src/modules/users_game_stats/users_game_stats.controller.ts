@@ -2,7 +2,7 @@ import {
   Controller,
   Post,
   Param,
-  Request,
+  Req,
   Body,
   Delete,
   Get,
@@ -15,13 +15,13 @@ import { AuthGuard } from '../../guards/auth.guard';
 
 @Controller('users-game-stats')
 export class UsersGameStatsController {
-  constructor(
-    private readonly usersGameStatsService: UsersGameStatsService,
-  ) {}
+  constructor(private readonly usersGameStatsService: UsersGameStatsService) {}
 
   @Post()
-  async createUserGameStats(@Param('id') id: string) {
-    return this.usersGameStatsService.create(id);
+  @UseGuards(AuthGuard)
+  async createUserGameStats(@Req() req) {
+    const userId = req.user.id;
+    return this.usersGameStatsService.create(userId);
   }
 
   @Get()
@@ -57,15 +57,15 @@ export class UsersGameStatsController {
 
   @Put()
   @UseGuards(AuthGuard)
-  async update(@Body() body: any, @Request() req) {
-    const statsId = req.user.statsId;
-    return this.usersGameStatsService.update(statsId, body);
+  async update(@Body() body: any, @Req() req) {
+    const userId = req.user.id;
+    return this.usersGameStatsService.update(userId, body);
   }
 
   @Delete()
   @UseGuards(AuthGuard)
-  async remove(@Request() req) {
-    const statsId = req.user.statsId;
-    return this.usersGameStatsService.delete(statsId);
+  async remove(@Req() req) {
+    const userId = req.user.id;
+    return this.usersGameStatsService.delete(userId);
   }
 }

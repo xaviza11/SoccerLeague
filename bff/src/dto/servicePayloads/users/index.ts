@@ -4,4 +4,10 @@ interface ServiceUserRegistrationPayload {
     password: string
 }
 
-export type { ServiceUserRegistrationPayload }
+
+interface ServiceUserLoginPayload {
+    email: string,
+    password: string
+}
+
+export type { ServiceUserRegistrationPayload, ServiceUserLoginPayload }

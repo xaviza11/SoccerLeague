@@ -1,15 +1,15 @@
-import {
-  Injectable,
-  NotFoundException
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Storage, Card, Team, PositionChangeCard } from '../../entities';
+import { Storage, Card, Team, PositionChangeCard, User } from '../../entities';
 import { validate as isUUID } from 'uuid';
 
 @Injectable()
 export class UsersStorageService {
   constructor(
+    @InjectRepository(User)
+    private readonly usersRepo: Repository<User>,
+
     @InjectRepository(Storage)
     private readonly storageRepo: Repository<Storage>,
 
@@ -23,7 +23,10 @@ export class UsersStorageService {
     private readonly teamRepo: Repository<Team>,
   ) {}
 
-  async createStorage(): Promise<Storage> {
+  async createStorage(userId: string): Promise<Storage> {
+    const user = await this.usersRepo.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
     const storage = this.storageRepo.create();
     return this.storageRepo.save(storage);
   }
@@ -56,7 +59,10 @@ export class UsersStorageService {
     return this.findOne(id);
   }
 
-  async addTeam(id: string, teamId: string): Promise<Storage> {
+  async addTeam(userId: string, teamId: string, id: string): Promise<Storage> {
+    const user = await this.usersRepo.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
     const storage = await this.findOne(id);
 
     const team = await this.teamRepo.findOne({ where: { id: teamId } });
@@ -66,7 +72,10 @@ export class UsersStorageService {
     return this.storageRepo.save(storage);
   }
 
-  async deleteStorage(id: string): Promise<void> {
+  async deleteStorage(userId: string, id: string): Promise<void> {
+    const user = await this.usersRepo.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
     if (!isUUID(id)) {
       throw new NotFoundException('Storage not found');
     }

@@ -18,8 +18,10 @@ export class TeamsController {
   constructor(private readonly teamsService: TeamsService) {}
 
   @Post()
-  async createTeam() {
-    return this.teamsService.create();
+  @UseGuards(AuthGuard)
+  async createTeam(@Req() req) {
+    const userId = req.user.id;
+    return this.teamsService.create(userId);
   }
 
   @Get()
@@ -34,21 +36,23 @@ export class TeamsController {
     return this.teamsService.findOne(id);
   }
 
-  @Put('/me')
+  @Put('/update')
   @UseGuards(AuthGuard)
   async updateMyTeam(@Req() req, @Body() body: any) {
-    const teamId = req.user.teamId;
+    const userId = req.user.id;
+    const { teamId, ...updateData } = body;
 
     if (!teamId) {
-      throw new BadRequestException('User not have one team assigned');
+      throw new BadRequestException('teamId is required');
     }
 
-    return this.teamsService.update(teamId, body);
+    return this.teamsService.update(teamId, updateData, userId);
   }
 
-  @Delete(':id')
+  @Delete('/delete/:id')
   @UseGuards(AuthGuard)
-  async deleteTeamById(@Param('id') id: string) {
-    return this.teamsService.delete(id);
+  async deleteMyTeam(@Req() req, @Param('id') id: string) {
+    const userId = req.user.id;
+    return this.teamsService.delete(id, userId);
   }
 }

@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { UserService } from "../services/user.services.js";
-import type { ServiceUserRegistrationPayload } from "../dto/servicePayloads/users/index.js";
+import type { ServiceUserRegistrationPayload, ServiceUserLoginPayload } from "../dto/servicePayloads/users/index.js";
 
 export async function userRoutes(app: FastifyInstance) {
   const userService = new UserService();
@@ -16,4 +16,17 @@ export async function userRoutes(app: FastifyInstance) {
         .send(error.response?.data || { message: error.message });
     }
   });
+
+  app.post("/users/login", async (request, reply) => {
+    try {
+      const payload = request.body as ServiceUserLoginPayload;
+      const result = await userService.login(payload);
+      return reply.code(200).send(result);
+    } catch (error: any) {
+      return reply
+        .code(error.statusCode || 500)
+        .send(error.response?.data || { message: error.message });
+    }
+  });
+
 }

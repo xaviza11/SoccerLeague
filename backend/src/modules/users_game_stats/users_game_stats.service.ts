@@ -20,7 +20,7 @@ export class UsersGameStatsService {
     private readonly UsersRepo: Repository<User>,
   ) {}
 
-  async create(userId: string): Promise<UserStats> {
+  async create(userId: string): Promise<Partial<UserStats>> {
     const user = await this.UsersRepo.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 
@@ -31,7 +31,10 @@ export class UsersGameStatsService {
       user,
     });
 
-    return this.UserStatsRepo.save(stats);
+    const saved = await this.UserStatsRepo.save(stats);
+
+    const { id, elo, money, total_games } = saved;
+    return { id, elo, money, total_games };
   }
 
   async findAll(): Promise<UserStats[]> {
@@ -87,21 +90,28 @@ export class UsersGameStatsService {
     return betterPlayers + 1;
   }
 
-  async update(id: string, dto: UpdateUserStatsDto): Promise<UserStats> {
-    if (!isUUID(id)) throw new NotFoundException('Storage not found');
-    const result = await this.UserStatsRepo.update(id, dto);
-    if (result.affected === 0)
-      throw new NotFoundException(`UserStats ${id} not found`);
-    return this.findOne(id);
+  async update(userId: string, dto: UpdateUserStatsDto): Promise<UserStats> {
+    const stats = await this.UserStatsRepo.findOne({
+      where: { user: { id: userId } },
+    });
+
+    if (!stats) {
+      throw new NotFoundException('User stats not found');
+    }
+
+    Object.assign(stats, dto);
+    return this.UserStatsRepo.save(stats);
   }
 
-  async delete(id: string): Promise<void> {
-    if (!isUUID(id)) {
-      throw new NotFoundException('Storage not found');
-    }
-    const result = await this.UserStatsRepo.delete(id);
+  async delete(userId: string): Promise<void> {
+    const stats = await this.UserStatsRepo.findOne({
+      where: { user: { id: userId } },
+    });
 
-    if (result.affected === 0)
-      throw new NotFoundException(`UserStats ${id} not found`);
+    if (!stats) {
+      throw new NotFoundException('User stats not found');
+    }
+
+    await this.UserStatsRepo.remove(stats);
   }
 }

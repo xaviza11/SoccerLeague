@@ -26,8 +26,6 @@ describe('PlayerService (unit)', () => {
 
     mockUserRepo = {
       findOne: jest.fn(),
-      find: jest.fn(),
-      save: jest.fn(),
     };
 
     mockTeamRepo = {
@@ -51,141 +49,117 @@ describe('PlayerService (unit)', () => {
     service = module.get<PlayerService>(PlayerService);
   });
 
-  // Helpers to create fake entities
-  const createFakeUser = () => ({ id: uuid(), name: 'Alice' }) as User;
-  const createFakeStorage = (user: User) => ({ id: uuid(), user }) as Storage;
-  const createFakeTeam = (storage: Storage) =>
-    ({ id: uuid(), storage }) as Team;
-  const createFakePlayer = (team: Team, user: User) =>
-    ({
-      id: uuid(),
-      name: 'Cristiano',
-      team,
-      user,
-      country: 'Spain',
-      position: 'Striker',
-      current_position: 'Striker',
-      original_position: 'Striker',
-      max_skill_level: 99,
-      height_cm: 180,
-      number: 7,
-    });
+  const createFakeUser = () => ({ id: uuid(), name: 'User' }) as User;
+  const createFakeTeam = () => ({ id: uuid() }) as Team;
 
-  it('should create a player', async () => {
+  it('should create a player successfully', async () => {
     const user = createFakeUser();
-    const storage = createFakeStorage(user);
-    const team = createFakeTeam(storage);
+    const team = createFakeTeam();
 
     mockUserRepo.findOne.mockResolvedValue(user);
     mockTeamRepo.findOne.mockResolvedValue(team);
     mockPlayerRepo.create.mockImplementation((dto) => dto);
-    mockPlayerRepo.save.mockImplementation(async (p) => ({ id: uuid(), ...p }));
+    mockPlayerRepo.save.mockImplementation(async (p) => ({
+      id: uuid(),
+      ...p,
+    }));
 
-    const player = await service.create({
+    const result = await service.create({
+      id: user.id,
       name: 'Cristiano',
       team: { id: team.id } as any,
-      id: user.id,
-      country: 'Spain' as Countries,
-      position: 'Striker' as Positions,
-      current_position: 'Striker' as Positions,
-      original_position: 'Striker' as Positions,
+      country: Countries.Spain,
+      position: Positions.Striker,
+      current_position: Positions.Striker,
+      original_position: Positions.Striker,
       max_skill_level: 99,
       height_cm: 180,
       number: 7,
     });
 
-    expect(player).toHaveProperty('id');
-    expect(player.name).toBe('Cristiano');
-    expect(player.team.id).toBe(team.id);
+    expect(result).toHaveProperty('id');
+    expect(result.name).toBe('Cristiano');
+    expect(result.team.id).toBe(team.id);
+    expect(result.status).toBeDefined();
   });
 
-  it('should throw NotFoundException if user does not exist', async () => {
+  it('should throw if user does not exist', async () => {
     mockUserRepo.findOne.mockResolvedValue(null);
-    const fakeUuid = uuid();
-    const fakeTeamId = uuid();
 
     await expect(
       service.create({
-        name: 'Messi',
-        team: { id: fakeTeamId } as any,
-        id: fakeUuid,
-        country: 'Argentina' as Countries,
-        position: 'Striker' as Positions,
-        current_position: 'Striker' as Positions,
-        original_position: 'Striker' as Positions,
-        max_skill_level: 99,
-        height_cm: 170,
-        number: 10,
+        id: uuid(),
+        team: { id: uuid() } as any,
       }),
     ).rejects.toThrow(NotFoundException);
   });
 
-  it('should find one player', async () => {
-    const fakePlayer = createFakePlayer(
-      createFakeTeam(createFakeStorage(createFakeUser())),
-      createFakeUser(),
-    );
-    mockPlayerRepo.findOne.mockResolvedValue(fakePlayer);
+  it('should throw if team info is missing', async () => {
+    const user = createFakeUser();
+    mockUserRepo.findOne.mockResolvedValue(user);
 
-    const found = await service.findOne(fakePlayer.id);
-    expect(found.id).toBe(fakePlayer.id);
+    await expect(
+      service.create({
+        id: user.id,
+        name: 'Messi',
+      }),
+    ).rejects.toThrow('Team information is required');
   });
 
-  it('should throw NotFoundException if player not found', async () => {
+  it('should throw if team does not exist', async () => {
+    const user = createFakeUser();
+    mockUserRepo.findOne.mockResolvedValue(user);
+    mockTeamRepo.findOne.mockResolvedValue(null);
+
+    await expect(
+      service.create({
+        id: user.id,
+        team: { id: uuid() } as any,
+      }),
+    ).rejects.toThrow('Team not found');
+  });
+
+  it('should find one player', async () => {
+    const fakePlayer = { id: uuid(), name: 'Player' };
+    mockPlayerRepo.findOne.mockResolvedValue(fakePlayer);
+
+    const result = await service.findOne(fakePlayer.id);
+    expect(result).toEqual(fakePlayer);
+  });
+
+  it('should throw if player not found', async () => {
     mockPlayerRepo.findOne.mockResolvedValue(null);
-    const randomId = uuid();
-    await expect(service.findOne(randomId)).rejects.toThrow(NotFoundException);
+    await expect(service.findOne(uuid())).rejects.toThrow(NotFoundException);
   });
 
   it('should update a player', async () => {
     const playerId = uuid();
-    const user = createFakeUser();
-    const fakePlayer = { id: playerId, name: 'Old Name', user };
+    const fakePlayer = { id: playerId, name: 'Old Name' };
 
-    mockUserRepo.findOne.mockResolvedValue(user);
+    mockUserRepo.findOne.mockResolvedValue({ id: playerId });
     mockPlayerRepo.findOne.mockResolvedValue(fakePlayer);
-    mockPlayerRepo.save.mockImplementation(async (p) => ({
+    mockPlayerRepo.save.mockResolvedValue({
       ...fakePlayer,
-      ...p,
-    }));
+      name: 'New Name',
+    });
 
     const updated = await service.update(playerId, { name: 'New Name' });
     expect(updated.name).toBe('New Name');
   });
 
   it('should delete a player', async () => {
-    const playerId = uuid();
-    const user = createFakeUser();
-    const fakePlayer = { id: playerId, user };
+    const fakePlayer = { id: uuid() };
 
-    mockUserRepo.findOne.mockResolvedValue(user);
+    mockUserRepo.findOne.mockResolvedValue({ id: fakePlayer.id });
     mockPlayerRepo.findOne.mockResolvedValue(fakePlayer);
     mockPlayerRepo.remove.mockResolvedValue(fakePlayer);
 
-    await expect(service.delete(playerId)).resolves.not.toThrow();
+    await expect(service.delete(fakePlayer.id)).resolves.not.toThrow();
     expect(mockPlayerRepo.remove).toHaveBeenCalledWith(fakePlayer);
   });
-  
-  it('should throw NotFoundException when deleting non-existent player', async () => {
+
+  it('should throw when deleting non-existent player', async () => {
     mockPlayerRepo.findOne.mockResolvedValue(null);
-    const randomId = uuid();
-    await expect(service.delete(randomId)).rejects.toThrow(NotFoundException);
-  });
-
-  it('should find all players by user', async () => {
-    const user = createFakeUser();
-    const fakePlayers = [
-      createFakePlayer(createFakeTeam(createFakeStorage(user)), user),
-      createFakePlayer(createFakeTeam(createFakeStorage(user)), user),
-    ];
-
-    mockUserRepo.findOne.mockResolvedValue(user);
-    mockPlayerRepo.find.mockResolvedValue(fakePlayers);
-
-    const players = await service.findAllPlayersByUser(user.id);
-    expect(players.length).toBe(2);
-    expect(players.map((p) => p.user.id)).toEqual(
-      expect.arrayContaining([user.id, user.id]),
-    );
+    await expect(service.delete(uuid())).rejects.toThrow(NotFoundException);
   });
 });

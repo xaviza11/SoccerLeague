@@ -16,32 +16,31 @@ export class UsersStorageController {
   constructor(private readonly usersStorageService: UsersStorageService) {}
 
   @Post()
-  async createStorage() {
-    return this.usersStorageService.createStorage();
+  @UseGuards(AuthGuard)
+  async createStorage(@Request() req) {
+    return this.usersStorageService.createStorage(req.user.id);
   }
 
   @Post('positions-change')
-  @UseGuards(AuthGuard)
-  async addPositionCard(@Request() req, @Body('card') card: string) {
-    return this.usersStorageService.addPositionChangeCard(req.user.id, card);
+  async addPositionCard(@Request() req, @Body('card') card: string, @Body('storageId') storageId: string) {
+    return this.usersStorageService.addPositionChangeCard(storageId, card);
   }
 
   @Post('cards')
-  @UseGuards(AuthGuard)
-  async addCard(@Request() req, @Body('card') card: string) {
-    return this.usersStorageService.addCard(req.user.id, card);
+  async addCard(@Request() req, @Body('card') card: string, @Body('storageId') storageId: string) {
+    return this.usersStorageService.addCard(storageId, card);
   }
 
   @Post('team')
   @UseGuards(AuthGuard)
-  async addTeam(@Request() req, @Body('teamId') teamId: string) {
-    return this.usersStorageService.addTeam(req.user.id, teamId);
+  async addTeam(@Request() req, @Body('teamId') teamId: string, @Body('storageId') storageId: string) {
+    return this.usersStorageService.addTeam(req.user.id, teamId, storageId);
   }
 
   @Delete()
   @UseGuards(AuthGuard)
-  async deleteStorage(@Request() req) {
-    return this.usersStorageService.deleteStorage(req.user.id);
+  async deleteStorage(@Request() req, @Body('storageId') storageId: string) {
+    return this.usersStorageService.deleteStorage(req.user.id, storageId);
   }
 
   @Get(':id') @UseGuards(AuthGuard) async findOne(@Param('id') id: string) {

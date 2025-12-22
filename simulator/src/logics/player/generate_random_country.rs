@@ -45,7 +45,7 @@ pub fn generate_random_country() -> Country {
         Country::Slovakia,
         Country::Slovenia,
         Country::Serbia,
-        Country::French
+        Country::France
     ];
 
     let mut rng = rand::rng();
@@ -108,7 +108,7 @@ mod tests {
             Country::Slovakia,
             Country::Slovenia,
             Country::Serbia,
-            Country::French
+            Country::France
         ];
 
         let country = generate_random_country();

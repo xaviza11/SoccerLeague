@@ -15,6 +15,7 @@ import { MarketAurasModule } from './modules/market_auras/market_auras.module';
 import { MarketCardsModule } from './modules/market_cards/market_cards.module';
 import { MarketPlayersModule } from './modules/market_players/market_players.module';
 import { ChangePositionCardsModule } from './modules/market_change_position_cards/change_position_cards.module';
+import { TeamsModule } from './modules/teams/teams.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ChangePositionCardsModule } from './modules/market_change_position_card
     MarketCardsModule,
     MarketPlayersModule,
     ChangePositionCardsModule,
+    TeamsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

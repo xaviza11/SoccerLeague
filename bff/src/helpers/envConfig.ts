@@ -6,6 +6,7 @@ export class ConfigService {
   public readonly SIMULATOR_API: string;
   public readonly CLIENT_URL: string;
   public readonly BFF_PORT: string;
+  public readonly ENCRYPTION_SECRET: string;
 
   constructor() {
     this.CRUD_API = this.getEnvVar('CRUD_API');
@@ -13,6 +14,7 @@ export class ConfigService {
     this.SIMULATOR_API = this.getEnvVar('SIMULATOR_API');
     this.CLIENT_URL = this.getEnvVar('CLIENT_URL');
     this.BFF_PORT = this.getEnvVar('BFF_PORT')
+    this.ENCRYPTION_SECRET = this.getEnvVar('ENCRYPTION_SECRET');
   }
 
   private getEnvVar(key: string): string {

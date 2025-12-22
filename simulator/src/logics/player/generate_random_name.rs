@@ -132,7 +132,7 @@ fn country_to_str(country: &Country) -> &'static str {
         Country::Brazil => "Brazil",
         Country::Portugal => "Portugal",
         Country::Croatia => "Croatia",
-        Country::French => "French",
+        Country::France => "France",
         Country::Germany => "Germany",
         Country::Denmark => "Denmark",
         Country::Sweden => "Sweden",

@@ -44,9 +44,10 @@ describe('UsersGameStatsController', () => {
   });
 
   it('should create user game stats', async () => {
-    const result = await controller.createUserGameStats('123');
+    const req = { user: { id: 'user123' } };
+    const result = await controller.createUserGameStats(req);
     expect(result).toBe('created stats');
-    expect(mockUsersGameStatsService.create).toHaveBeenCalledWith('123');
+    expect(mockUsersGameStatsService.create).toHaveBeenCalledWith('user123');
   });
 
   it('should find all stats', async () => {
@@ -56,9 +57,9 @@ describe('UsersGameStatsController', () => {
   });
 
   it('should find one stat', async () => {
-    const result = await controller.findOne('123');
+    const result = await controller.findOne('stat123');
     expect(result).toBe('one stats');
-    expect(mockUsersGameStatsService.findOne).toHaveBeenCalledWith('123');
+    expect(mockUsersGameStatsService.findOne).toHaveBeenCalledWith('stat123');
   });
 
   it('should get top stats', async () => {
@@ -80,17 +81,17 @@ describe('UsersGameStatsController', () => {
   });
 
   it('should update stats', async () => {
-    const req = { user: { statsId: 'stats123' } };
+    const req = { user: { id: 'user123' } };
     const body = { score: 100 };
     const result = await controller.update(body, req);
     expect(result).toBe('updated stats');
-    expect(mockUsersGameStatsService.update).toHaveBeenCalledWith('stats123', body);
+    expect(mockUsersGameStatsService.update).toHaveBeenCalledWith('user123', body);
   });
 
   it('should delete stats', async () => {
-    const req = { user: { statsId: 'stats123' } };
+    const req = { user: { id: 'user123' } };
     const result = await controller.remove(req);
     expect(result).toBe('deleted stats');
-    expect(mockUsersGameStatsService.delete).toHaveBeenCalledWith('stats123');
+    expect(mockUsersGameStatsService.delete).toHaveBeenCalledWith('user123');
   });
 });

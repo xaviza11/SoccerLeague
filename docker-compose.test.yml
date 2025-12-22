@@ -31,7 +31,7 @@ services:
       - backend
     env_file:
       - .env.test
-    command: ["npm", "run", "dev:test"]
+    command: ["npm", "run", "up"]
 
   simulator:
     build: ./simulator

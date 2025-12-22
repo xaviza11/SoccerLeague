@@ -28,6 +28,9 @@ export class Storage {
   })
   cards: Card[];
 
+  //! add auras
+
+
   @OneToOne(() => User, (user) => user.storage)
   user: User;
 }

@@ -49,5 +49,5 @@ pub enum Country {
     Slovakia,
     Slovenia,
     Serbia,
-    French
+    France
 }

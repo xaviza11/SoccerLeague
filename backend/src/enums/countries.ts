@@ -40,6 +40,6 @@ export enum Country {
     Slovakia = "Slovakia",
     Slovenia = "Slovenia",
     Serbia = "Serbia",
-    French = "French",
+    France = "France",
 }
 export default Country;

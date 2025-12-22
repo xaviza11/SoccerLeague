@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TeamsController } from './teams.controller';
 import { TeamsService } from './teams.service';
 import { AuthGuard } from '../../guards/auth.guard';
+import { BadRequestException } from '@nestjs/common';
 
 describe('TeamsController', () => {
   let controller: TeamsController;
@@ -16,25 +17,18 @@ describe('TeamsController', () => {
   };
 
   const mockUserReq = {
-    user: {
-      teamId: 'team-123',
-    },
+    user: { id: 'user-123' },
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TeamsController],
       providers: [
-        {
-          provide: TeamsService,
-          useValue: mockTeamsService,
-        },
+        { provide: TeamsService, useValue: mockTeamsService },
       ],
     })
       .overrideGuard(AuthGuard)
-      .useValue({
-        canActivate: jest.fn(() => true),
-      })
+      .useValue({ canActivate: jest.fn(() => true) })
       .compile();
 
     controller = module.get<TeamsController>(TeamsController);
@@ -45,16 +39,17 @@ describe('TeamsController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should call service.create() on createTeam', async () => {
-    mockTeamsService.create.mockResolvedValue({ id: 'team-1' });
+  it('should create a team', async () => {
+    const team = { id: 'team-1' };
+    mockTeamsService.create.mockResolvedValue(team);
 
-    const result = await controller.createTeam();
+    const result = await controller.createTeam(mockUserReq);
 
-    expect(service.create).toHaveBeenCalled();
-    expect(result).toEqual({ id: 'team-1' });
+    expect(service.create).toHaveBeenCalledWith(mockUserReq.user.id);
+    expect(result).toEqual(team);
   });
 
-  it('should return all teams on findAllTeams', async () => {
+  it('should return all teams', async () => {
     const teams = [{ id: 't1' }, { id: 't2' }];
     mockTeamsService.find.mockResolvedValue(teams);
 
@@ -64,9 +59,8 @@ describe('TeamsController', () => {
     expect(result).toEqual(teams);
   });
 
-  it('should return one team on findOneTeam', async () => {
+  it('should return one team by id', async () => {
     const team = { id: 't1' };
-
     mockTeamsService.findOne.mockResolvedValue(team);
 
     const result = await controller.findOneTeam('t1');
@@ -75,26 +69,34 @@ describe('TeamsController', () => {
     expect(result).toEqual(team);
   });
 
-  it('should update the logged user team on updateMyTeam', async () => {
-    const body = { name: 'New Team Name' };
+  it('should update the logged user team', async () => {
+    const body = { teamId: 'team-123', name: 'New Team Name' };
     const updated = { id: 'team-123', ...body };
 
     mockTeamsService.update.mockResolvedValue(updated);
 
     const result = await controller.updateMyTeam(mockUserReq, body);
 
-    expect(service.update).toHaveBeenCalledWith('team-123', body);
+    expect(service.update).toHaveBeenCalledWith('team-123', { name: 'New Team Name' }, mockUserReq.user.id);
     expect(result).toEqual(updated);
   });
 
-  it('should delete a team by id on deleteTeamById', async () => {
+  it('should throw BadRequestException if teamId is missing in update', async () => {
+    const body = { name: 'New Team Name' };
+
+    await expect(controller.updateMyTeam(mockUserReq, body)).rejects.toThrow(BadRequestException);
+  });
+
+  it('should delete a team', async () => {
     const deleted = { message: 'Team deleted successfully' };
+    const teamId = 'team-123';
 
     mockTeamsService.delete.mockResolvedValue(deleted);
 
-    const result = await controller.deleteTeamById('t1');
+    const reqWithTeam = { user: { id: 'user-123' } };
+    const result = await controller.deleteMyTeam(reqWithTeam, teamId);
 
-    expect(service.delete).toHaveBeenCalledWith('t1');
+    expect(service.delete).toHaveBeenCalledWith(teamId, reqWithTeam.user.id);
     expect(result).toEqual(deleted);
   });
 });

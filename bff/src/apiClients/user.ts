@@ -22,11 +22,9 @@ import type {
   UserUpdateResponse,
   UserFindAllResponse,
 } from "../dto/responses/user/index.js";
-import {
-  AuthError,
-  ValidationError,
-} from "../errors/index.js";
+import { AuthError, ValidationError } from "../errors/index.js";
 import type { NormalizedError } from "../dto/errors/index.js";
+import { TokenCrypto } from "../helpers/index.js";
 
 export class UserClient {
   private registrationEndpoint = "/users";
@@ -55,17 +53,28 @@ export class UserClient {
     }
   }
 
-  public async login(payload: UserLoginPayload): Promise<UserLoginResponse | NormalizedError> {
+  public async login(
+    payload: UserLoginPayload
+  ): Promise<UserLoginResponse | NormalizedError> {
     try {
       const url = `${this.CRUD_API}${this.loginEndpoint}`;
       const response = await axios.post<UserLoginResponse>(url, payload);
-      return response.data;
+
+      const data = response.data;
+
+      if (data?.accessToken) {
+        data.accessToken = TokenCrypto.encrypt(data.accessToken);
+      }
+
+      return data;
     } catch (error) {
       return handleError(error);
     }
   }
 
-  public async update(payload: UserUpdatePayload): Promise<UserUpdateResponse | NormalizedError> {
+  public async update(
+    payload: UserUpdatePayload
+  ): Promise<UserUpdateResponse | NormalizedError> {
     try {
       const url = `${this.CRUD_API}${this.updateEndpoint}`;
       const response = await axios.put<UserUpdateResponse>(url, payload);
@@ -75,7 +84,9 @@ export class UserClient {
     }
   }
 
-  public async findOne(payload: UserFindOnePayload): Promise<UserFindOneResponse | NormalizedError> {
+  public async findOne(
+    payload: UserFindOnePayload
+  ): Promise<UserFindOneResponse | NormalizedError> {
     try {
       if (!isUUID(payload.id)) {
         throw new ValidationError("Invalid ID format. Expected UUID - BFF");
