@@ -61,6 +61,16 @@ export default defineNuxtConfig({
         en: "/about-us",
         ca: "/sobre-nosaltres",
       },
+      login: {
+        es: "/iniciar-sesión",
+        en: "/login",
+        ca: "/iniciar-sessió",
+      },
+      register: {
+        es: "/registro",
+        en: "/register",
+        ca: "/registre",
+      },
     },
   },
 
@@ -72,6 +82,14 @@ export default defineNuxtConfig({
     "/es/sobre-nosotros": { prerender: true },
     "/en/about-us": { prerender: true },
     "/ca/sobre-nosaltres": { prerender: true },
+
+    "es/iniciar-sesión": { ssr: false },
+    "/en/login": { ssr: false },
+    "/ca/iniciar-sessió": { ssr: false },
+
+    "/es/registro": { ssr: false },
+    "/en/register": { ssr: false },
+    "/ca/registre": { ssr: false }, 
 
     /*  
     // static page

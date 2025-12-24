@@ -13,6 +13,7 @@ body,
   width: 100%;
   height: 100%;
   overflow-y: hidden;
+  background-color: var(--bg-light-soft);
 }
 
 body {
@@ -76,61 +77,81 @@ span {
 }
 
 :root {
+  /* Typography */
   --font-logo: "Pacifico", cursive;
   --font-heading: "Kanit", sans-serif;
   --font-body: "Inter", sans-serif;
 
+  /* Text sizes */
   --text-xl: 2.2rem;
   --text-lg: 1.9rem;
   --text-md: 1.6rem;
   --text-sm: 1.3rem;
   --text-base: 1rem;
   --text-xs: 0.85rem;
+  --text-sxs: 0.75rem;
   --text-stat: 2rem;
 
-  --primary: #22c55e;
-  --primary-hover: #16a34a;
+  /* Brand colors */
+  --primary: #89986d;
+  --primary-hover: #6f7d57;
   --primary-content: #ffffff;
 
-  --secondary: #3b82f6;
-  --secondary-hover: #2563eb;
+  --secondary: #9cab84;
+  --secondary-hover: #7f8f6a;
   --secondary-content: #ffffff;
 
-  --tertiary: #6366f1;
-  --tertiary-hover: #4f46e5;
-  --tertiary-content: #ffffff;
+  --tertiary: #c5d89d;
+  --tertiary-hover: #aabf7f;
+  --tertiary-content: #1e293b;
 
-  --accent: #f59e0b;
-  --accent-hover: #d97706;
-  --accent-content: #ffffff;
+  --accent: #f6f0d7;
+  --accent-hover: #e8dfb5;
+  --accent-content: #1e293b;
 
+  /* Backgrounds */
   --bg-main: #0f172a;
   --bg-surface: #1e293b;
   --bg-elevated: #334155;
 
+  --bg-light: #ffffff;
+  --bg-light-soft: #f8fafc; 
+  --bg-light-muted: #f1f5f9; 
+  
+  /* Text colors */ 
   --text-white: #f8fafc;
-  --text-gray-light: #cbd5e1;
-  --text-gray: #94a3b8;
-  --text-gray-dark: #64748b;
-  --text-muted: #475569;
-  --text-dark: #334155;
-  --text-black-light: #1e293b;
-  --text-black: #0f172a;
-  --text-black-deep: #020617;
+  --text-gray-light: #e2e8f0;
+  --text-gray: #cbd5e1;
+  --text-gray-dark: #94a3b8;
+  --text-muted: #64748b;
+  --text-dark: #475569;
+  --text-black-light: #334155;
+  --text-black: #1e293b;
+  --text-black-deep: #0f172a;
   --text-full-black: #000000;
 
+  /* Borders */
   --border: #334155;
   --border-light: #475569;
-  --border-focus: #3b82f6;
+  --border-focus: #84cc16;
 
+  /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.6);
 
-  --success: #10b981;
-  --warning: #fbbf24;
+  /* States */
+  --success: #22c55e;
+  --success-bg: #052e16;
+
+  --warning: #facc15;
+  --warning-bg: #422006;
+
   --error: #ef4444;
-  --info: #0ea5e9;
+  --error-bg: #450a0a;
+
+  --info: #38bdf8;
+  --info-bg: #082f49;
 }
 
 h1 {

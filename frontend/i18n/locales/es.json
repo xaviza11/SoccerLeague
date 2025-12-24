@@ -1,3 +1,25 @@
 {
-  "hello": "Hola mundo"
+  "pageName": "SoccerLeague",
+  "pages": {
+    "register": {
+      "email": "Correo Electrónico",
+      "name": "Nombre de Usuario",
+      "password": "Contraseña",
+      "repeatPassword": "Repetir Contraseña",
+      "register": "Registrate",
+      "goLogin": "Iniciar Sesión",
+      "goHome": "Ir a Inicio"
+    }
+  },
+  "warnings": {
+    "auth": {
+      "emailRequired": "Se requiere correo electrónico",
+      "invalidEmail": "El email es inválido",
+      "passwordRequired": "Se require una contraseña",
+      "passwordLength": "La contraseña ha de tener 8 carácteres",
+      "passwordFormat": "La contraseña necesita 1 mayuscula, 1 minuscula y un número",
+      "passwordsMatch": "Las contraseñas no coinciden",
+      "confirmPassword": "Confirma tu contraseña"
+    }
+  }
 }
