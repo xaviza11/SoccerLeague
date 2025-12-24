@@ -2,8 +2,8 @@ import axios from "axios";
 
 import { isUUID } from "../validators/uuid.js";
 import { configService, handleError } from "../helpers/index.js";
-import type { addCardUsersStoragePayload, addPositionCardStoragePayload, addTeamStoragePayload } from "../dto/payloads/users_storage/index.js";
-import type {CreateUsersStorageResponse} from "../dto/responses/users_storage/index.js";
+import type { DeleteUsersStoragePayload } from "../dto/payloads/users_storage/index.js";
+import type { CreateUsersStorageResponse } from "../dto/responses/users_storage/index.js";
 import type { NormalizedError } from "../dto/errors/index.js";
 import {
   ConflictError,
@@ -22,26 +22,25 @@ export class UsersStorageClient {
     this.CRUD_API = configService.CRUD_API || "error";
   }
 
-public async createStorage(
-  token: string
-): Promise<NormalizedError | CreateUsersStorageResponse> {
-  try {
-    const response = await axios.post(
-      `${this.CRUD_API}${this.baseEndpoint}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+  public async createStorage(
+    token: string
+  ): Promise<NormalizedError | CreateUsersStorageResponse> {
+    try {
+      const response = await axios.post(
+        `${this.CRUD_API}${this.baseEndpoint}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    return response.data;
-  } catch (error) {
-    return handleError(error);
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
   }
-}
-
 
   /*public async addCard(
     payload: addCardUsersStoragePayload
@@ -97,18 +96,6 @@ public async createStorage(
     }
   }
 
-  public async deleteStorage(
-  ): Promise<DeleteUsersStorageResponse | NormalizedError> {
-    try {
-      const response = await axios.delete(
-        `${this.CRUD_API}${this.baseEndpoint}`
-      );
-      return response.data;
-    } catch (error) {
-      return handleError(error);
-    }
-  }
-
   public async findOne(
     id: string
   ): Promise<FindOneUsersStorageResponse | NormalizedError> {
@@ -138,4 +125,24 @@ public async createStorage(
       return handleError(error);
     }
   }*/
+
+  public async deleteStorage(
+    token: string,
+    payload: DeleteUsersStoragePayload
+  ): Promise<void | NormalizedError> {
+    try {
+      await axios.delete(`${this.CRUD_API}${this.baseEndpoint}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          storageId: payload.storageId,
+        },
+      });
+
+      return;
+    } catch (error) {
+      return handleError(error);
+    }
+  }
 }

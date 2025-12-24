@@ -26,7 +26,6 @@ interface UserFindByNamePayload {
 }
 
 interface UserDeleteOnePayload {
-    id: string;
     currentPassword: string
 }
 

@@ -11,7 +11,7 @@ import {
   NotFoundError,
   ServiceUnavailableError,
 } from "../errors/index.js";
-import type { UpdateTeamPayload } from "../dto/payloads/team/index.js";
+import type { UpdateTeamPayload, DeleteTeamPayload } from "../dto/payloads/team/index.js";
 import type { UpdateTeamResponse } from "../dto/responses/teams/index.js";
 
 export class TeamsClient {
@@ -65,6 +65,22 @@ export class TeamsClient {
       );
 
       return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  }
+
+  public async deleteTeam(
+    token: string,
+    payload: DeleteTeamPayload
+  ): Promise<NormalizedError | void> {
+    try {
+      await axios.delete(`${this.CRUD_API}${this.baseEndpoint}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: { teamId: payload.teamId },
+      });
     } catch (error) {
       return handleError(error);
     }

@@ -13,4 +13,8 @@ interface addTeamStoragePayload {
     teamId: string;
 }
 
-export type { addCardUsersStoragePayload, addPositionCardStoragePayload, addTeamStoragePayload };
+interface DeleteUsersStoragePayload {
+    storageId: string;
+}
+
+export type { addCardUsersStoragePayload, addPositionCardStoragePayload, addTeamStoragePayload, DeleteUsersStoragePayload };

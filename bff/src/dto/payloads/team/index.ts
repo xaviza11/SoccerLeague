@@ -5,4 +5,8 @@ interface UpdateTeamPayload {
   auras?: string[];
 }
 
-export type { UpdateTeamPayload };
+interface DeleteTeamPayload {
+  teamId: string;
+}
+
+export type { UpdateTeamPayload, DeleteTeamPayload };

@@ -2,7 +2,7 @@ import axios from "axios";
 
 import { isUUID } from "../validators/uuid.js";
 import { configService, handleError } from "../helpers/index.js";
-import type {} from "../dto/payloads/users_storage/index.js";
+import type { DeleteUsersGameStatsPayload } from "../dto/payloads/users_game_stats/index.js";
 import type { CreateUsersGameStatsResponse } from "../dto/responses/users_game_stats/index.js";
 import type { NormalizedError } from "../dto/errors/index.js";
 import {
@@ -15,6 +15,7 @@ import {
 
 export class UsersGameStatsClient {
   private createEndpoint = "/users-game-stats";
+  private deleteEndpoint = "/users-game-stats";
 
   private CRUD_API: string;
 
@@ -36,6 +37,24 @@ export class UsersGameStatsClient {
         }
       );
       return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  }
+
+  public async deleteStats(
+    token: string,
+    payload: DeleteUsersGameStatsPayload
+  ): Promise<NormalizedError | void> {
+    try {
+      await axios.delete(`${this.CRUD_API}${this.deleteEndpoint}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          statsId: payload.statsId,
+        },
+      });
     } catch (error) {
       return handleError(error);
     }

@@ -70,6 +70,6 @@ export class UsersController {
     if (!body.currentPassword) {
       throw new BadRequestException('Current password is required - CRUD');
     }
-    return this.usersService.deleteUser(req.user.sub);
+    return this.usersService.deleteUser(req.user.sub, body.currentPassword);
   }
 }

@@ -21,17 +21,19 @@ export class UserService {
   private teamsClient = new TeamsClient();
   private playersClient = new PlayerClient();
 
-  created: {
-    userId?: string;
-    statsId?: string;
-    storageId?: string;
-    teamId?: string;
-    playerIds?: string[];
-  } = {};
+  private token = "";
+  private currentPassword = "";
 
   public async registerUser(payload: ServiceUserRegistrationPayload) {
     try {
       const user = await this.userClient.create(payload);
+
+      this.currentPassword = payload.password;
+
+      if (!("id" in user)) {
+        throw new Error("User registration failed");
+      }
+
       const login = await this.userClient.login({
         email: payload.email,
         password: payload.password,
@@ -42,6 +44,7 @@ export class UserService {
       }
 
       const decryptedToken = TokenCrypto.decrypt(login.accessToken);
+      this.token = decryptedToken;
 
       if (!decryptedToken) {
         throw new Error("Token decryption failed");
@@ -95,7 +98,9 @@ export class UserService {
 
       return { username: login.name, token: login.accessToken };
     } catch (error) {
-      //! Here the function needs to delete all the data created if any step fails
+      if (this.currentPassword && this.token) {
+        await this.userClient.deleteOne(this.token, {currentPassword: this.currentPassword});
+      }
       throw error;
     }
   }

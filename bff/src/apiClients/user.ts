@@ -123,11 +123,17 @@ export class UserClient {
   }
 
   public async deleteOne(
+    token: string,
     payload: UserDeleteOnePayload
   ): Promise<UserDeleteOneResponse | NormalizedError> {
     try {
-      const url = `${this.CRUD_API}${this.userDeleteEndpoint}${payload.id}`;
-      const response = await axios.delete<UserDeleteOneResponse>(url);
+      const url = `${this.CRUD_API}${this.userDeleteEndpoint}`;
+      const response = await axios.delete<UserDeleteOneResponse>(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: { currentPassword: payload.currentPassword },
+      });
       return response.data;
     } catch (error) {
       return handleError(error);
