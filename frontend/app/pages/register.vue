@@ -3,7 +3,7 @@
     <div :class="style.left">
       <slot name="logo">
         <div :class="style.titleContainer">
-          <Icon name="mdi:football-pitch" size="128" style="color: white" />
+          <Icon name="mdi:football-pitch" size="128" :class="style.whiteIcon" />
           <h1>{{ t("pageName") }}</h1>
         </div>
       </slot>
@@ -13,7 +13,7 @@
       <form @submit.prevent="onSubmit" :class="style.formWrapper">
         <div>
           <label>
-            <Icon name="mdi:email-outline" size="18" style="color: black" />
+            <Icon name="mdi:email-outline" size="18" :class="style.blackIcon" />
             {{ t("pages.register.email") }}
           </label>
           <input type="email" v-model="email" :class="style.formInput" />
@@ -22,7 +22,7 @@
 
         <div>
           <label>
-            <Icon name="mdi:account-outline" size="18" style="color: black" />
+            <Icon name="mdi:account-outline" size="18" :class="style.blackIcon" />
             {{ t("pages.register.name") }}
           </label>
           <input type="name" v-model="name" :class="style.formInput" />
@@ -31,7 +31,7 @@
 
         <div>
           <label>
-            <Icon name="lucide:lock" size="18" style="color: black" />
+            <Icon name="lucide:lock" size="18" :class="style.blackIcon" />
             {{ t("pages.register.password") }}
           </label>
           <input type="password" v-model="password" :class="style.formInput" />
@@ -59,19 +59,19 @@
           <Icon
             name="mdi:account-plus-outline"
             size="18"
-            style="color: white"
+            :class="style.whiteIcon"
           />
           {{ t("pages.register.register") }}
         </button>
 
         <div :class="style.linksContainer">
-          <NuxtLink to="/login" :class="style.linkButton">
-            <Icon name="mdi:login" size="16" style="color: var(--primary)" />
+          <NuxtLink :to="localePath('login')" :class="style.linkButton">
+            <Icon name="mdi:login" size="16" :class="style.blackIcon" />
             {{ t("pages.register.goLogin") }}
           </NuxtLink>
 
-          <NuxtLink to="/" :class="style.linkButton">
-            <Icon name="mdi:home" size="16" style="color: var(--primary)" />
+          <NuxtLink :to="localePath('')" :class="style.linkButton">
+            <Icon name="mdi:home" size="16" :class="style.blackIcon" />
             {{ t("pages.register.goHome") }}
           </NuxtLink>
         </div>
@@ -85,7 +85,10 @@ import { useForm, useField } from "vee-validate";
 import * as yup from "yup";
 import { useI18n } from "vue-i18n";
 
+//@ts-ignore
 const { t } = useI18n();
+//@ts-ignore
+const localePath = useLocalePath();
 
 const invalidEmailErr = t('warnings.auth.invalidEmail')
 const emailRequiredErr = t('warnings.auth.emailRequired')
@@ -195,6 +198,14 @@ const onSubmit = handleSubmit((values) => {
 
 .button:hover {
   background-color: var(--secondary-hover);
+}
+
+.blackIcon {
+  color: black
+}
+
+.whiteIcon {
+  color: white
 }
 
 @media screen and (orientation: portrait) {

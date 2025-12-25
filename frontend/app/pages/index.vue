@@ -12,9 +12,9 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n, useLocalePath } from "#imports";
-
-const { t, setLocale } = useI18n(); 
+// @ts-ignore
+const { t, setLocale } = useI18n();
+// @ts-ignore 
 const localePath = useLocalePath();
 </script>
 

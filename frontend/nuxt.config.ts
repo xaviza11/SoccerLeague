@@ -62,9 +62,9 @@ export default defineNuxtConfig({
         ca: "/sobre-nosaltres",
       },
       login: {
-        es: "/iniciar-sesión",
+        es: "/iniciar-sesion",
         en: "/login",
-        ca: "/iniciar-sessió",
+        ca: "/iniciar-sessio",
       },
       register: {
         es: "/registro",
@@ -83,9 +83,9 @@ export default defineNuxtConfig({
     "/en/about-us": { prerender: true },
     "/ca/sobre-nosaltres": { prerender: true },
 
-    "es/iniciar-sesión": { ssr: false },
+    "es/iniciar-sesion": { ssr: false },
     "/en/login": { ssr: false },
-    "/ca/iniciar-sessió": { ssr: false },
+    "/ca/iniciar-sessio": { ssr: false },
 
     "/es/registro": { ssr: false },
     "/en/register": { ssr: false },

@@ -9,6 +9,13 @@
       "register": "Registrate",
       "goLogin": "Iniciar Sesión",
       "goHome": "Ir a Inicio"
+    },
+    "login": {
+      "email": "Correo Electrónico",
+      "password": "Contraseña",
+      "login": "Iniciar Sesión",
+      "goRegister": "Registrarse",
+      "goHome": "Ir a Inicio"
     }
   },
   "warnings": {
