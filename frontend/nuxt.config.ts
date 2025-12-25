@@ -12,6 +12,7 @@ export default defineNuxtConfig({
     "nuxt-security",
     "@nuxtjs/robots",
     "@nuxtjs/sitemap",
+    '@nuxt/test-utils/module',
     "@nuxtjs/i18n",
   ],
 
