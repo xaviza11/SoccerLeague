@@ -97,7 +97,7 @@ export class UserService {
 
       return {
         username: login.name,
-        token: TokenCrypto.encrypt(login.accessToken),
+        token: login.accessToken,
       };
     } catch (error) {
       if (this.currentPassword && this.token) {
