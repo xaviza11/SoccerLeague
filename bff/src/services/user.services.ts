@@ -43,8 +43,7 @@ export class UserService {
         throw new Error("User registration or login failed");
       }
 
-      const decryptedToken = TokenCrypto.decrypt(login.accessToken);
-      this.token = decryptedToken;
+      const decryptedToken = login.accessToken
 
       if (!decryptedToken) {
         throw new Error("Token decryption failed");
@@ -96,7 +95,7 @@ export class UserService {
         }
       );
 
-      return { username: login.name, token: login.accessToken };
+      return { username: login.name, token: TokenCrypto.encrypt(login.accessToken) };
     } catch (error) {
       if (this.currentPassword && this.token) {
         await this.userClient.deleteOne(this.token, {currentPassword: this.currentPassword});

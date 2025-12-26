@@ -62,10 +62,6 @@ export class UserClient {
 
       const data = response.data;
 
-      if (data?.accessToken) {
-        data.accessToken = TokenCrypto.encrypt(data.accessToken);
-      }
-
       return data;
     } catch (error) {
       return handleError(error);
