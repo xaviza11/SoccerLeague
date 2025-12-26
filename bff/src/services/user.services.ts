@@ -43,7 +43,7 @@ export class UserService {
         throw new Error("User registration or login failed");
       }
 
-      const decryptedToken = login.accessToken
+      const decryptedToken = login.accessToken;
 
       if (!decryptedToken) {
         throw new Error("Token decryption failed");
@@ -95,10 +95,15 @@ export class UserService {
         }
       );
 
-      return { username: login.name, token: TokenCrypto.encrypt(login.accessToken) };
+      return {
+        username: login.name,
+        token: TokenCrypto.encrypt(login.accessToken),
+      };
     } catch (error) {
       if (this.currentPassword && this.token) {
-        await this.userClient.deleteOne(this.token, {currentPassword: this.currentPassword});
+        await this.userClient.deleteOne(this.token, {
+          currentPassword: this.currentPassword,
+        });
       }
       throw error;
     }
@@ -107,6 +112,13 @@ export class UserService {
   public async login(payload: ServiceUserLoginPayload) {
     try {
       const user = await this.userClient.login(payload);
+
+      if ("accessToken" in user === false) {
+        throw new Error("User registration or login failed");
+      }
+
+      TokenCrypto.encrypt(user.accessToken);
+
       return user;
     } catch (error) {
       throw error;
