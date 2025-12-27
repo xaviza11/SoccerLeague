@@ -46,7 +46,7 @@ export class UserService {
       });
 
       if (!("accessToken" in login)) {
-        return new AuthError("Error creating user - 0001");
+        return new AuthError("Error creating user - 001");
       }
 
       const decryptedToken = login.accessToken;
@@ -55,13 +55,22 @@ export class UserService {
         throw new ServiceUnavailableError("Error creating user - 002");
       }
 
-      await this.usersGameStatsClient.createStats(decryptedToken);
-      await this.usersStorageClient.createStorage(decryptedToken);
+      const stats = await this.usersGameStatsClient.createStats(decryptedToken);
+
+      if(!("id" in stats)) {
+        throw new ServiceUnavailableError("Error creating user - 003")
+      }
+
+      const storage = await this.usersStorageClient.createStorage(decryptedToken);
+
+      if(!("id" in storage)) {
+        throw new ServiceUnavailableError("Error creating user - 004")
+      }
 
       const team = await this.teamsClient.createTeam(decryptedToken);
 
       if (!("id" in team)) {
-        throw new ServiceUnavailableError("Error creating user - 003");
+        throw new ServiceUnavailableError("Error creating user - 005");
       }
 
       const teamPlayers = await this.simulatorClient.generateTeam(55);
@@ -76,7 +85,7 @@ export class UserService {
       );
 
       if (createdPlayers.some((p) => !("id" in p))) {
-        throw new ServiceUnavailableError("Error creating user - 004");
+        throw new ServiceUnavailableError("Error creating user - 006");
       }
 
       const validPlayers = createdPlayers.filter(
@@ -84,7 +93,7 @@ export class UserService {
       );
 
       if (validPlayers.length !== createdPlayers.length) {
-        throw new ServiceUnavailableError("Error creating user - 005");
+        throw new ServiceUnavailableError("Error creating user - 007");
       }
 
       const playerIds = validPlayers.map((p) => p.id);
