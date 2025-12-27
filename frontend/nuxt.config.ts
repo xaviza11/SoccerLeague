@@ -76,35 +76,35 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    "/es/inicio": { swr: 3600 * 8 },
-    "/en/home": { swr: 3600 * 8 },
-    "/ca/inici": { swr: 3600 * 8 },
+    "/es/inicio": { ssr: true },
+    "/en/home": { ssr: true  },
+    "/ca/inici": { ssr: true },
 
     "/es/sobre-nosotros": { prerender: true },
     "/en/about-us": { prerender: true },
     "/ca/sobre-nosaltres": { prerender: true },
 
-    "es/iniciar-sesion": { ssr: false },
-    "/en/login": { ssr: false },
-    "/ca/iniciar-sessio": { ssr: false },
+    "es/iniciar-sesion": { prerender: true },
+    "/en/login": { prerender: true },
+    "/ca/iniciar-sessio": { prerender: true },
 
-    "/es/registro": { ssr: false },
-    "/en/register": { ssr: false },
-    "/ca/registre": { ssr: false }, 
+    "/es/registro": { prerender: true },
+    "/en/register": { prerender: true },
+    "/ca/registre": { prerender: true }, 
 
     /*  
     // static page
-    "/about": { prerender: true },
+    "/about": { prerender: true }, ==> ssg
     // ISR
-    "/blog/**": { isr: true },
+    "/blog/**": { isr: true }, ==> ISR
     // SPA
-    "/admin/**": { ssr: false },
+    "/admin/**": { ssr: false }, ==> SPA
     // SSR whit cache 1h
-    '/products/**': { swr: 3600 },
+    '/products/**': { swr: 3600 }, ==> SWR
     // SSR 
-    '/contact': { ssr: true },
+    '/contact': { ssr: true }, ==> SSR
     // no index
-    '/no-index': { index: false }*/
+    '/no-index': { index: false } ==> no index*/ 
   },
 
   fonts: {

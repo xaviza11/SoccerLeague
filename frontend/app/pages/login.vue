@@ -55,8 +55,13 @@ import { useForm, useField } from "vee-validate";
 import * as yup from "yup";
 
 //@ts-ignore
+definePageMeta({
+  layout: 'no-navbar-footer'
+})
+
+//@ts-ignore
 const { t, setLocale } = useI18n();
-//@ts-ignore 
+//@ts-ignore
 const localePath = useLocalePath();
 
 const invalidEmailErr = t("warnings.auth.invalidEmail");

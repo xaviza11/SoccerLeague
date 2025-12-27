@@ -86,6 +86,11 @@ import * as yup from "yup";
 import { useI18n } from "vue-i18n";
 
 //@ts-ignore
+definePageMeta({
+  layout: 'no-navbar-footer'
+})
+
+//@ts-ignore
 const { t } = useI18n();
 //@ts-ignore
 const localePath = useLocalePath();
