@@ -38,7 +38,6 @@ export class SimulatorClient {
       );
       return response.data;
     } catch (err: any) {
-      // Log completo del error
       console.error("Axios error:", {
         message: err.message,
         code: err.code,
@@ -47,7 +46,7 @@ export class SimulatorClient {
         config: err.config,
       });
 
-      return handleError(err); // sigue usando tu handler si lo necesitas
+      return handleError(err); 
     }
   }
 

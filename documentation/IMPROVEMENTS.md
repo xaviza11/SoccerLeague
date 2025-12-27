@@ -8,3 +8,15 @@
 - There are still features remaining to be added, such as **penalties, cards, free kicks**, etc.
 
 - For add this features must exist a system for let the player the possibility of select the strikers.
+
+- Add logs for production find some library
+
+
+## Backend
+
+- Add logs for production find some library
+
+
+## BFF
+
+- Add logs for production find some library

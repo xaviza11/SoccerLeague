@@ -12,6 +12,13 @@ import type {
 } from "../dto/servicePayloads/users/index.js";
 import type { CreatePlayerResponse } from "../dto/responses/player/index.js";
 import { TokenCrypto } from "../helpers/encrypt.js";
+import {
+  AuthError,
+  ConflictError,
+  NotFoundError,
+  ServiceUnavailableError,
+  ValidationError,
+} from "../errors/index.js";
 
 export class UserService {
   private userClient = new UserClient();
@@ -27,11 +34,10 @@ export class UserService {
   public async registerUser(payload: ServiceUserRegistrationPayload) {
     try {
       const user = await this.userClient.create(payload);
-
       this.currentPassword = payload.password;
 
       if (!("id" in user)) {
-        throw new Error("User registration failed");
+        return new ConflictError(user.message ?? "Error creating user - 000");
       }
 
       const login = await this.userClient.login({
@@ -39,28 +45,23 @@ export class UserService {
         password: payload.password,
       });
 
-      if ("accessToken" in login === false) {
-        throw new Error("User registration or login failed");
+      if (!("accessToken" in login)) {
+        return new AuthError("Error creating user - 0001");
       }
 
       const decryptedToken = login.accessToken;
 
       if (!decryptedToken) {
-        throw new Error("Token decryption failed");
+        throw new ServiceUnavailableError("Error creating user - 002");
       }
 
-      const stats = await this.usersGameStatsClient.createStats(decryptedToken);
-
-      const storage = await this.usersStorageClient.createStorage(
-        decryptedToken
-      );
+      await this.usersGameStatsClient.createStats(decryptedToken);
+      await this.usersStorageClient.createStorage(decryptedToken);
 
       const team = await this.teamsClient.createTeam(decryptedToken);
 
       if (!("id" in team)) {
-        throw new Error(
-          `Team creation failed ${JSON.stringify(team, null, 2)}`
-        );
+        throw new ServiceUnavailableError("Error creating user - 003");
       }
 
       const teamPlayers = await this.simulatorClient.generateTeam(55);
@@ -75,25 +76,22 @@ export class UserService {
       );
 
       if (createdPlayers.some((p) => !("id" in p))) {
-        throw new Error("Player creation failed");
+        throw new ServiceUnavailableError("Error creating user - 004");
       }
+
       const validPlayers = createdPlayers.filter(
         (p): p is CreatePlayerResponse => "id" in p
       );
 
       if (validPlayers.length !== createdPlayers.length) {
-        throw new Error("Some players failed to be created");
+        throw new ServiceUnavailableError("Error creating user - 005");
       }
 
       const playerIds = validPlayers.map((p) => p.id);
 
-      const updatedTeam = await this.teamsClient.updateTeam(
-        decryptedToken,
-        team.id,
-        {
-          players: playerIds,
-        }
-      );
+      await this.teamsClient.updateTeam(decryptedToken, team.id, {
+        players: playerIds,
+      });
 
       return {
         username: login.name,
@@ -113,12 +111,11 @@ export class UserService {
     try {
       const user = await this.userClient.login(payload);
 
-      if ("accessToken" in user === false) {
-        throw new Error("User registration or login failed");
+      if (!("accessToken" in user)) {
+        throw new AuthError(user.message ?? "Invalid email or password");
       }
 
       TokenCrypto.encrypt(user.accessToken);
-
       return user;
     } catch (error) {
       throw error;
