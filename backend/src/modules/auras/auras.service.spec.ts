@@ -165,7 +165,7 @@ describe('AurasService', () => {
       mockAuraRepo.findOne.mockResolvedValue(aura);
       mockAuraRepo.delete.mockResolvedValue({});
 
-      const result = await service.delete(validAuraId, validUserId);
+      const result = await service.delete(validAuraId);
 
       expect(result).toEqual({ message: 'Aura deleted successfully' });
       expect(mockAuraRepo.delete).toHaveBeenCalledWith(validAuraId);
@@ -173,7 +173,7 @@ describe('AurasService', () => {
 
     it('should throw NotFoundException if aura not found', async () => {
       mockAuraRepo.findOne.mockResolvedValue(null);
-      await expect(service.delete(validAuraId, validUserId)).rejects.toThrow(
+      await expect(service.delete(validAuraId)).rejects.toThrow(
         NotFoundException,
       );
     });

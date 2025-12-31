@@ -87,6 +87,6 @@ describe('UsersController', () => {
     const body = { currentPassword: '1234' };
     const result = await controller.delete(req, body);
     expect(result).toBe('user deleted');
-    expect(mockUsersService.deleteUser).toHaveBeenCalledWith('user123');
+    expect(mockUsersService.deleteUser).toHaveBeenCalledWith('user123', '1234');
   });
 });

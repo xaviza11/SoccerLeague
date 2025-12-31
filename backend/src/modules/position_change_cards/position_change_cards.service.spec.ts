@@ -121,14 +121,14 @@ describe('PositionChangeCardsService', () => {
   describe('deleteOne', () => {
     it('should throw if user not found', async () => {
       mockUsersRepo.findOne!.mockResolvedValue(null);
-      await expect(service.deleteOne('card-uuid', 'user-uuid')).rejects.toThrow(NotFoundException);
+      await expect(service.deleteOne('card-uuid')).rejects.toThrow(NotFoundException);
     });
 
     it('should throw if card not found', async () => {
       mockUsersRepo.findOne!.mockResolvedValue({ id: 'user-uuid' });
       mockPositionChangeCardRepo.findOne!.mockResolvedValue(null);
 
-      await expect(service.deleteOne('card-uuid', 'user-uuid')).rejects.toThrow(NotFoundException);
+      await expect(service.deleteOne('card-uuid')).rejects.toThrow(NotFoundException);
     });
 
     it('should delete the card and return success message', async () => {
@@ -136,7 +136,7 @@ describe('PositionChangeCardsService', () => {
       mockPositionChangeCardRepo.findOne!.mockResolvedValue({ id: 'card-uuid' });
       mockPositionChangeCardRepo.delete!.mockResolvedValue({ affected: 1 });
 
-      const result = await service.deleteOne('card-uuid', 'user-uuid');
+      const result = await service.deleteOne('card-uuid');
       expect(result).toEqual({ message: 'Card deleted successfully' });
       expect(mockPositionChangeCardRepo.delete).toHaveBeenCalledWith('card-uuid');
     });

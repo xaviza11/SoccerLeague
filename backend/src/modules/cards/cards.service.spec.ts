@@ -145,7 +145,7 @@ describe('CardsService', () => {
       mockCardRepo.findOne.mockResolvedValue(card);
       mockCardRepo.delete.mockResolvedValue({});
 
-      const result = await service.delete(validCardId, validUserId);
+      const result = await service.delete(validCardId);
 
       expect(result).toEqual({ message: 'Card deleted successfully' });
       expect(mockCardRepo.delete).toHaveBeenCalledWith(validCardId);
@@ -153,7 +153,7 @@ describe('CardsService', () => {
 
     it('should throw NotFoundException if card not found', async () => {
       mockCardRepo.findOne.mockResolvedValue(null);
-      await expect(service.delete(validCardId, validUserId)).rejects.toThrow(NotFoundException);
+      await expect(service.delete(validCardId)).rejects.toThrow(NotFoundException);
     });
   });
 });
