@@ -22,7 +22,11 @@
 
         <div>
           <label>
-            <Icon name="mdi:account-outline" size="18" :class="style.blackIcon" />
+            <Icon
+              name="mdi:account-outline"
+              size="18"
+              :class="style.blackIcon"
+            />
             {{ t("pages.register.name") }}
           </label>
           <input type="name" v-model="name" :class="style.formInput" />
@@ -84,36 +88,43 @@
 import { useForm, useField } from "vee-validate";
 import * as yup from "yup";
 import { useI18n } from "vue-i18n";
+import { handlerCreateUser } from "../handlers/users";
+import { useAlert } from "../composables/useAlert";
+import { useUserStore } from "../stores/index";
 
 //@ts-ignore
 definePageMeta({
-  layout: 'no-navbar-footer'
-})
+  layout: "no-navbar-footer",
+});
 
 //@ts-ignore
 const { t } = useI18n();
 //@ts-ignore
 const localePath = useLocalePath();
 
-const invalidEmailErr = t('warnings.auth.invalidEmail')
-const emailRequiredErr = t('warnings.auth.emailRequired')
-const passwordRequiredErr = t('warnings.auth.passwordRequired')
-const passwordLengthErr = t('warnings.auth.passwordLength')
-const passwordFormatErr = t('warnings.auth.passwordFormat')
-const passwordMatchErr = t('warnings.auth.passwordsMatch')
-const confirmPasswordErr = t('warnings.auth.confirmPassword')
+const userStore = useUserStore();
+
+const { showAlert } = useAlert();
+
+const invalidEmailErr = t("warnings.auth.invalidEmail");
+const emailRequiredErr = t("warnings.auth.emailRequired");
+const passwordRequiredErr = t("warnings.auth.passwordRequired");
+const passwordLengthErr = t("warnings.auth.passwordLength");
+const passwordFormatErr = t("warnings.auth.passwordFormat");
+const passwordMatchErr = t("warnings.auth.passwordsMatch");
+const confirmPasswordErr = t("warnings.auth.confirmPassword");
+const nameRequiredErr = t("warnings.auth.invalidName");
 
 const schema = yup.object({
+  name: yup.string().required(nameRequiredErr),
+
   email: yup.string().email(invalidEmailErr).required(emailRequiredErr),
 
   password: yup
     .string()
     .required(passwordRequiredErr)
     .min(8, passwordLengthErr)
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      passwordFormatErr
-    ),
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, passwordFormatErr),
 
   confirmPassword: yup
     .string()
@@ -126,11 +137,41 @@ const { handleSubmit, errors } = useForm({
 });
 
 const { value: email } = useField<string>("email");
+const { value: name } = useField<string>("name");
 const { value: password } = useField<string>("password");
 const { value: confirmPassword } = useField<string>("confirmPassword");
 
-const onSubmit = handleSubmit((values) => {
-  console.log("Register payload:", values);
+const onSubmit = handleSubmit(async (values) => {
+
+  if (!values.name) {
+    showAlert({ message: "warnings.auth.invalidName", statusCode: 400 });
+    return;
+  }
+
+  if (!values.email) {
+    showAlert({ message: "warnings.auth.emailRequired", statusCode: 400 });
+    return;
+  }
+
+  if (!values.password) {
+    showAlert({ message: "warnings.auth.passwordRequired", statusCode: 400 });
+    return;
+  }
+
+  try {
+    const response = await handlerCreateUser({
+      name: values.name,
+      email: values.email,
+      password: values.password,
+    });
+
+    userStore.setName(response.username as string);
+
+    //@ts-ignore
+    await navigateTo(localePath("/"));
+  } catch (error) {
+    showAlert({ message: error.message, statusCode: error.status });
+  }
 });
 </script>
 
@@ -206,11 +247,11 @@ const onSubmit = handleSubmit((values) => {
 }
 
 .blackIcon {
-  color: black
+  color: black;
 }
 
 .whiteIcon {
-  color: white
+  color: white;
 }
 
 @media screen and (orientation: portrait) {
@@ -237,8 +278,8 @@ const onSubmit = handleSubmit((values) => {
 }
 
 @media screen and (max-width: 768px) and (orientation: landscape) {
-    .linkButton {
-        font-size: var(--text-sxs);
-    }
+  .linkButton {
+    font-size: var(--text-sxs);
+  }
 }
 </style>

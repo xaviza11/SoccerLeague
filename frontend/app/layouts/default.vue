@@ -3,6 +3,7 @@
     <DefaultNavbar />
     <main :class="style.mainContainer">
       <slot />
+      <Alert />
     </main>
     <DefaultFooter />
   </div>
@@ -11,6 +12,7 @@
 <script setup>
 import { DefaultNavbar } from "../components/navbars";
 import { DefaultFooter } from "../components/footers";
+import { Alert } from "../components/alerts";
 </script>
 
 <style module="style">

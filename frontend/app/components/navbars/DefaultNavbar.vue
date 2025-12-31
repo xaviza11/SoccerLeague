@@ -84,14 +84,25 @@
 
 <script setup>
 import { ref } from "vue";
+import {useUserStore} from "../../stores"
 
 const { t } = useI18n();
 const localePath = useLocalePath();
 
-const name = "John_Doe_1231238495349394";
-const reducedName = name.slice(0, 12);
+const userStore = useUserStore();
 
-const parsedName = name.length > 12 ? reducedName + "..." : name;
+const parsedName = computed(() => {
+
+  const name = userStore.name
+
+  if (!name) {
+    return t("guest");
+  }
+
+  return name.length > 12
+    ? name.slice(0, 12) + "..."
+    : name;
+});
 
 const isOpen = ref(false);
 
@@ -197,4 +208,13 @@ const toggleMenu = () => {
   justify-content: center;
   align-items: center;
 }
+
+
+@media (max-width: 1000px) and (orientation: landscape) {
+  .dropdownMenu {
+    width: 30vh;
+    height: 60vh; 
+  }
+}
+
 </style>

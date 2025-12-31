@@ -42,7 +42,7 @@ import { TeamsModule } from './modules/teams/teams.module';
     }),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'your-secret-key',
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '4h' },
       global: true,
     }),
   ],

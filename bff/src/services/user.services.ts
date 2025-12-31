@@ -104,7 +104,7 @@ export class UserService {
 
       return {
         username: login.name,
-        token: login.accessToken,
+        token: TokenCrypto.encrypt(login.accessToken),
       };
     } catch (error) {
       if (this.currentPassword && this.token) {
@@ -124,8 +124,11 @@ export class UserService {
         throw new AuthError(user.message ?? "Invalid email or password");
       }
 
-      TokenCrypto.encrypt(user.accessToken);
-      return user;
+      
+      return {
+        username: user.name,
+        token: TokenCrypto.encrypt(user.accessToken)
+      }
     } catch (error) {
       throw error;
     }

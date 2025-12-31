@@ -53,16 +53,22 @@
 <script setup lang="ts">
 import { useForm, useField } from "vee-validate";
 import * as yup from "yup";
+import { handlerLogin } from "../handlers/users";
+import { useUserStore } from "../stores";
+import { useAlert } from "../composables/useAlert";
 
 //@ts-ignore
 definePageMeta({
-  layout: 'no-navbar-footer'
-})
+  layout: "no-navbar-footer",
+});
 
 //@ts-ignore
 const { t, setLocale } = useI18n();
 //@ts-ignore
 const localePath = useLocalePath();
+
+const userStore = useUserStore();
+const { showAlert } = useAlert();
 
 const invalidEmailErr = t("warnings.auth.invalidEmail");
 const emailRequiredErr = t("warnings.auth.emailRequired");
@@ -86,10 +92,26 @@ const { handleSubmit, errors } = useForm({
 const { value: email } = useField<string>("email");
 const { value: password } = useField<string>("password");
 
-const onSubmit = handleSubmit((values) => {
-  console.log("Login payload:", values);
+const onSubmit = handleSubmit(async (values) => {
+  try {
+    const response = await handlerLogin({
+      email: values.email,
+      password: values.password,
+    });
+
+    userStore.setName(response.username as string);
+
+    //@ts-ignore
+    await navigateTo(localePath("/"));
+  } catch (error: any) {
+    showAlert({
+      message: error.message || t("warnings.auth.loginFailed"),
+      statusCode: error.status || 400,
+    });
+  }
 });
 </script>
+
 
 <style module="style">
 .main {

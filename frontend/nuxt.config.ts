@@ -14,6 +14,7 @@ export default defineNuxtConfig({
     "@nuxtjs/sitemap",
     '@nuxt/test-utils/module',
     "@nuxtjs/i18n",
+    "pinia-plugin-persistedstate",
   ],
 
   site: {

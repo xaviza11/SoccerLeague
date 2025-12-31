@@ -1,5 +1,6 @@
 {
   "pageName": "SoccerLeague",
+  "guest": "invitado",
   "pages": {
     "register": {
       "email": "Correo Electrónico",
@@ -26,7 +27,19 @@
       "passwordLength": "La contraseña ha de tener 8 carácteres",
       "passwordFormat": "La contraseña necesita 1 mayuscula, 1 minuscula y un número",
       "passwordsMatch": "Las contraseñas no coinciden",
-      "confirmPassword": "Confirma tu contraseña"
+      "confirmPassword": "Confirma tu contraseña",
+      "invalidName": "Se require un nombre de usuario"
+    }
+  },
+  "errors": {
+    "auth": {
+      "nameInvalidLength": "El nombre debe tener al menos un caracter",
+      "invalidEmailFormat": "Formato de correo electrónico inválido",
+      "weakPassword": "La contraseña es demasiado débil",
+      "emailAlreadyUsed": "El correo ya está en uso",
+      "nameAlreadyUsed": "El nombre ya está en uso",
+      "invalidCredentials": "Credenciales inválidas",
+      "errorCreatingUser": "Error al crear el usuario"
     }
   }
 }

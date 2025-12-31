@@ -15,3 +15,6 @@ docker-compose.override.yml
 # IDE / OS
 *.swp
 .DS_Store
+
+# vscode
+.vscode/
