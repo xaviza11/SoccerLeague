@@ -34,6 +34,7 @@ export class UserClient {
   private findByNameEndpoint = "/users/search/name/";
   private userDeleteEndpoint = "/users/";
   private findAllEndpoint = "/users";
+  private findSelfUser = "/users/me";
 
   private CRUD_API: string;
 
@@ -68,7 +69,7 @@ export class UserClient {
     }
   }
 
-  public async update(
+  /*public async update(
     payload: UserUpdatePayload
   ): Promise<UserUpdateResponse | NormalizedError> {
     try {
@@ -78,9 +79,9 @@ export class UserClient {
     } catch (error) {
       return handleError(error);
     }
-  }
+  }*/
 
-  public async findOne(
+  /*public async findOne(
     payload: UserFindOnePayload
   ): Promise<UserFindOneResponse | NormalizedError> {
     try {
@@ -94,9 +95,31 @@ export class UserClient {
     } catch (error) {
       return handleError(error);
     }
+  }*/
+
+  public async findMe(
+    token: string
+  ): Promise<UserFindOneResponse | NormalizedError> {
+    try {
+      if (!token) {
+        throw new AuthError("Missing auth token - BFF");
+      }
+
+      const url = `${this.CRUD_API}${this.findSelfUser}`;
+
+      const response = await axios.get<UserFindOneResponse>(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
   }
 
-  public async findAll(): Promise<UserFindAllResponse | NormalizedError> {
+  /*public async findAll(): Promise<UserFindAllResponse | NormalizedError> {
     try {
       const url = `${this.CRUD_API}${this.findAllEndpoint}`;
       const response = await axios.get<UserFindAllResponse>(url);
@@ -104,9 +127,9 @@ export class UserClient {
     } catch (error) {
       return handleError(error);
     }
-  }
+  }*/
 
-  public async findByName(
+  /*public async findByName(
     payload: UserFindByNamePayload
   ): Promise<UserFindByNameResponse | NormalizedError> {
     try {
@@ -116,7 +139,7 @@ export class UserClient {
     } catch (error) {
       return handleError(error);
     }
-  }
+  }*/
 
   public async deleteOne(
     token: string,

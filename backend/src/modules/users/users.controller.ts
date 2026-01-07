@@ -27,10 +27,11 @@ export class UsersController {
     return this.usersService.login(body.email, body.password);
   }
 
-  @Get(':id')
+  @Get('me')
   @UseGuards(AuthGuard)
-  async findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  async findMe(@Req() req) {
+    const userId = req.user.sub;
+    return this.usersService.findOne(userId);
   }
 
   @Get('search/name/:name')

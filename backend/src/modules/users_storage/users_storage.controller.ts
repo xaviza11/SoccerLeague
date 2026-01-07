@@ -43,7 +43,9 @@ export class UsersStorageController {
     return this.usersStorageService.deleteStorage(req.user.id, storageId);
   }
 
-  @Get(':id') @UseGuards(AuthGuard) async findOne(@Param('id') id: string) {
+  @Get(':id') 
+  @UseGuards(AuthGuard) 
+  async findOne(@Param('id') id: string) {
     return this.usersStorageService.findOne(id);
   }
 

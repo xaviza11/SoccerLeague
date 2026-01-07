@@ -62,12 +62,6 @@ describe('UsersController', () => {
     );
   });
 
-  it('should find one user', async () => {
-    const result = await controller.findOne('123');
-    expect(result).toBe('user found');
-    expect(mockUsersService.findOne).toHaveBeenCalledWith('123');
-  });
-
   it('should search users by name', async () => {
     const result = await controller.searchByName('john');
     expect(result).toEqual("user found");

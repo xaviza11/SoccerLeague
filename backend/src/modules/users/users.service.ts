@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../../entities';
+import { User, UserStats } from '../../entities';
 import { validatePassword, validateEmail } from '../../validators';
 
 @Injectable()
@@ -15,6 +15,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepo: Repository<User>,
+    @InjectRepository(UserStats)
+    private readonly userStatsRepo: Repository<UserStats>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -119,7 +121,10 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<any> {
-    const user = await this.usersRepo.findOne({ where: { id } });
+    const user = await this.usersRepo.findOne({
+      where: { id },
+      relations: ['storage', 'stats'],
+    });
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found - CRUD`);
     }

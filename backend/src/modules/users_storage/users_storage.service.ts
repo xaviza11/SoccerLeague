@@ -26,9 +26,10 @@ export class UsersStorageService {
   async createStorage(userId: string): Promise<Storage> {
     const user = await this.usersRepo.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
-
     const storage = this.storageRepo.create();
-    return this.storageRepo.save(storage);
+    user.storage = storage;
+    await this.usersRepo.save(user);
+    return storage;
   }
 
   async addPositionChangeCard(id: string, cardId: string): Promise<Storage> {

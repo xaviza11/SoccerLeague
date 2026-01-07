@@ -57,14 +57,16 @@ export class UserService {
 
       const stats = await this.usersGameStatsClient.createStats(decryptedToken);
 
-      if(!("id" in stats)) {
-        throw new ServiceUnavailableError("Error creating user - 003")
+      if (!("id" in stats)) {
+        throw new ServiceUnavailableError("Error creating user - 003");
       }
 
-      const storage = await this.usersStorageClient.createStorage(decryptedToken);
+      const storage = await this.usersStorageClient.createStorage(
+        decryptedToken
+      );
 
-      if(!("id" in storage)) {
-        throw new ServiceUnavailableError("Error creating user - 004")
+      if (!("id" in storage)) {
+        throw new ServiceUnavailableError("Error creating user - 004");
       }
 
       const team = await this.teamsClient.createTeam(decryptedToken);
@@ -102,9 +104,23 @@ export class UserService {
         players: playerIds,
       });
 
+      const me = await this.userClient.findMe(decryptedToken);
+
+      if (!("name" in me))
+        throw new ServiceUnavailableError("Error creating user - 008");
+      if (!("storage" in me))
+        throw new ServiceUnavailableError("Error creating user - 009");
+      if (!("stats" in me))
+        throw new ServiceUnavailableError("Error creating user - 010");
+      if (!("has_game" in me))
+        throw new ServiceUnavailableError("Error creating user - 011");
+
       return {
-        username: login.name,
+        username: me.name,
         token: TokenCrypto.encrypt(login.accessToken),
+        storage: me.storage,
+        stats: me.stats,
+        has_game: me.has_game,
       };
     } catch (error) {
       if (this.currentPassword && this.token) {
@@ -124,11 +140,25 @@ export class UserService {
         throw new AuthError(user.message ?? "Invalid email or password");
       }
 
-      
+      const decryptedToken = user.accessToken;
+
+      const me = await this.userClient.findMe(decryptedToken);
+      if (!("name" in me))
+        throw new ServiceUnavailableError("Error on retrieve user - 001");
+      if (!("storage" in me))
+        throw new ServiceUnavailableError("Error on retrieve user - 002");
+      if (!("stats" in me))
+        throw new ServiceUnavailableError("Error on retrieve user - 003");
+      if (!("has_game" in me))
+        throw new ServiceUnavailableError("Error on retrieve user - 004");
+
       return {
-        username: user.name,
-        token: TokenCrypto.encrypt(user.accessToken)
-      }
+        username: me.name,
+        token: TokenCrypto.encrypt(user.accessToken),
+        storage: me.storage,
+        stats: me.stats,
+        has_game: me.has_game,
+      };
     } catch (error) {
       throw error;
     }
