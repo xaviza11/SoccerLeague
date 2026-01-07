@@ -11,104 +11,96 @@
     </header>
 
     <div :class="style.dropdownMenu" v-if="isOpen">
-      <div :class="style.dropdownHeader">
-        <h6>{{ parsedName }}</h6>
-        <Icon name="mdi:user" size="16" :class="style.blackIcon" />
+      <div v-if="!isUserLogged" :class="style.dropdownHeader">
+        <NuxtLink :to="localePath('login')" :class="style.navItem">
+          <Icon name="mdi:login" size="18" :class="style.blackIcon" />
+          <span>{{ t("components.navbar.login") }}</span>
+        </NuxtLink>
       </div>
-      <div :class="style.dropdownBody">
-        <ul :class="style.navList">
-          <li>
-            <NuxtLink :to="localePath('index')" :class="style.navItem">
-              <Icon name="mdi:home" size="18" :class="style.blackIcon" />
-              <span>{{ t("home") }}</span>
-            </NuxtLink>
-          </li>
 
-          <li>
-            <NuxtLink :to="localePath('about')" :class="style.navItem">
-              <Icon
-                name="mdi:information-outline"
-                size="18"
-                :class="style.blackIcon"
-              />
-              <span>{{ t("about") }}</span>
-            </NuxtLink>
-          </li>
+      <div>
+        <div v-if="isUserLogged" :class="style.dropdownHeader">
+          <h6>{{ parsedName }}</h6>
+          <Icon name="mdi:user" size="16" :class="style.blackIcon" />
+        </div>
 
-          <li>
-            <NuxtLink :to="localePath('teams')" :class="style.navItem">
-              <Icon
-                name="mdi:account-group"
-                size="18"
-                :class="style.blackIcon"
-              />
-              <span>{{ t("teams") }}</span>
-            </NuxtLink>
-          </li>
+        <div :class="style.dropdownBody">
+          <ul :class="style.navList">
+            <li>
+              <NuxtLink :to="localePath('index')" :class="style.navItem">
+                <Icon name="mdi:home" size="18" :class="style.blackIcon" />
+                <span>{{ t("components.navbar.home") }}</span>
+              </NuxtLink>
+            </li>
+            <li>
+              <NuxtLink :to="localePath('about')" :class="style.navItem">
+                <Icon name="mdi:information-outline" size="18" :class="style.blackIcon" />
+                <span>{{ t("components.navbar.about") }}</span>
+              </NuxtLink>
+            </li>
+            <li>
+              <NuxtLink :to="localePath('team')" :class="style.navItem">
+                <Icon name="mdi:account-group" size="18" :class="style.blackIcon" />
+                <span>{{ t("components.navbar.team") }}</span>
+              </NuxtLink>
+            </li>
+            <li>
+              <NuxtLink :to="localePath('market')" :class="style.navItem">
+                <Icon name="mdi:calendar-month" size="18" :class="style.blackIcon" />
+                <span>{{ t("components.navbar.market") }}</span>
+              </NuxtLink>
+            </li>
+            <li>
+              <NuxtLink :to="localePath('contact')" :class="style.navItem">
+                <Icon name="mdi:email-outline" size="18" :class="style.blackIcon" />
+                <span>{{ t("components.navbar.contact") }}</span>
+              </NuxtLink>
+            </li>
+          </ul>
+        </div>
 
-          <li>
-            <NuxtLink :to="localePath('fixtures')" :class="style.navItem">
-              <Icon
-                name="mdi:calendar-month"
-                size="18"
-                :class="style.blackIcon"
-              />
-              <span>{{ t("fixtures") }}</span>
-            </NuxtLink>
-          </li>
-
-          <li>
-            <NuxtLink :to="localePath('contact')" :class="style.navItem">
-              <Icon
-                name="mdi:email-outline"
-                size="18"
-                :class="style.blackIcon"
-              />
-              <span>{{ t("contact") }}</span>
-            </NuxtLink>
-          </li>
-        </ul>
-      </div>
-      <div :class="style.dropdownFooter">
-        <button>
-          <Icon name="mdi:translate" size="18" :class="style.blackIcon" />
-        </button>
-
-        <button>
-          <Icon name="mdi:logout" size="18" :class="style.blackIcon" />
-        </button>
+        <div :class="style.dropdownFooter">
+          <SwitchLocale />
+          <button @click="logout">
+            <Icon name="mdi:logout" size="18" :class="style.blackIcon" />
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import {useUserStore} from "../../stores"
+import { ref, computed } from "vue";
+import { useUserStore } from "../../stores";
+import { handlerLogout } from "../../handlers/users";
+import SwitchLocale from "./SwitchLocale.vue";
 
 const { t } = useI18n();
 const localePath = useLocalePath();
-
 const userStore = useUserStore();
 
 const parsedName = computed(() => {
-
-  const name = userStore.name
-
-  if (!name) {
-    return t("guest");
-  }
-
-  return name.length > 12
-    ? name.slice(0, 12) + "..."
-    : name;
+  const name = userStore.name;
+  if (!name) return "not-logged";
+  return name.length > 12 ? name.slice(0, 12) + "..." : name;
 });
 
-const isOpen = ref(false);
+const isUserLogged = computed(() => parsedName.value !== "not-logged");
 
+const isOpen = ref(false);
 const toggleMenu = () => {
   isOpen.value = !isOpen.value;
-  console.log(isOpen.value);
+};
+
+const logout = async () => {
+  try {
+    await handlerLogout();
+    userStore.reset(); 
+    isOpen.value = false;
+  } catch (error) {
+    console.error("Error:", error);
+  }
 };
 </script>
 
@@ -140,6 +132,10 @@ const toggleMenu = () => {
   background-color: var(--surface);
   box-shadow: var(--shadow-md);
   z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .dropdownMenu h6 {
@@ -160,10 +156,11 @@ const toggleMenu = () => {
 
 .dropdownBody {
   display: flex;
+  overflow-y: auto;
   justify-content: flex-start;
   border-top: 1px solid var(--primary);
   border-bottom: 1px solid var(--primary);
-  height: 70%;
+  height: 30vh;
 }
 
 .dropdownBody ul {
@@ -175,7 +172,7 @@ const toggleMenu = () => {
 }
 
 .dropdownFooter {
-  height: 15%;
+  height: 10%;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -209,12 +206,14 @@ const toggleMenu = () => {
   align-items: center;
 }
 
-
 @media (max-width: 1000px) and (orientation: landscape) {
   .dropdownMenu {
     width: 30vh;
-    height: 60vh; 
+    height: 60vh;
+  }
+
+  .dropdownBody {
+    height: 42vh;
   }
 }
-
 </style>

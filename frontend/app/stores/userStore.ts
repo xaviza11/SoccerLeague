@@ -7,7 +7,11 @@ export const useUserStore = defineStore('user', () => {
     name.value = newName
   }
 
-  return { name, setName }
+  function reset() {
+    name.value = null
+  }
+
+  return { name, setName, reset }
 }, {
   persist: true 
 })

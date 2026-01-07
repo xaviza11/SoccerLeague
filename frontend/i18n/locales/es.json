@@ -1,6 +1,16 @@
 {
   "pageName": "SoccerLeague",
   "guest": "invitado",
+  "components": {
+    "navbar": {
+      "login": "Iniciar Sesión",
+      "home": "Inicio",
+      "about": "Nosotros",
+      "team": "Equipo",
+      "market": "Mercado",
+      "contact": "Contacto"
+    }
+  },
   "pages": {
     "register": {
       "email": "Correo Electrónico",
