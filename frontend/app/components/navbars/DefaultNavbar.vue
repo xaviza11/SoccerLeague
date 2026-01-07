@@ -45,9 +45,9 @@
               </NuxtLink>
             </li>
             <li>
-              <NuxtLink :to="localePath('market')" :class="style.navItem">
+              <NuxtLink :to="localePath('fixtures')" :class="style.navItem">
                 <Icon name="mdi:calendar-month" size="18" :class="style.blackIcon" />
-                <span>{{ t("components.navbar.market") }}</span>
+                <span>{{ t("components.navbar.fixtures") }}</span>
               </NuxtLink>
             </li>
             <li>
