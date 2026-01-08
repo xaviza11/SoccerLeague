@@ -8,7 +8,11 @@ interface addPositionCardStoragePayload {
     positionChangeCardId: string;
 }
 
-interface addTeamStoragePayload {
+interface FindOneUsersStoragePayload {
+    storageId: string;
+}
+
+interface AddTeamStoragePayload {
     id: string;
     teamId: string;
 }
@@ -17,4 +21,4 @@ interface DeleteUsersStoragePayload {
     storageId: string;
 }
 
-export type { addCardUsersStoragePayload, addPositionCardStoragePayload, addTeamStoragePayload, DeleteUsersStoragePayload };
+export type { addCardUsersStoragePayload, addPositionCardStoragePayload, AddTeamStoragePayload, DeleteUsersStoragePayload, FindOneUsersStoragePayload };

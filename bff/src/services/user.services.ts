@@ -37,7 +37,7 @@ export class UserService {
       this.currentPassword = payload.password;
 
       if (!("id" in user)) {
-        return new ConflictError(user.message ?? "Error creating user - 000");
+        throw new ConflictError(user.message ?? "Error creating user - 000");
       }
 
       const login = await this.userClient.login({
@@ -46,7 +46,7 @@ export class UserService {
       });
 
       if (!("accessToken" in login)) {
-        return new AuthError("Error creating user - 001");
+        throw new AuthError("Error creating user - 001");
       }
 
       const decryptedToken = login.accessToken;

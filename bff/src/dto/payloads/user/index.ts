@@ -35,5 +35,5 @@ export type {
     UserFindByNamePayload,
     UserFindOnePayload,
     UserDeleteOnePayload,
-    UserUpdatePayload
+    UserUpdatePayload,
 };

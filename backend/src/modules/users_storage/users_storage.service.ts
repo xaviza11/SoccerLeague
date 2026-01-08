@@ -83,7 +83,7 @@ export class UsersStorageService {
 
     const result = await this.storageRepo.delete(id);
     if (result.affected === 0) {
-      throw new NotFoundException(`Storage with id ${id} not found`);
+      throw new NotFoundException(`Storage not found`);
     }
   }
 
@@ -94,12 +94,11 @@ export class UsersStorageService {
         cards: true,
         position_change_cards: true,
         team: true,
-        user: true,
       },
     });
 
     if (!storage) {
-      throw new NotFoundException(`Storage with id ${id} not found`);
+      throw new NotFoundException(`Storage not found`);
     }
 
     return storage;

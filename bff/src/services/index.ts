@@ -1,2 +1,3 @@
 import { UserService } from "./user.services.js";
-export { UserService }
+import { GameDataService } from "./gameData.services.js";
+export { UserService, GameDataService };

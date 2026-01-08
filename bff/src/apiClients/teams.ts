@@ -11,47 +11,51 @@ import {
   NotFoundError,
   ServiceUnavailableError,
 } from "../errors/index.js";
-import type { UpdateTeamPayload, DeleteTeamPayload } from "../dto/payloads/team/index.js";
-import type { UpdateTeamResponse } from "../dto/responses/teams/index.js";
+import type {
+  UpdateTeamPayload,
+  DeleteTeamPayload,
+  GetTeamPayload
+} from "../dto/payloads/team/index.js";
+import type { UpdateTeamResponse, GetTeamResponse } from "../dto/responses/teams/index.js";
 
 export class TeamsClient {
-    private readonly baseEndpoint = "/teams"
-    private readonly updateTeamEndpoint = "/teams/update"
+  private readonly baseEndpoint = "/teams";
+  private readonly updateTeamEndpoint = "/teams/update";
 
-    private CRUD_API: string;
-    
-    constructor() {
-        this.CRUD_API = configService.CRUD_API || "error";
-    } 
+  private CRUD_API: string;
 
-    public async createTeam(
-        token: string
-    ): Promise<NormalizedError | CreateTeamResponse> {
-        try {
-            const response = await axios.post<CreateTeamResponse>(
-                `${this.CRUD_API}${this.baseEndpoint}`,
-                {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+  constructor() {
+    this.CRUD_API = configService.CRUD_API || "error";
+  }
 
-            return response.data;
-        } catch (error) {
-            return handleError(error);  
+  public async createTeam(
+    token: string
+  ): Promise<NormalizedError | CreateTeamResponse> {
+    try {
+      const response = await axios.post<CreateTeamResponse>(
+        `${this.CRUD_API}${this.baseEndpoint}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-    }
+      );
 
-   public async updateTeam(
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  }
+
+  public async updateTeam(
     token: string,
     teamId: string,
     payload: UpdateTeamPayload
   ): Promise<NormalizedError | UpdateTeamResponse> {
     try {
       if (!isUUID(teamId)) {
-        throw new ValidationError('Invalid team ID');
+        throw new ValidationError("Invalid team ID");
       }
 
       const response = await axios.put<UpdateTeamResponse>(
@@ -65,6 +69,23 @@ export class TeamsClient {
       );
 
       return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  }
+
+  public async getTeam(
+    token: string,
+    payload: GetTeamPayload
+  ): Promise<NormalizedError | GetTeamResponse> {
+    try {
+      const response = await axios.get<GetTeamResponse>(`${this.CRUD_API}${this.baseEndpoint}/${payload.teamId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data
     } catch (error) {
       return handleError(error);
     }
@@ -85,4 +106,4 @@ export class TeamsClient {
       return handleError(error);
     }
   }
-}   
+}

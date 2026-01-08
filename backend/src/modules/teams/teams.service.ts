@@ -21,15 +21,22 @@ export class TeamsService {
   ) {}
 
   async create(userId: string) {
-    const user = await this.usersRepo.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+    const user = await this.usersRepo.findOne({
+      where: { id: userId },
+      relations: ['storage'],
+    });
 
-    const storage = this.storageRepo.create();
-    await this.storageRepo.save(storage);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.storage) {
+      throw new NotFoundException('User storage not found');
+    }
 
     const team = this.teamsRepo.create({
-      name: `YourTeam`,
-      storage,
+      name: 'YourTeam',
+      storage: user.storage,
       players: [],
       bench_players: [],
       auras: [],
@@ -88,4 +95,3 @@ export class TeamsService {
     return { message: 'Team deleted successfully' };
   }
 }
-

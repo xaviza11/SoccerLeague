@@ -1,6 +1,6 @@
 import Fastify from 'fastify'
 
-import { userRoutes } from './routes/index.js'
+import { userRoutes, gameDataRoute } from './routes/index.js'
 import { configService } from './helpers/envConfig.js'
 
 const fastify = Fastify({
@@ -8,6 +8,7 @@ const fastify = Fastify({
 })
 
 fastify.register(userRoutes, {prefix: 'api'})
+fastify.register(gameDataRoute, {prefix: 'api'})
 
 try {
   await fastify.listen({ port: parseInt(configService.BFF_PORT), host: '0.0.0.0'})

@@ -15,4 +15,13 @@ interface UpdateTeamResponse {
   storage: { id: string };
 }
 
-export type { CreateTeamResponse, UpdateTeamResponse };
+interface GetTeamResponse {
+  id: string,
+  name: string,
+  players: [],
+  storage: { id: string },
+  bench_players: [],
+  auras: []
+}
+
+export type { CreateTeamResponse, UpdateTeamResponse, GetTeamResponse };
