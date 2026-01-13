@@ -5,20 +5,20 @@ import {
   UsersStorageClient,
   TeamsClient,
   PlayerClient,
-} from "../apiClients/index.js";
+} from "../modules/apiClients/index.js";
 import type {
   ServiceUserRegistrationPayload,
   ServiceUserLoginPayload,
-} from "../dto/servicePayloads/users/index.js";
-import type { CreatePlayerResponse } from "../dto/responses/player/index.js";
-import { TokenCrypto } from "../helpers/encrypt.js";
+} from "../modules/models/dto/servicePayloads/users/index.js";
+import type { CreatePlayerResponse } from "../modules/models/dto/responses/player/index.js";
+import { TokenCrypto } from "../modules/common/helpers/encrypt.js";
 import {
   AuthError,
   ConflictError,
   NotFoundError,
   ServiceUnavailableError,
   ValidationError,
-} from "../errors/index.js";
+} from "../modules/common/errors/index.js";
 
 export class UserService {
   private userClient = new UserClient();
@@ -86,19 +86,19 @@ export class UserService {
         )
       );
 
-      if (createdPlayers.some((p) => !("id" in p))) {
+      if (createdPlayers.some((p: any) => !("id" in p))) {
         throw new ServiceUnavailableError("Error creating user - 006");
       }
 
       const validPlayers = createdPlayers.filter(
-        (p): p is CreatePlayerResponse => "id" in p
+        (p: any): p is CreatePlayerResponse => "id" in p
       );
 
       if (validPlayers.length !== createdPlayers.length) {
         throw new ServiceUnavailableError("Error creating user - 007");
       }
 
-      const playerIds = validPlayers.map((p) => p.id);
+      const playerIds = validPlayers.map((p: any) => p.id);
 
       await this.teamsClient.updateTeam(decryptedToken, team.id, {
         players: playerIds,

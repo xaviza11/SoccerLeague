@@ -1,7 +1,7 @@
 import Fastify from 'fastify'
 
 import { userRoutes, gameDataRoute } from './routes/index.js'
-import { configService } from './helpers/envConfig.js'
+import { configService } from './envConfig.js'
 
 const fastify = Fastify({
   logger: true

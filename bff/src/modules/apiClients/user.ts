@@ -3,8 +3,9 @@ import {
   isUUID,
   validateEmail,
   validatePassword,
-} from "../validators/index.js";
-import { configService, handleError } from "../helpers/index.js";
+} from "../common/validators/index.js";
+import { configService } from "../../envConfig.js";
+import { handleError } from "../common/helpers/index.js";
 import type {
   UserRegistrationPayload,
   UserLoginPayload,
@@ -12,7 +13,7 @@ import type {
   UserFindByNamePayload,
   UserFindOnePayload,
   UserUpdatePayload,
-} from "../dto/payloads/user/index.js";
+} from "../models/dto/payloads/user/index.js";
 import type {
   UserRegistrationResponse,
   UserLoginResponse,
@@ -21,10 +22,10 @@ import type {
   UserFindOneResponse,
   UserUpdateResponse,
   UserFindAllResponse,
-} from "../dto/responses/user/index.js";
-import { AuthError, ValidationError } from "../errors/index.js";
-import type { NormalizedError } from "../dto/errors/index.js";
-import { TokenCrypto } from "../helpers/index.js";
+} from "../models/dto/responses/user/index.js";
+import { AuthError, ValidationError } from "../common/errors/index.js";
+import type { NormalizedError } from "../models/dto/errors/index.js";
+import { TokenCrypto } from "../common/helpers/index.js";
 
 export class UserClient {
   private registrationEndpoint = "/users";

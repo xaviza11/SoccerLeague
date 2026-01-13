@@ -1,19 +1,20 @@
 import axios from "axios";
-import { configService, handleError } from "../helpers/index.js";
+import { configService } from "../../envConfig.js";
+import { handleError } from "../common/helpers/handleError.js";
 import type {
     CreatePlayerPayload,
-} from "../dto/payloads/player/index.ts";
+} from "../models/dto/payloads/player/index.js";
 import {
   AuthError,
   ValidationError,
   ConflictError,
   NotFoundError,
   ServiceUnavailableError,
-} from "../errors/index.js";
+} from "../common/errors/index.js";
 import type {
     CreatePlayerResponse,
-} from "../dto/responses/player/index.ts";
-import type { NormalizedError } from "../dto/errors/index.js";
+} from "../models/dto/responses/player/index.js";
+import type { NormalizedError } from "../models/dto/errors/index.js";
 
 export class PlayerClient {
     private readonly generatePlayerEndpoint = "/player";

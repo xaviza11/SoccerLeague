@@ -1,4 +1,4 @@
-import { configService } from "./envConfig.js";
+import { configService } from "../../../envConfig.js";
 import { handleError } from "./handleError.js";
 import { TokenCrypto } from "./encrypt.js";
 

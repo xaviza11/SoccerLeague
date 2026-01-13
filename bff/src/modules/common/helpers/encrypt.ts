@@ -1,5 +1,5 @@
 import * as crypto from 'crypto';
-import { configService } from './envConfig.js';
+import { configService } from '../../../envConfig.js';
 
 export class TokenCrypto {
   private static readonly algorithm = 'aes-256-cbc';

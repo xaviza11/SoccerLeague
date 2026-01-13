@@ -1,17 +1,18 @@
 import axios from "axios";
 
-import { isUUID } from "../validators/uuid.js";
-import { configService, handleError } from "../helpers/index.js";
-import type { DeleteUsersGameStatsPayload } from "../dto/payloads/users_game_stats/index.js";
-import type { CreateUsersGameStatsResponse } from "../dto/responses/users_game_stats/index.js";
-import type { NormalizedError } from "../dto/errors/index.js";
+import { isUUID } from "../common/validators/uuid.js";
+import { configService } from "../../envConfig.js";
+import { handleError } from "../common/helpers/handleError.js";
+import type { DeleteUsersGameStatsPayload } from "../models/dto/payloads/users_game_stats/index.js";
+import type { CreateUsersGameStatsResponse } from "../models/dto/responses/users_game_stats/index.js";
+import type { NormalizedError } from "../models/dto/errors/index.js";
 import {
   ConflictError,
   AuthError,
   ValidationError,
   NotFoundError,
   ServiceUnavailableError,
-} from "../errors/index.js";
+} from "../common/errors/index.js";
 
 export class UsersGameStatsClient {
   private createEndpoint = "/users-game-stats";

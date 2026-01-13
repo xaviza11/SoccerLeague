@@ -1,22 +1,23 @@
 import axios from "axios";
-import { configService, handleError } from "../helpers/index.js";
+import { configService } from '../../envConfig.js'
+import { handleError } from "../common/helpers/index.js";
 import type {
   GeneratePlayerPayload,
   SimulateMatchPayload,
-} from "../dto/payloads/simulator/index.js";
+} from "../models/dto/payloads/simulator/index.js";
 import {
   AuthError,
   ValidationError,
   ConflictError,
   NotFoundError,
   ServiceUnavailableError,
-} from "../errors/index.js";
+} from "../common/errors/index.js";
 import type {
   GeneratePlayerResponse,
   GenerateGameResponse,
-} from "../dto/responses/simulator/index.js";
-import type { NormalizedError } from "../dto/errors/index.js";
-import type Position from "../enums/positions.js";
+} from "../models/dto/responses/simulator/index.js";
+import type { NormalizedError } from "../models/dto/errors/index.js";
+import type Position from "../models/enums/positions.js";
 
 export class SimulatorClient {
   private readonly simulatePlayerEndpoint = "/player/generate";

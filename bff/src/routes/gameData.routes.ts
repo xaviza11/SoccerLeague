@@ -3,8 +3,8 @@ import { GameDataService } from "../services/index.js";
 import type {
   ServiceUserRegistrationPayload,
   ServiceUserLoginPayload,
-} from "../dto/servicePayloads/users/index.js";
-import { AuthError } from "../errors/auth.js";
+} from "../modules/models/dto/servicePayloads/users/index.js";
+import { AuthError } from "../modules/common/errors/auth.js";
 
 export async function gameDataRoute(app: FastifyInstance) {
   const gameDataService = new GameDataService();

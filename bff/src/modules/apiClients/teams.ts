@@ -1,22 +1,22 @@
 import axios from "axios";
 
-import { isUUID } from "../validators/uuid.js";
-import { configService, handleError } from "../helpers/index.js";
-import type { CreateTeamResponse } from "../dto/responses/teams/index.js";
-import type { NormalizedError } from "../dto/errors/index.js";
+import { isUUID } from "../common/validators/index.js";
+import { configService, handleError } from "../common/helpers/index.js";
+import type { CreateTeamResponse } from "../models/dto/responses/teams/index.js";
+import type { NormalizedError } from "../models/dto/errors/index.js";
 import {
   ConflictError,
   AuthError,
   ValidationError,
   NotFoundError,
   ServiceUnavailableError,
-} from "../errors/index.js";
+} from "../common/errors/index.js";
 import type {
   UpdateTeamPayload,
   DeleteTeamPayload,
   GetTeamPayload
-} from "../dto/payloads/team/index.js";
-import type { UpdateTeamResponse, GetTeamResponse } from "../dto/responses/teams/index.js";
+} from "../models/dto/payloads/team/index.js";
+import type { UpdateTeamResponse, GetTeamResponse } from "../models/dto/responses/teams/index.js";
 
 export class TeamsClient {
   private readonly baseEndpoint = "/teams";

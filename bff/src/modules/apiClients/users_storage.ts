@@ -1,17 +1,18 @@
 import axios from "axios";
 
-import { isUUID } from "../validators/uuid.js";
-import { configService, handleError } from "../helpers/index.js";
-import type { DeleteUsersStoragePayload, FindOneUsersStoragePayload } from "../dto/payloads/users_storage/index.js";
-import type { CreateUsersStorageResponse, FindOneUsersStorageResponse } from "../dto/responses/users_storage/index.js";
-import type { NormalizedError } from "../dto/errors/index.js";
+import { isUUID } from "../common/validators/uuid.js";
+import { configService } from "../../envConfig.js";
+import { handleError } from "../common/helpers/index.js";
+import type { DeleteUsersStoragePayload, FindOneUsersStoragePayload } from "../models/dto/payloads/users_storage/index.js";
+import type { CreateUsersStorageResponse, FindOneUsersStorageResponse } from "../models/dto/responses/users_storage/index.js";
+import type { NormalizedError } from "../models/dto/errors/index.js";
 import {
   ConflictError,
   AuthError,
   ValidationError,
   NotFoundError,
   ServiceUnavailableError,
-} from "../errors/index.js";
+} from "../common/errors/index.js";
 
 export class UsersStorageClient {
   private baseEndpoint = "/users-storage";

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import type { NormalizedError } from "../dto/errors/index.js";
+import type { NormalizedError } from "../../models/dto/errors/index.js";
 
 export function handleError(error: unknown): NormalizedError {
   if (axios.isAxiosError(error)) {

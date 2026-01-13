@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { UserService } from "../services/user.services.js";
-import type { ServiceUserRegistrationPayload, ServiceUserLoginPayload } from "../dto/servicePayloads/users/index.js";
+import type { ServiceUserRegistrationPayload, ServiceUserLoginPayload } from "../modules/models/dto/servicePayloads/users/index.js";
 
 export async function userRoutes(app: FastifyInstance) {
   const userService = new UserService();
