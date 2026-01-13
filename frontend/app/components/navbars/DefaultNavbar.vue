@@ -74,7 +74,7 @@
 import { ref, computed } from "vue";
 import { useUserStore } from "../../stores";
 import { handlerLogout } from "../../handlers/users";
-import SwitchLocale from "./SwitchLocale.vue";
+import SwitchLocale from "../buttons/SwitchLocales.vue";
 
 const { t } = useI18n();
 const localePath = useLocalePath();
