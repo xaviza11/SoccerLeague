@@ -7,33 +7,33 @@ interface UserRegistrationResponse {
 }
 
 interface UserLoginResponse {
-    accessToken: string,
-    name: string
+  accessToken: string;
+  name: string;
 }
 
-interface UserDeleteOneResponse {
+interface UserDeleteOneResponse {}
 
-}
-
-interface UserFindByNameResponse {
-
-}
+interface UserFindByNameResponse {}
 
 interface UserFindOneResponse {
-  id: string,
-  name: string,
-  email: string,
-  storage: { id: string },
-  stats: { id: string, elo: number, money: number, total_games: number }
-  has_game: boolean
+  id: string;
+  name: string;
+  email: string;
+  storage: { id: string };
+  stats: { id: string; elo: number; money: number; total_games: number };
+  has_game: boolean;
 }
 
-interface UserUpdateResponse {
+interface UserUpdateResponse {}
 
-}
+interface UserFindAllResponse {}
 
-interface UserFindAllResponse {
-
-}
-
-export type { UserRegistrationResponse, UserLoginResponse, UserDeleteOneResponse, UserFindByNameResponse, UserFindOneResponse, UserUpdateResponse, UserFindAllResponse }
+export type {
+  UserRegistrationResponse,
+  UserLoginResponse,
+  UserDeleteOneResponse,
+  UserFindByNameResponse,
+  UserFindOneResponse,
+  UserUpdateResponse,
+  UserFindAllResponse,
+};

@@ -3,15 +3,17 @@ import axios from "axios";
 import { isUUID } from "../common/validators/uuid.js";
 import { configService } from "../../envConfig.js";
 import { handleError } from "../common/helpers/index.js";
-import type { DeleteUsersStoragePayload, FindOneUsersStoragePayload } from "../models/dto/payloads/users_storage/index.js";
-import type { CreateUsersStorageResponse, FindOneUsersStorageResponse } from "../models/dto/responses/users_storage/index.js";
+import type {
+  DeleteUsersStoragePayload,
+  FindOneUsersStoragePayload,
+} from "../models/dto/payloads/users_storage/index.js";
+import type {
+  CreateUsersStorageResponse,
+  FindOneUsersStorageResponse,
+} from "../models/dto/responses/users_storage/index.js";
 import type { NormalizedError } from "../models/dto/errors/index.js";
 import {
-  ConflictError,
-  AuthError,
   ValidationError,
-  NotFoundError,
-  ServiceUnavailableError,
 } from "../common/errors/index.js";
 
 export class UsersStorageClient {
@@ -23,9 +25,7 @@ export class UsersStorageClient {
     this.CRUD_API = configService.CRUD_API || "error";
   }
 
-  public async createStorage(
-    token: string
-  ): Promise<NormalizedError | CreateUsersStorageResponse> {
+  public async createStorage(token: string): Promise<NormalizedError | CreateUsersStorageResponse> {
     try {
       const response = await axios.post(
         `${this.CRUD_API}${this.baseEndpoint}`,
@@ -34,7 +34,7 @@ export class UsersStorageClient {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       return response.data;
@@ -97,32 +97,28 @@ export class UsersStorageClient {
     }
   }*/
 
-public async findOne(
-  token: string,
-  payload: FindOneUsersStoragePayload
-): Promise<FindOneUsersStorageResponse | NormalizedError> {
-  try {
-    const { storageId } = payload;
+  public async findOne(
+    token: string,
+    payload: FindOneUsersStoragePayload,
+  ): Promise<FindOneUsersStorageResponse | NormalizedError> {
+    try {
+      const { storageId } = payload;
 
-    if (!isUUID(storageId)) {
-      throw new ValidationError("Invalid UUID format for storage ID");
-    }
+      if (!isUUID(storageId)) {
+        throw new ValidationError("Invalid UUID format for storage ID");
+      }
 
-    const response = await axios.get(
-      `${this.CRUD_API}${this.baseEndpoint}/${storageId}`,
-      {
+      const response = await axios.get(`${this.CRUD_API}${this.baseEndpoint}/${storageId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
-    );
+      });
 
-    return response.data;
-  } catch (error) {
-    return handleError(error);
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
   }
-}
-
 
   /*public async findAll(): Promise<
     FindAllUsersStorageResponse | NormalizedError
@@ -139,9 +135,14 @@ public async findOne(
 
   public async deleteStorage(
     token: string,
-    payload: DeleteUsersStoragePayload
+    payload: DeleteUsersStoragePayload,
   ): Promise<void | NormalizedError> {
     try {
+
+      if(!isUUID(payload.storageId)) {
+        throw new ValidationError('Invalid ID')
+      }
+
       await axios.delete(`${this.CRUD_API}${this.baseEndpoint}`, {
         headers: {
           Authorization: `Bearer ${token}`,

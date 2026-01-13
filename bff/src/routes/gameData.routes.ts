@@ -1,9 +1,5 @@
-import { fastify, type FastifyInstance } from "fastify";
+import { type FastifyInstance } from "fastify";
 import { GameDataService } from "../services/index.js";
-import type {
-  ServiceUserRegistrationPayload,
-  ServiceUserLoginPayload,
-} from "../modules/models/dto/servicePayloads/users/index.js";
 import { AuthError } from "../modules/common/errors/auth.js";
 
 export async function gameDataRoute(app: FastifyInstance) {
@@ -11,7 +7,6 @@ export async function gameDataRoute(app: FastifyInstance) {
 
   app.get("/game-data", async (request, reply) => {
     try {
-
       request.log.info("Retrieving game data");
 
       const authHeader = request.headers.authorization;
@@ -40,7 +35,7 @@ export async function gameDataRoute(app: FastifyInstance) {
       return reply.code(error.statusCode || 500).send(
         error.response?.data || {
           message: error.message || "Internal server error",
-        }
+        },
       );
     }
   });

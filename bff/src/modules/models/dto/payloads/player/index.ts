@@ -1,6 +1,3 @@
-import { Positions, Countries, DefensiveInstructions, OffensiveInstructions, Cards } from "../../../enums/index.js";
-;
-
 interface CreatePlayerPayload {
   name: string;
   country: string;
@@ -68,4 +65,4 @@ interface PlayerStats {
   total_games: number;
 }
 
-export type { CreatePlayerPayload }
+export type { CreatePlayerPayload };

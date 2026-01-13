@@ -1,16 +1,8 @@
-import {
-  UserClient, 
-  UsersStorageClient,
-  TeamsClient,
-} from "../modules/apiClients/index.js";
+import { UserClient, UsersStorageClient, TeamsClient } from "../modules/apiClients/index.js";
 import type { ServiceRetrieveGameDataPayload } from "../modules/models/dto/servicePayloads/gameData/index.js";
 import { TokenCrypto } from "../modules/common/helpers/index.js";
 import {
-  AuthError,
-  ConflictError,
-  NotFoundError,
   ServiceUnavailableError,
-  ValidationError,
 } from "../modules/common/errors/index.js";
 
 export class GameDataService {

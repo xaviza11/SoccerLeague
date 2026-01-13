@@ -1,5 +1,5 @@
 interface DeleteUsersGameStatsPayload {
-    statsId: string;
+  statsId: string;
 }
 
 export type { DeleteUsersGameStatsPayload };

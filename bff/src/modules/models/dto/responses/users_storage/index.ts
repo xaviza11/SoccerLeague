@@ -1,12 +1,12 @@
 interface CreateUsersStorageResponse {
-    id: string;
+  id: string;
 }
 
 interface FindOneUsersStorageResponse {
-    id: string,
-    team: {id: string, name: string}
-    position_change_cards: [],
-    cards: []
+  id: string;
+  team: { id: string; name: string };
+  position_change_cards: [];
+  cards: [];
 }
 
 export type { CreateUsersStorageResponse, FindOneUsersStorageResponse };

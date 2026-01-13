@@ -5,5 +5,4 @@ import DefensiveInstructions from "./defensiveInstructions.js";
 import Cards from "./cards.js";
 import Auras from "./auras.js";
 
-
-export {Countries, Positions, OffensiveInstructions, DefensiveInstructions, Cards, Auras}
+export { Countries, Positions, OffensiveInstructions, DefensiveInstructions, Cards, Auras };

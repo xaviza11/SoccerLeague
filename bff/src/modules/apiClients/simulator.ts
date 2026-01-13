@@ -1,17 +1,10 @@
 import axios from "axios";
-import { configService } from '../../envConfig.js'
+import { configService } from "../../envConfig.js";
 import { handleError } from "../common/helpers/index.js";
 import type {
   GeneratePlayerPayload,
   SimulateMatchPayload,
 } from "../models/dto/payloads/simulator/index.js";
-import {
-  AuthError,
-  ValidationError,
-  ConflictError,
-  NotFoundError,
-  ServiceUnavailableError,
-} from "../common/errors/index.js";
 import type {
   GeneratePlayerResponse,
   GenerateGameResponse,
@@ -30,12 +23,12 @@ export class SimulatorClient {
   }
 
   public async generatePlayer(
-    payload: GeneratePlayerPayload
+    payload: GeneratePlayerPayload,
   ): Promise<GeneratePlayerResponse | NormalizedError> {
     try {
       const url = `${this.SIMULATOR_API}${this.simulatePlayerEndpoint}`;
       const response = await axios.get<GeneratePlayerResponse>(
-        `${url}?position=${payload.position}&target_avr=${payload.target_avr}`
+        `${url}?position=${payload.position}&target_avr=${payload.target_avr}`,
       );
       return response.data;
     } catch (err: any) {
@@ -47,12 +40,12 @@ export class SimulatorClient {
         config: err.config,
       });
 
-      return handleError(err); 
+      return handleError(err);
     }
   }
 
   public async simulateGame(
-    payload: SimulateMatchPayload
+    payload: SimulateMatchPayload,
   ): Promise<GenerateGameResponse | NormalizedError> {
     try {
       const url = `${this.SIMULATOR_API}${this.simulateGameEndpoint}`;
@@ -91,9 +84,7 @@ export class SimulatorClient {
         const player = await this.generatePlayer(payload);
 
         if ("error" in player) {
-          throw new Error(
-            `Error generating player for ${pos.position}: ${player.error}`
-          );
+          throw new Error(`Error generating player for ${pos.position}: ${player.error}`);
         }
 
         allPlayers.push(player);

@@ -1,9 +1,9 @@
 interface CreateTeamResponse {
+  id: string;
+  players: Array<any>;
+  storage: {
     id: string;
-    players: Array<any>;
-    storage: {
-        id: string;
-    };
+  };
 }
 
 interface UpdateTeamResponse {
@@ -16,12 +16,12 @@ interface UpdateTeamResponse {
 }
 
 interface GetTeamResponse {
-  id: string,
-  name: string,
-  players: [],
-  storage: { id: string },
-  bench_players: [],
-  auras: []
+  id: string;
+  name: string;
+  players: [];
+  storage: { id: string };
+  bench_players: [];
+  auras: [];
 }
 
 export type { CreateTeamResponse, UpdateTeamResponse, GetTeamResponse };

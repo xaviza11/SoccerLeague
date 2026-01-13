@@ -1,31 +1,20 @@
 import axios from "axios";
-import {
-  isUUID,
-  validateEmail,
-  validatePassword,
-} from "../common/validators/index.js";
 import { configService } from "../../envConfig.js";
 import { handleError } from "../common/helpers/index.js";
 import type {
   UserRegistrationPayload,
   UserLoginPayload,
   UserDeleteOnePayload,
-  UserFindByNamePayload,
-  UserFindOnePayload,
-  UserUpdatePayload,
 } from "../models/dto/payloads/user/index.js";
 import type {
   UserRegistrationResponse,
   UserLoginResponse,
   UserDeleteOneResponse,
-  UserFindByNameResponse,
   UserFindOneResponse,
-  UserUpdateResponse,
-  UserFindAllResponse,
 } from "../models/dto/responses/user/index.js";
+import { validateEmail, validatePassword } from "../common/validators/index.js";
 import { AuthError, ValidationError } from "../common/errors/index.js";
 import type { NormalizedError } from "../models/dto/errors/index.js";
-import { TokenCrypto } from "../common/helpers/index.js";
 
 export class UserClient {
   private registrationEndpoint = "/users";
@@ -47,6 +36,14 @@ export class UserClient {
     payload: UserRegistrationPayload
   ): Promise<UserRegistrationResponse | NormalizedError> {
     try {
+      if (!validateEmail(payload.email)) {
+        throw new ValidationError("Invalid Email");
+      }
+
+      if (!validatePassword(payload.password)) {
+        throw new ValidationError("Invalid Password");
+      }
+
       const url = `${this.CRUD_API}${this.registrationEndpoint}`;
       const response = await axios.post<UserRegistrationResponse>(url, payload);
       return response.data;
@@ -59,6 +56,14 @@ export class UserClient {
     payload: UserLoginPayload
   ): Promise<UserLoginResponse | NormalizedError> {
     try {
+      if (!validateEmail(payload.email)) {
+        throw new ValidationError("Invalid Email");
+      }
+
+      if (!validatePassword(payload.password)) {
+        throw new ValidationError("Invalid Password");
+      }
+
       const url = `${this.CRUD_API}${this.loginEndpoint}`;
       const response = await axios.post<UserLoginResponse>(url, payload);
 
@@ -103,7 +108,7 @@ export class UserClient {
   ): Promise<UserFindOneResponse | NormalizedError> {
     try {
       if (!token) {
-        throw new AuthError("Missing auth token - BFF");
+        throw new AuthError("Missing auth token");
       }
 
       const url = `${this.CRUD_API}${this.findSelfUser}`;
@@ -146,6 +151,11 @@ export class UserClient {
     token: string,
     payload: UserDeleteOnePayload
   ): Promise<UserDeleteOneResponse | NormalizedError> {
+
+    if(!validatePassword(payload.currentPassword)) {
+      throw new ValidationError('Invalid Password')
+    }
+
     try {
       const url = `${this.CRUD_API}${this.userDeleteEndpoint}`;
       const response = await axios.delete<UserDeleteOneResponse>(url, {

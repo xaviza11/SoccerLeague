@@ -1,5 +1,5 @@
 interface ServiceRetrieveGameDataPayload {
-    token: string
+  token: string;
 }
 
 export type { ServiceRetrieveGameDataPayload };

@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import "dotenv/config";
 
 export class ConfigService {
   public readonly CRUD_API: string;
@@ -9,12 +9,12 @@ export class ConfigService {
   public readonly ENCRYPTION_SECRET: string;
 
   constructor() {
-    this.CRUD_API = this.getEnvVar('CRUD_API');
-    this.BFF_API = this.getEnvVar('BFF_API');
-    this.SIMULATOR_API = this.getEnvVar('SIMULATOR_API');
-    this.CLIENT_URL = this.getEnvVar('CLIENT_URL');
-    this.BFF_PORT = this.getEnvVar('BFF_PORT')
-    this.ENCRYPTION_SECRET = this.getEnvVar('ENCRYPTION_SECRET');
+    this.CRUD_API = this.getEnvVar("CRUD_API");
+    this.BFF_API = this.getEnvVar("BFF_API");
+    this.SIMULATOR_API = this.getEnvVar("SIMULATOR_API");
+    this.CLIENT_URL = this.getEnvVar("CLIENT_URL");
+    this.BFF_PORT = this.getEnvVar("BFF_PORT");
+    this.ENCRYPTION_SECRET = this.getEnvVar("ENCRYPTION_SECRET");
   }
 
   private getEnvVar(key: string): string {

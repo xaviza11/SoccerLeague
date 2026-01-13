@@ -5,16 +5,12 @@ import { configService, handleError } from "../common/helpers/index.js";
 import type { CreateTeamResponse } from "../models/dto/responses/teams/index.js";
 import type { NormalizedError } from "../models/dto/errors/index.js";
 import {
-  ConflictError,
-  AuthError,
   ValidationError,
-  NotFoundError,
-  ServiceUnavailableError,
 } from "../common/errors/index.js";
 import type {
   UpdateTeamPayload,
   DeleteTeamPayload,
-  GetTeamPayload
+  GetTeamPayload,
 } from "../models/dto/payloads/team/index.js";
 import type { UpdateTeamResponse, GetTeamResponse } from "../models/dto/responses/teams/index.js";
 
@@ -28,9 +24,7 @@ export class TeamsClient {
     this.CRUD_API = configService.CRUD_API || "error";
   }
 
-  public async createTeam(
-    token: string
-  ): Promise<NormalizedError | CreateTeamResponse> {
+  public async createTeam(token: string): Promise<NormalizedError | CreateTeamResponse> {
     try {
       const response = await axios.post<CreateTeamResponse>(
         `${this.CRUD_API}${this.baseEndpoint}`,
@@ -39,7 +33,7 @@ export class TeamsClient {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       return response.data;
@@ -51,7 +45,7 @@ export class TeamsClient {
   public async updateTeam(
     token: string,
     teamId: string,
-    payload: UpdateTeamPayload
+    payload: UpdateTeamPayload,
   ): Promise<NormalizedError | UpdateTeamResponse> {
     try {
       if (!isUUID(teamId)) {
@@ -65,7 +59,7 @@ export class TeamsClient {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       return response.data;
@@ -76,16 +70,24 @@ export class TeamsClient {
 
   public async getTeam(
     token: string,
-    payload: GetTeamPayload
+    payload: GetTeamPayload,
   ): Promise<NormalizedError | GetTeamResponse> {
     try {
-      const response = await axios.get<GetTeamResponse>(`${this.CRUD_API}${this.baseEndpoint}/${payload.teamId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
 
-      return response.data
+      if(!isUUID(payload.teamId)) {
+        throw new ValidationError('Invalid team ID')
+      }
+
+      const response = await axios.get<GetTeamResponse>(
+        `${this.CRUD_API}${this.baseEndpoint}/${payload.teamId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      return response.data;
     } catch (error) {
       return handleError(error);
     }
@@ -93,9 +95,14 @@ export class TeamsClient {
 
   public async deleteTeam(
     token: string,
-    payload: DeleteTeamPayload
+    payload: DeleteTeamPayload,
   ): Promise<NormalizedError | void> {
     try {
+
+      if(!isUUID(payload.teamId)){
+        throw new ValidationError('Invalid team ID')
+      }
+
       await axios.delete(`${this.CRUD_API}${this.baseEndpoint}`, {
         headers: {
           Authorization: `Bearer ${token}`,

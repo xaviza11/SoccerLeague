@@ -1,16 +1,16 @@
 interface UserRegistrationPayload {
-    name: string;
-    email: string;
-    password: string;
+  name: string;
+  email: string;
+  password: string;
 }
 
 interface UserLoginPayload {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
 }
 
 interface UserUpdatePayload {
-  id: string,
+  id: string;
   name?: string;
   email?: string;
   password?: string;
@@ -18,22 +18,22 @@ interface UserUpdatePayload {
 }
 
 interface UserFindOnePayload {
-    id: string;
+  id: string;
 }
 
 interface UserFindByNamePayload {
-    name: string;
+  name: string;
 }
 
 interface UserDeleteOnePayload {
-    currentPassword: string
+  currentPassword: string;
 }
 
 export type {
-    UserRegistrationPayload,
-    UserLoginPayload,
-    UserFindByNamePayload,
-    UserFindOnePayload,
-    UserDeleteOnePayload,
-    UserUpdatePayload,
+  UserRegistrationPayload,
+  UserLoginPayload,
+  UserFindByNamePayload,
+  UserFindOnePayload,
+  UserDeleteOnePayload,
+  UserUpdatePayload,
 };

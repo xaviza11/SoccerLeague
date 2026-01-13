@@ -18,4 +18,4 @@ export enum Auras {
   KICKING = "Kicking",
   INTUITION = "Intuition",
 }
-export default Auras
+export default Auras;

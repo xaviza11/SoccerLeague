@@ -12,7 +12,7 @@ export function handleError(error: unknown): NormalizedError {
         error: data?.error ?? "Error",
         message: Array.isArray(data?.message)
           ? data.message.join(", ")
-          : data?.message ?? "Request failed",
+          : (data?.message ?? "Request failed"),
       };
     }
 

@@ -1,7 +1,5 @@
-import { Positions, Countries, DefensiveInstructions, OffensiveInstructions, Cards } from "../../../enums/index.js";
-
 interface CreatePlayerResponse {
-  id: string;  
+  id: string;
   name: string;
   country: string;
 
@@ -68,4 +66,4 @@ interface PlayerStats {
   total_games: number;
 }
 
-export type { CreatePlayerResponse }
+export type { CreatePlayerResponse };

@@ -15,9 +15,7 @@ import { TokenCrypto } from "../modules/common/helpers/encrypt.js";
 import {
   AuthError,
   ConflictError,
-  NotFoundError,
   ServiceUnavailableError,
-  ValidationError,
 } from "../modules/common/errors/index.js";
 
 export class UserService {
@@ -61,9 +59,7 @@ export class UserService {
         throw new ServiceUnavailableError("Error creating user - 003");
       }
 
-      const storage = await this.usersStorageClient.createStorage(
-        decryptedToken
-      );
+      const storage = await this.usersStorageClient.createStorage(decryptedToken);
 
       if (!("id" in storage)) {
         throw new ServiceUnavailableError("Error creating user - 004");
@@ -82,17 +78,15 @@ export class UserService {
           this.playersClient.createPlayer(decryptedToken, {
             ...player,
             team: { id: team.id },
-          })
-        )
+          }),
+        ),
       );
 
       if (createdPlayers.some((p: any) => !("id" in p))) {
         throw new ServiceUnavailableError("Error creating user - 006");
       }
 
-      const validPlayers = createdPlayers.filter(
-        (p: any): p is CreatePlayerResponse => "id" in p
-      );
+      const validPlayers = createdPlayers.filter((p: any): p is CreatePlayerResponse => "id" in p);
 
       if (validPlayers.length !== createdPlayers.length) {
         throw new ServiceUnavailableError("Error creating user - 007");
@@ -106,14 +100,10 @@ export class UserService {
 
       const me = await this.userClient.findMe(decryptedToken);
 
-      if (!("name" in me))
-        throw new ServiceUnavailableError("Error creating user - 008");
-      if (!("storage" in me))
-        throw new ServiceUnavailableError("Error creating user - 009");
-      if (!("stats" in me))
-        throw new ServiceUnavailableError("Error creating user - 010");
-      if (!("has_game" in me))
-        throw new ServiceUnavailableError("Error creating user - 011");
+      if (!("name" in me)) throw new ServiceUnavailableError("Error creating user - 008");
+      if (!("storage" in me)) throw new ServiceUnavailableError("Error creating user - 009");
+      if (!("stats" in me)) throw new ServiceUnavailableError("Error creating user - 010");
+      if (!("has_game" in me)) throw new ServiceUnavailableError("Error creating user - 011");
 
       return {
         username: me.name,
@@ -143,14 +133,10 @@ export class UserService {
       const decryptedToken = user.accessToken;
 
       const me = await this.userClient.findMe(decryptedToken);
-      if (!("name" in me))
-        throw new ServiceUnavailableError("Error on retrieve user - 001");
-      if (!("storage" in me))
-        throw new ServiceUnavailableError("Error on retrieve user - 002");
-      if (!("stats" in me))
-        throw new ServiceUnavailableError("Error on retrieve user - 003");
-      if (!("has_game" in me))
-        throw new ServiceUnavailableError("Error on retrieve user - 004");
+      if (!("name" in me)) throw new ServiceUnavailableError("Error on retrieve user - 001");
+      if (!("storage" in me)) throw new ServiceUnavailableError("Error on retrieve user - 002");
+      if (!("stats" in me)) throw new ServiceUnavailableError("Error on retrieve user - 003");
+      if (!("has_game" in me)) throw new ServiceUnavailableError("Error on retrieve user - 004");
 
       return {
         username: me.name,

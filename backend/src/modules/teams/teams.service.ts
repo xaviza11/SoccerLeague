@@ -21,7 +21,7 @@ export class TeamsService {
     private readonly storageRepo: Repository<Storage>,
   ) {}
 
-  private readonly logger = new Logger(TeamsService.name)
+  private readonly logger = new Logger(TeamsService.name);
 
   async create(userId: string) {
     this.logger.log(`Creating team for user ID: ${userId}`);
@@ -31,12 +31,16 @@ export class TeamsService {
     });
 
     if (!user) {
-      this.logger.log(`Failed to create team: User not found with ID: ${userId}`);
+      this.logger.log(
+        `Failed to create team: User not found with ID: ${userId}`,
+      );
       throw new NotFoundException('User not found');
     }
 
     if (!user.storage) {
-      this.logger.log(`Failed to create team: User storage not found for user ID: ${userId}`);
+      this.logger.log(
+        `Failed to create team: User storage not found for user ID: ${userId}`,
+      );
       throw new NotFoundException('User storage not found');
     }
 
@@ -48,9 +52,12 @@ export class TeamsService {
       auras: [],
     });
 
-    const response = this.teamsRepo.create(team);
-    this.logger.log(`Team created successfully for user ID: ${userId}`);
-    return response
+    const savedTeam = await this.teamsRepo.save(team);
+    this.logger.log(
+      `Team created successfully for user ID: ${userId}, team ID: ${savedTeam.id}`,
+    );
+
+    return savedTeam;
   }
 
   async find() {
@@ -82,11 +89,15 @@ export class TeamsService {
     this.logger.log(`Updating team with ID: ${id} for user ID: ${userId}`);
     const user = await this.usersRepo.findOne({ where: { id: userId } });
     if (!user) {
-      this.logger.log(`Failed to update team: User not found with ID: ${userId}`);
+      this.logger.log(
+        `Failed to update team: User not found with ID: ${userId}`,
+      );
       throw new NotFoundException('User not found');
-    } 
+    }
 
-    this.logger.log(`User found with ID: ${userId}, proceeding to update team with ID: ${id}`);
+    this.logger.log(
+      `User found with ID: ${userId}, proceeding to update team with ID: ${id}`,
+    );
     const team = await this.teamsRepo.findOne({
       where: { id },
       relations: ['players', 'bench_players', 'auras', 'storage'],
@@ -104,16 +115,18 @@ export class TeamsService {
 
     const response = await this.teamsRepo.save(team);
     this.logger.log(`Team updated successfully with ID: ${id}`);
-    return response
+    return response;
   }
 
   async delete(id: string, userId: string) {
     this.logger.log(`Deleting team with ID: ${id} for user ID: ${userId}`);
     const user = await this.usersRepo.findOne({ where: { id: userId } });
     if (!user) {
-      this.logger.log(`Failed to delete team: User not found with ID: ${userId}`);
+      this.logger.log(
+        `Failed to delete team: User not found with ID: ${userId}`,
+      );
       throw new NotFoundException('User not found');
-    } 
+    }
 
     const team = await this.findOne(id);
     await this.teamsRepo.remove(team);
