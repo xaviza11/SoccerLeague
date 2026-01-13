@@ -1,12 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { PlayerService } from './player.service';
-import { NotFoundException } from '@nestjs/common';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Player, User, Team, Storage } from '../../entities';
-import { Countries, Positions } from '../../enums';
-import { v4 as uuid } from 'uuid';
+import { Test, TestingModule } from "@nestjs/testing";
+import { PlayerService } from "./player.service";
+import { NotFoundException } from "@nestjs/common";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { Player, User, Team, Storage } from "../../entities";
+import { Countries, Positions } from "../../enums";
+import { v4 as uuid } from "uuid";
 
-describe('PlayerService (unit)', () => {
+describe("PlayerService (unit)", () => {
   let service: PlayerService;
 
   let mockPlayerRepo: any;
@@ -49,10 +49,10 @@ describe('PlayerService (unit)', () => {
     service = module.get<PlayerService>(PlayerService);
   });
 
-  const createFakeUser = () => ({ id: uuid(), name: 'User' }) as User;
+  const createFakeUser = () => ({ id: uuid(), name: "User" }) as User;
   const createFakeTeam = () => ({ id: uuid() }) as Team;
 
-  it('should create a player successfully', async () => {
+  it("should create a player successfully", async () => {
     const user = createFakeUser();
     const team = createFakeTeam();
 
@@ -66,7 +66,7 @@ describe('PlayerService (unit)', () => {
 
     const result = await service.create({
       id: user.id,
-      name: 'Cristiano',
+      name: "Cristiano",
       team: { id: team.id } as any,
       country: Countries.Spain,
       position: Positions.Striker,
@@ -77,13 +77,13 @@ describe('PlayerService (unit)', () => {
       number: 7,
     });
 
-    expect(result).toHaveProperty('id');
-    expect(result.name).toBe('Cristiano');
+    expect(result).toHaveProperty("id");
+    expect(result.name).toBe("Cristiano");
     expect(result.team.id).toBe(team.id);
     expect(result.status).toBeDefined();
   });
 
-  it('should throw if user does not exist', async () => {
+  it("should throw if user does not exist", async () => {
     mockUserRepo.findOne.mockResolvedValue(null);
 
     await expect(
@@ -94,19 +94,19 @@ describe('PlayerService (unit)', () => {
     ).rejects.toThrow(NotFoundException);
   });
 
-  it('should throw if team info is missing', async () => {
+  it("should throw if team info is missing", async () => {
     const user = createFakeUser();
     mockUserRepo.findOne.mockResolvedValue(user);
 
     await expect(
       service.create({
         id: user.id,
-        name: 'Messi',
+        name: "Messi",
       }),
-    ).rejects.toThrow('Team information is required');
+    ).rejects.toThrow("Team information is required");
   });
 
-  it('should throw if team does not exist', async () => {
+  it("should throw if team does not exist", async () => {
     const user = createFakeUser();
     mockUserRepo.findOne.mockResolvedValue(user);
     mockTeamRepo.findOne.mockResolvedValue(null);
@@ -116,38 +116,38 @@ describe('PlayerService (unit)', () => {
         id: user.id,
         team: { id: uuid() } as any,
       }),
-    ).rejects.toThrow('Team not found');
+    ).rejects.toThrow("Team not found");
   });
 
-  it('should find one player', async () => {
-    const fakePlayer = { id: uuid(), name: 'Player' };
+  it("should find one player", async () => {
+    const fakePlayer = { id: uuid(), name: "Player" };
     mockPlayerRepo.findOne.mockResolvedValue(fakePlayer);
 
     const result = await service.findOne(fakePlayer.id);
     expect(result).toEqual(fakePlayer);
   });
 
-  it('should throw if player not found', async () => {
+  it("should throw if player not found", async () => {
     mockPlayerRepo.findOne.mockResolvedValue(null);
     await expect(service.findOne(uuid())).rejects.toThrow(NotFoundException);
   });
 
-  it('should update a player', async () => {
+  it("should update a player", async () => {
     const playerId = uuid();
-    const fakePlayer = { id: playerId, name: 'Old Name' };
+    const fakePlayer = { id: playerId, name: "Old Name" };
 
     mockUserRepo.findOne.mockResolvedValue({ id: playerId });
     mockPlayerRepo.findOne.mockResolvedValue(fakePlayer);
     mockPlayerRepo.save.mockResolvedValue({
       ...fakePlayer,
-      name: 'New Name',
+      name: "New Name",
     });
 
-    const updated = await service.update(playerId, { name: 'New Name' });
-    expect(updated.name).toBe('New Name');
+    const updated = await service.update(playerId, { name: "New Name" });
+    expect(updated.name).toBe("New Name");
   });
 
-  it('should delete a player', async () => {
+  it("should delete a player", async () => {
     const fakePlayer = { id: uuid() };
 
     mockUserRepo.findOne.mockResolvedValue({ id: fakePlayer.id });
@@ -158,7 +158,7 @@ describe('PlayerService (unit)', () => {
     expect(mockPlayerRepo.remove).toHaveBeenCalledWith(fakePlayer);
   });
 
-  it('should throw when deleting non-existent player', async () => {
+  it("should throw when deleting non-existent player", async () => {
     mockPlayerRepo.findOne.mockResolvedValue(null);
     await expect(service.delete(uuid())).rejects.toThrow(NotFoundException);
   });

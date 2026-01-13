@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { MarketCardsController } from './market_cards.controller';
-import { MarketCardsService } from './market_cards.service';
-import { v4 as uuid } from 'uuid';
-import { BadRequestException, ExecutionContext } from '@nestjs/common';
-import { AuthGuard } from '../../guards/auth.guard';
+import { Test, TestingModule } from "@nestjs/testing";
+import { MarketCardsController } from "./market_cards.controller";
+import { MarketCardsService } from "./market_cards.service";
+import { v4 as uuid } from "uuid";
+import { BadRequestException, ExecutionContext } from "@nestjs/common";
+import { AuthGuard } from "../../guards/auth.guard";
 
-describe('MarketCardsController', () => {
+describe("MarketCardsController", () => {
   let controller: MarketCardsController;
   let service: MarketCardsService;
 
@@ -37,12 +37,12 @@ describe('MarketCardsController', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should call service.create and return result', async () => {
+  describe("create", () => {
+    it("should call service.create and return result", async () => {
       const req = { user: { id: uuid() } };
       const dto = { card_id: uuid(), price: 100 };
       const result = { id: uuid(), ...dto, seller_id: req.user.id };
@@ -55,17 +55,15 @@ describe('MarketCardsController', () => {
       });
     });
 
-    it('should throw BadRequestException if missing fields', () => {
+    it("should throw BadRequestException if missing fields", () => {
       const req = { user: { id: uuid() } };
       const dto = { card_id: uuid() } as any;
-      expect(() => controller.create(req as any, dto)).toThrow(
-        BadRequestException,
-      );
+      expect(() => controller.create(req as any, dto)).toThrow(BadRequestException);
     });
   });
 
-  describe('findAll', () => {
-    it('should call service.findAll and return result', async () => {
+  describe("findAll", () => {
+    it("should call service.findAll and return result", async () => {
       const records = [{ id: uuid() }, { id: uuid() }];
       mockService.findAll.mockResolvedValue(records);
 
@@ -75,8 +73,8 @@ describe('MarketCardsController', () => {
     });
   });
 
-  describe('findOne', () => {
-    it('should call service.findOne and return result', async () => {
+  describe("findOne", () => {
+    it("should call service.findOne and return result", async () => {
       const id = uuid();
       const record = { id };
       mockService.findOne.mockResolvedValue(record);
@@ -87,8 +85,8 @@ describe('MarketCardsController', () => {
     });
   });
 
-  describe('findBySeller', () => {
-    it('should call service.findBySeller and return result', async () => {
+  describe("findBySeller", () => {
+    it("should call service.findBySeller and return result", async () => {
       const sellerId = uuid();
       const records = [{ id: uuid(), seller_id: sellerId }];
       mockService.findBySeller.mockResolvedValue(records);
@@ -99,23 +97,23 @@ describe('MarketCardsController', () => {
     });
   });
 
-  describe('updatePrice', () => {
-  it('should call service.updatePrice and return result', async () => {
-    const req = { user: { id: uuid() } };
-    const price = 133;
-    const id = uuid();
-    const mockResult = 'some-result';
+  describe("updatePrice", () => {
+    it("should call service.updatePrice and return result", async () => {
+      const req = { user: { id: uuid() } };
+      const price = 133;
+      const id = uuid();
+      const mockResult = "some-result";
 
-    mockService.updatePrice.mockResolvedValue(mockResult);
+      mockService.updatePrice.mockResolvedValue(mockResult);
 
-    const result = await controller.updatePrice(req as any, id, price);
-    expect(result).toEqual(mockResult);
-    expect(mockService.updatePrice).toHaveBeenCalledWith(id, price, req.user.id);
+      const result = await controller.updatePrice(req as any, id, price);
+      expect(result).toEqual(mockResult);
+      expect(mockService.updatePrice).toHaveBeenCalledWith(id, price, req.user.id);
+    });
   });
-  });
 
-  describe('remove', () => {
-    it('should call service.remove', async () => {
+  describe("remove", () => {
+    it("should call service.remove", async () => {
       const id = uuid();
       mockService.remove.mockResolvedValue(undefined);
 

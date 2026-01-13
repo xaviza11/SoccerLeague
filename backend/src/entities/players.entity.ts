@@ -1,18 +1,6 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToOne,
-  JoinColumn,
-  ManyToOne,
-} from 'typeorm';
-import { Card, Team } from './';
-import {
-  Countries,
-  DefensiveInstructions,
-  OffensiveInstructions,
-  Positions,
-} from '../enums';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, ManyToOne } from "typeorm";
+import { Card, Team } from "./";
+import { Countries, DefensiveInstructions, OffensiveInstructions, Positions } from "../enums";
 
 class Skills {
   @Column({ default: 0 }) shooting: number;
@@ -35,10 +23,10 @@ class Skills {
 }
 
 class Instructions {
-  @Column('enum', { enum: OffensiveInstructions, array: true, default: [] })
+  @Column("enum", { enum: OffensiveInstructions, array: true, default: [] })
   offensive: OffensiveInstructions[];
 
-  @Column('enum', { enum: DefensiveInstructions, array: true, default: [] })
+  @Column("enum", { enum: DefensiveInstructions, array: true, default: [] })
   defensive: DefensiveInstructions[];
 }
 
@@ -62,32 +50,32 @@ class Status {
 
 @Entity()
 export class Player {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column()
   name: string;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: Countries,
   })
   country: Countries;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: Positions,
   })
   position: Positions;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: Positions,
   })
   current_position: Positions;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: Positions,
   })
   original_position: Positions;

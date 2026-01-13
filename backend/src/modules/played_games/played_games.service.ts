@@ -1,12 +1,8 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { GameHistory, User } from '../../entities';
-import { Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { GameHistory, User } from "../../entities";
+import { Logger } from "@nestjs/common";
 
 @Injectable()
 export class PlayedGamesService {
@@ -33,14 +29,14 @@ export class PlayedGamesService {
     const p1 = await this.usersRepo.findOne({ where: { id: player_one_id } });
     if (!p1) {
       this.logger.error(`Player one with ID ${player_one_id} not found`);
-      throw new BadRequestException('Player one not found');
+      throw new BadRequestException("Player one not found");
     }
 
     if (player_two_id) {
       const p2 = await this.usersRepo.findOne({ where: { id: player_two_id } });
       if (!p2) {
         this.logger.error(`Player two with ID ${player_two_id} not found`);
-        throw new BadRequestException('Player two not found');
+        throw new BadRequestException("Player two not found");
       }
     }
 
@@ -57,8 +53,8 @@ export class PlayedGamesService {
 
   async findAll(): Promise<GameHistory[]> {
     this.logger.log(`Fetching all game history entries`);
-    const response =  await this.gameHistoryRepo.find({
-      order: { createdAt: 'DESC' },
+    const response = await this.gameHistoryRepo.find({
+      order: { createdAt: "DESC" },
     });
     this.logger.log(`All game history entries fetched successfully`);
     return response;
@@ -69,7 +65,7 @@ export class PlayedGamesService {
     const game = await this.gameHistoryRepo.findOne({ where: { id } });
     if (!game) {
       this.logger.error(`Game history entry with ID ${id} not found`);
-      throw new NotFoundException('Game history entry not found');
+      throw new NotFoundException("Game history entry not found");
     }
 
     this.logger.log(`Game history entry with ID ${id} fetched successfully`);
@@ -78,7 +74,7 @@ export class PlayedGamesService {
 
   async update(
     id: string,
-    updates: Partial<Omit<GameHistory, 'id' | 'createdAt'>>,
+    updates: Partial<Omit<GameHistory, "id" | "createdAt">>,
   ): Promise<GameHistory> {
     this.logger.log(`Updating game history entry with ID: ${id}`);
     const game = await this.findOne(id);
@@ -96,7 +92,7 @@ export class PlayedGamesService {
     await this.gameHistoryRepo.remove(game);
 
     this.logger.log(`Game history entry with ID ${id} deleted successfully`);
-    return { message: 'Game history entry deleted successfully' };
+    return { message: "Game history entry deleted successfully" };
   }
 
   async findByUser(userId: string): Promise<GameHistory[]> {
@@ -104,15 +100,13 @@ export class PlayedGamesService {
     const user = await this.usersRepo.findOne({ where: { id: userId } });
     if (!user) {
       this.logger.error(`User with ID ${userId} not found`);
-      throw new NotFoundException('User not found');
+      throw new NotFoundException("User not found");
     }
 
-    this.logger.log(
-      `Game history entries for user ID ${userId} fetched successfully`,
-    );
+    this.logger.log(`Game history entries for user ID ${userId} fetched successfully`);
     const response = await this.gameHistoryRepo.find({
       where: [{ player_one_id: userId }, { player_two_id: userId }],
-      order: { createdAt: 'DESC' },
+      order: { createdAt: "DESC" },
     });
     this.logger.log(`Game history entries for user ID ${userId} retrieved successfully`);
     return response;

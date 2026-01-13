@@ -1,13 +1,13 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AurasService } from './auras.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Aura, User, Storage } from '../../entities';
-import { Repository } from 'typeorm';
-import { Auras } from '../../enums';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
+import { Test, TestingModule } from "@nestjs/testing";
+import { AurasService } from "./auras.service";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { Aura, User, Storage } from "../../entities";
+import { Repository } from "typeorm";
+import { Auras } from "../../enums";
+import { NotFoundException, BadRequestException } from "@nestjs/common";
+import { v4 as uuid } from "uuid";
 
-describe('AurasService', () => {
+describe("AurasService", () => {
   let service: AurasService;
   let auraRepo: jest.Mocked<Repository<Aura>>;
   let userRepo: jest.Mocked<Repository<User>>;
@@ -47,12 +47,12 @@ describe('AurasService', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should create an aura for a user with storage', async () => {
+  describe("create", () => {
+    it("should create an aura for a user with storage", async () => {
       const user = { id: validUserId, storage: { id: validStorageId } };
       const aura = {
         id: validAuraId,
@@ -69,7 +69,7 @@ describe('AurasService', () => {
       expect(result).toEqual(aura);
       expect(mockUserRepo.findOne).toHaveBeenCalledWith({
         where: { id: validUserId },
-        relations: ['storage'],
+        relations: ["storage"],
       });
       expect(mockAuraRepo.create).toHaveBeenCalledWith({
         name: expect.any(String),
@@ -77,12 +77,12 @@ describe('AurasService', () => {
       });
     });
 
-    it('should throw NotFoundException if user not found', async () => {
+    it("should throw NotFoundException if user not found", async () => {
       mockUserRepo.findOne.mockResolvedValue(null);
       await expect(service.create(validUserId)).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw NotFoundException if user storage missing', async () => {
+    it("should throw NotFoundException if user storage missing", async () => {
       mockUserRepo.findOne.mockResolvedValue({
         id: validUserId,
         storage: null,
@@ -91,8 +91,8 @@ describe('AurasService', () => {
     });
   });
 
-  describe('findOne', () => {
-    it('should return an aura if it exists and belongs to the user', async () => {
+  describe("findOne", () => {
+    it("should return an aura if it exists and belongs to the user", async () => {
       const aura = {
         id: validAuraId,
         storage: { user: { id: validUserId } },
@@ -108,27 +108,23 @@ describe('AurasService', () => {
           id: validAuraId,
           storage: { user: { id: validUserId } },
         },
-        relations: ['storage', 'storage.user'],
+        relations: ["storage", "storage.user"],
       });
     });
 
-    it('should throw NotFoundException if aura not found', async () => {
+    it("should throw NotFoundException if aura not found", async () => {
       mockAuraRepo.findOne.mockResolvedValue(null);
       await expect(service.findOne(validAuraId, validUserId)).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw BadRequestException for invalid UUIDs', async () => {
-      await expect(service.findOne('invalid', validUserId)).rejects.toThrow(
-        BadRequestException,
-      );
-      await expect(service.findOne(validAuraId, 'invalid')).rejects.toThrow(
-        BadRequestException,
-      );
+    it("should throw BadRequestException for invalid UUIDs", async () => {
+      await expect(service.findOne("invalid", validUserId)).rejects.toThrow(BadRequestException);
+      await expect(service.findOne(validAuraId, "invalid")).rejects.toThrow(BadRequestException);
     });
   });
 
-  describe('findAllByUser', () => {
-    it('should return all auras for a user', async () => {
+  describe("findAllByUser", () => {
+    it("should return all auras for a user", async () => {
       const user = { id: validUserId, storage: { id: validStorageId } };
       const auras = [{ id: uuid() }, { id: uuid() }];
 
@@ -140,16 +136,16 @@ describe('AurasService', () => {
       expect(result).toEqual(auras);
       expect(mockAuraRepo.find).toHaveBeenCalledWith({
         where: { storage_id: validStorageId },
-        relations: ['storage'],
+        relations: ["storage"],
       });
     });
 
-    it('should throw NotFoundException if user not found', async () => {
+    it("should throw NotFoundException if user not found", async () => {
       mockUserRepo.findOne.mockResolvedValue(null);
       await expect(service.findAllByUser(validUserId)).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw NotFoundException if user has no storage', async () => {
+    it("should throw NotFoundException if user has no storage", async () => {
       mockUserRepo.findOne.mockResolvedValue({
         id: validUserId,
         storage: null,
@@ -158,8 +154,8 @@ describe('AurasService', () => {
     });
   });
 
-  describe('delete', () => {
-    it('should delete an aura successfully', async () => {
+  describe("delete", () => {
+    it("should delete an aura successfully", async () => {
       const aura = { id: validAuraId, storage: { user: { id: validUserId } } };
 
       mockAuraRepo.findOne.mockResolvedValue(aura);
@@ -167,15 +163,13 @@ describe('AurasService', () => {
 
       const result = await service.delete(validAuraId);
 
-      expect(result).toEqual({ message: 'Aura deleted successfully' });
+      expect(result).toEqual({ message: "Aura deleted successfully" });
       expect(mockAuraRepo.delete).toHaveBeenCalledWith(validAuraId);
     });
 
-    it('should throw NotFoundException if aura not found', async () => {
+    it("should throw NotFoundException if aura not found", async () => {
       mockAuraRepo.findOne.mockResolvedValue(null);
-      await expect(service.delete(validAuraId)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.delete(validAuraId)).rejects.toThrow(NotFoundException);
     });
   });
 });

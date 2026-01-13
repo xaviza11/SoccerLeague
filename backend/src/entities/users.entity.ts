@@ -1,15 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToOne,
-  JoinColumn,
-} from 'typeorm';
-import { Storage, UserStats } from './';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from "typeorm";
+import { Storage, UserStats } from "./";
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ unique: true })
@@ -24,17 +18,17 @@ export class User {
   @Column({ nullable: false, default: () => "' '" })
   recovery_password: string;
 
-  @OneToOne(() => Storage, { cascade: true, onDelete: 'CASCADE' })
+  @OneToOne(() => Storage, { cascade: true, onDelete: "CASCADE" })
   @JoinColumn()
   storage: Storage;
 
   @OneToOne(() => UserStats, (stats) => stats.user, {
     cascade: true,
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   })
   @JoinColumn()
   stats: UserStats;
 
-  @Column({default: false})
-  has_game: boolean
+  @Column({ default: false })
+  has_game: boolean;
 }

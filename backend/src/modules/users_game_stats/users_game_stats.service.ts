@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User, UserStats } from '../../entities';
-import { Repository, MoreThan } from 'typeorm';
-import { validate as isUUID } from 'uuid';
-import { Logger } from '@nestjs/common';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { User, UserStats } from "../../entities";
+import { Repository, MoreThan } from "typeorm";
+import { validate as isUUID } from "uuid";
+import { Logger } from "@nestjs/common";
 
 export class UpdateUserStatsDto {
   elo?: number;
@@ -28,7 +28,7 @@ export class UsersGameStatsService {
     const user = await this.UsersRepo.findOne({ where: { id: userId } });
     if (!user) {
       this.logger.log(`User not found`);
-      throw new NotFoundException('User not found');
+      throw new NotFoundException("User not found");
     }
 
     const stats = this.UserStatsRepo.create({
@@ -48,7 +48,7 @@ export class UsersGameStatsService {
 
   async findAll(): Promise<UserStats[]> {
     this.logger.log(`Retrieving all UserStats`);
-    const response = await this.UserStatsRepo.find({ relations: ['user'] });
+    const response = await this.UserStatsRepo.find({ relations: ["user"] });
     this.logger.log(`All UserStats retrieved successfully`);
     return response;
   }
@@ -57,12 +57,12 @@ export class UsersGameStatsService {
     this.logger.log(`Retrieving UserStats ID: ${id}`);
     if (!isUUID(id)) {
       this.logger.log(`Invalid UserStats ID format`);
-      throw new NotFoundException('Storage not found');
+      throw new NotFoundException("Storage not found");
     }
 
     const data = await this.UserStatsRepo.findOne({
       where: { id },
-      relations: ['user'],
+      relations: ["user"],
     });
 
     if (!data) {
@@ -77,8 +77,8 @@ export class UsersGameStatsService {
   async getTop(limit = 100) {
     this.logger.log(`Retrieving top ${limit} UserStats by ELO`);
     const response = await this.UserStatsRepo.find({
-      relations: ['user'],
-      order: { elo: 'DESC' },
+      relations: ["user"],
+      order: { elo: "DESC" },
       take: limit,
     });
     this.logger.log(`Top ${limit} UserStats retrieved successfully`);
@@ -88,8 +88,8 @@ export class UsersGameStatsService {
   async getLeaderboard(page = 1, limit = 50) {
     this.logger.log(`Retrieving leaderboard page ${page} with limit ${limit}`);
     const response = await this.UserStatsRepo.find({
-      relations: ['user'],
-      order: { elo: 'DESC' },
+      relations: ["user"],
+      order: { elo: "DESC" },
       skip: (page - 1) * limit,
       take: limit,
     });
@@ -101,7 +101,7 @@ export class UsersGameStatsService {
     this.logger.log(`Calculating rank for User ID: ${userId}`);
     if (!isUUID(userId)) {
       this.logger.log(`Invalid User ID format`);
-      throw new NotFoundException('Storage not found');
+      throw new NotFoundException("Storage not found");
     }
 
     const stats = await this.UserStatsRepo.findOne({
@@ -129,7 +129,7 @@ export class UsersGameStatsService {
 
     if (!stats) {
       this.logger.log(`User stats not found`);
-      throw new NotFoundException('User stats not found');
+      throw new NotFoundException("User stats not found");
     }
 
     // Copy the properties from dto to stats
@@ -148,9 +148,9 @@ export class UsersGameStatsService {
 
     if (!stats) {
       this.logger.log(`User stats not found`);
-      throw new NotFoundException('User stats not found');
+      throw new NotFoundException("User stats not found");
     }
-    
+
     this.logger.log(`UserStats for User ID: ${userId} deleted successfully`);
     await this.UserStatsRepo.remove(stats);
   }

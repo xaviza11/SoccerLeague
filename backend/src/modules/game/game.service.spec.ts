@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { GameService } from './game.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Game, User } from '../../entities';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
+import { Test, TestingModule } from "@nestjs/testing";
+import { GameService } from "./game.service";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { Game, User } from "../../entities";
+import { NotFoundException, BadRequestException } from "@nestjs/common";
+import { v4 as uuid } from "uuid";
 
-describe('GameService', () => {
+describe("GameService", () => {
   let service: GameService;
 
   const mockGameRepo = {
@@ -14,7 +14,7 @@ describe('GameService', () => {
     find: jest.fn(),
     findOne: jest.fn(),
     remove: jest.fn(),
-    delete: jest.fn()
+    delete: jest.fn(),
   };
 
   const mockUserRepo = {
@@ -41,11 +41,11 @@ describe('GameService', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  it('should create a game between two humans', async () => {
+  it("should create a game between two humans", async () => {
     const player1 = uuid();
     const player2 = uuid();
 
@@ -70,32 +70,29 @@ describe('GameService', () => {
     expect(mockGameRepo.save).toHaveBeenCalled();
   });
 
-  it('should throw BadRequestException for invalid UUID', async () => {
-
+  it("should throw BadRequestException for invalid UUID", async () => {
     const game = {
-      player_one_id: 'invalid',
+      player_one_id: "invalid",
       player_two_id: uuid(),
-      is_ai_game: false
-    }
+      is_ai_game: false,
+    };
 
     await expect(
       service.create(game.player_one_id, game.player_two_id, game.is_ai_game),
     ).rejects.toThrow(BadRequestException);
   });
 
-  it('should throw NotFoundException if player does not exist', async () => {
+  it("should throw NotFoundException if player does not exist", async () => {
     const player1 = uuid();
     const player2 = uuid();
     const is_ai_game = false;
 
     mockUserRepo.findOne.mockResolvedValueOnce(null);
 
-    await expect(
-      service.create(player1, player2, is_ai_game),
-    ).rejects.toThrow(NotFoundException);
+    await expect(service.create(player1, player2, is_ai_game)).rejects.toThrow(NotFoundException);
   });
 
-  it('should create a game vs AI', async () => {
+  it("should create a game vs AI", async () => {
     const player1 = uuid();
 
     mockUserRepo.findOne.mockResolvedValueOnce({ id: player1 });
@@ -115,7 +112,7 @@ describe('GameService', () => {
     expect(result).toEqual(game);
   });
 
-  it('should return a game', async () => {
+  it("should return a game", async () => {
     const id = uuid();
     const game = { id };
 
@@ -125,7 +122,7 @@ describe('GameService', () => {
     expect(result).toEqual(game);
   });
 
-  it('should remove a game', async () => {
+  it("should remove a game", async () => {
     const id = uuid();
     const game = { id };
 

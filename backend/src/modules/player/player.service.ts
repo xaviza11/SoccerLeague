@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User, Player, Team } from '../../entities';
-import { Logger } from '@nestjs/common';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { User, Player, Team } from "../../entities";
+import { Logger } from "@nestjs/common";
 
 @Injectable()
 export class PlayerService {
@@ -21,23 +21,19 @@ export class PlayerService {
     this.logger.log(`Creating player for user ID: ${data.id}`);
     const user = await this.usersRepo.findOne({ where: { id: data.id } });
     if (!user) {
-      this.logger.log(
-        `Failed to create player: User not found with ID: ${data.id}`,
-      );
-      throw new NotFoundException('User not found');
+      this.logger.log(`Failed to create player: User not found with ID: ${data.id}`);
+      throw new NotFoundException("User not found");
     }
 
     if (!data.team || !data.team.id) {
       this.logger.log(`Failed to create player: Team information is required`);
-      throw new NotFoundException('Team information is required');
+      throw new NotFoundException("Team information is required");
     }
 
     const team = await this.teamsRepo.findOne({ where: { id: data.team.id } });
     if (!team) {
-      this.logger.log(
-        `Failed to create player: Team not found with ID: ${data.team.id}`,
-      );
-      throw new NotFoundException('Team not found');
+      this.logger.log(`Failed to create player: Team not found with ID: ${data.team.id}`);
+      throw new NotFoundException("Team not found");
     }
 
     const player = this.playersRepo.create({
@@ -57,11 +53,11 @@ export class PlayerService {
     this.logger.log(`Fetching player with ID: ${id}`);
     const player = await this.playersRepo.findOne({
       where: { id },
-      relations: ['card'],
+      relations: ["card"],
     });
     if (!player) {
       this.logger.log(`Player not found with ID: ${id}`);
-      throw new NotFoundException('Player not found');
+      throw new NotFoundException("Player not found");
     }
 
     this.logger.log(`Player retrieved successfully with ID: ${id}`);
@@ -70,7 +66,7 @@ export class PlayerService {
 
   async findAll(): Promise<Player[]> {
     this.logger.log(`Fetching all players`);
-    const response = await this.playersRepo.find({ relations: ['card'] });
+    const response = await this.playersRepo.find({ relations: ["card"] });
     this.logger.log(`Players retrieved successfully`);
     return response;
   }
@@ -80,11 +76,11 @@ export class PlayerService {
     const user = await this.usersRepo.findOne({ where: { id } });
     if (!user) {
       this.logger.log(`Failed to update player: User not found with ID: ${id}`);
-      throw new NotFoundException('User not found');
+      throw new NotFoundException("User not found");
     }
 
     const player = await this.findOne(id);
-    
+
     Object.assign(player, data);
 
     this.logger.log(`Player updated successfully with ID: ${id}`);
@@ -96,14 +92,12 @@ export class PlayerService {
     this.logger.log(`Fetching all players for user ID: ${userId}`);
     const user = await this.usersRepo.findOne({ where: { id: userId } });
     if (!user) {
-      this.logger.log(
-        `Failed to fetch players: User not found with ID: ${userId}`,
-      );
-      throw new NotFoundException('User not found');
+      this.logger.log(`Failed to fetch players: User not found with ID: ${userId}`);
+      throw new NotFoundException("User not found");
     }
 
     const players = await this.playersRepo.find({
-      relations: ['team', 'team.storage', 'team.storage.user'],
+      relations: ["team", "team.storage", "team.storage.user"],
       where: { team: { storage: { user: { id: userId } } } },
     });
 
@@ -116,7 +110,7 @@ export class PlayerService {
     const user = await this.usersRepo.findOne({ where: { id } });
     if (!user) {
       this.logger.log(`Failed to delete player: User not found with ID: ${id}`);
-      throw new NotFoundException('User not found');
+      throw new NotFoundException("User not found");
     }
 
     const player = await this.findOne(id);

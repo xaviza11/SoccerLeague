@@ -1,10 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { PlayedGamesController } from './played_games.controller';
-import { PlayedGamesService } from './played_games.service';
-import { BadRequestException } from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
+import { Test, TestingModule } from "@nestjs/testing";
+import { PlayedGamesController } from "./played_games.controller";
+import { PlayedGamesService } from "./played_games.service";
+import { BadRequestException } from "@nestjs/common";
+import { v4 as uuid } from "uuid";
 
-describe('PlayedGamesController', () => {
+describe("PlayedGamesController", () => {
   let controller: PlayedGamesController;
   let service: PlayedGamesService;
 
@@ -34,12 +34,12 @@ describe('PlayedGamesController', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should create a game history entry', async () => {
+  describe("create", () => {
+    it("should create a game history entry", async () => {
       const dto = {
         player_one_id: uuid(),
         player_two_id: uuid(),
@@ -56,20 +56,18 @@ describe('PlayedGamesController', () => {
       expect(mockService.create).toHaveBeenCalledWith(dto);
     });
 
-    it('should throw BadRequestException if required fields missing', async () => {
+    it("should throw BadRequestException if required fields missing", async () => {
       const badDto = {
         player_one_id: null,
         result: null,
       } as any;
 
-      await expect(controller.create(badDto)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(controller.create(badDto)).rejects.toThrow(BadRequestException);
     });
   });
 
-  describe('findAll', () => {
-    it('should return all game histories', async () => {
+  describe("findAll", () => {
+    it("should return all game histories", async () => {
       const records = [{ id: uuid() }, { id: uuid() }];
 
       mockService.findAll.mockResolvedValue(records);
@@ -81,8 +79,8 @@ describe('PlayedGamesController', () => {
     });
   });
 
-  describe('findOne', () => {
-    it('should return a game history record', async () => {
+  describe("findOne", () => {
+    it("should return a game history record", async () => {
       const id = uuid();
       const record = { id };
 
@@ -95,8 +93,8 @@ describe('PlayedGamesController', () => {
     });
   });
 
-  describe('update', () => {
-    it('should update a game history entry', async () => {
+  describe("update", () => {
+    it("should update a game history entry", async () => {
       const id = uuid();
       const updates = { result: [15, 2] as [number, number] };
 
@@ -110,10 +108,10 @@ describe('PlayedGamesController', () => {
     });
   });
 
-  describe('delete', () => {
-    it('should delete a game history record', async () => {
+  describe("delete", () => {
+    it("should delete a game history record", async () => {
       const id = uuid();
-      const deleted = { message: 'Game history entry deleted successfully' };
+      const deleted = { message: "Game history entry deleted successfully" };
 
       mockService.delete.mockResolvedValue(deleted);
 
@@ -124,8 +122,8 @@ describe('PlayedGamesController', () => {
     });
   });
 
-  describe('findByUser', () => {
-    it('should return game histories for a specific user', async () => {
+  describe("findByUser", () => {
+    it("should return game histories for a specific user", async () => {
       const userId = uuid();
       const records = [{ id: uuid() }];
 

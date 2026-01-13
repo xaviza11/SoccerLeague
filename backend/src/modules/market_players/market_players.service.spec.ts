@@ -1,12 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { MarketPlayersService } from './market_players.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { MarketPlayer, Player, User } from '../../entities';
-import { Repository } from 'typeorm';
-import { NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
+import { Test, TestingModule } from "@nestjs/testing";
+import { MarketPlayersService } from "./market_players.service";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { MarketPlayer, Player, User } from "../../entities";
+import { Repository } from "typeorm";
+import { NotFoundException, BadRequestException, ForbiddenException } from "@nestjs/common";
+import { v4 as uuid } from "uuid";
 
-describe('MarketPlayersService', () => {
+describe("MarketPlayersService", () => {
   let service: MarketPlayersService;
   let marketPlayersRepo: Repository<MarketPlayer>;
   let playersRepo: Repository<Player>;
@@ -41,8 +41,8 @@ describe('MarketPlayersService', () => {
     jest.clearAllMocks();
   });
 
-  describe('create', () => {
-    it('should create a market player successfully', async () => {
+  describe("create", () => {
+    it("should create a market player successfully", async () => {
       const playerId = uuid();
       const sellerId = uuid();
       const player = { id: playerId } as Player;
@@ -61,14 +61,14 @@ describe('MarketPlayersService', () => {
       expect(mockMarketPlayersRepo.save).toHaveBeenCalledWith(created);
     });
 
-    it('should throw if player does not exist', async () => {
+    it("should throw if player does not exist", async () => {
       mockPlayersRepo.findOne.mockResolvedValue(null);
       await expect(
         service.create({ player_id: uuid(), price: 100, seller_id: uuid() }),
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw if seller does not exist', async () => {
+    it("should throw if seller does not exist", async () => {
       mockPlayersRepo.findOne.mockResolvedValue({ id: uuid() });
       mockUsersRepo.findOne.mockResolvedValue(null);
       await expect(
@@ -76,29 +76,29 @@ describe('MarketPlayersService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw if price is negative', async () => {
+    it("should throw if price is negative", async () => {
       await expect(
         service.create({ player_id: uuid(), price: -10, seller_id: uuid() }),
       ).rejects.toThrow(BadRequestException);
     });
   });
 
-  describe('findAll', () => {
-    it('should return all market players', async () => {
+  describe("findAll", () => {
+    it("should return all market players", async () => {
       const records = [{ id: uuid() }, { id: uuid() }] as MarketPlayer[];
       mockMarketPlayersRepo.find.mockResolvedValue(records);
 
       const result = await service.findAll();
       expect(result).toBe(records);
       expect(mockMarketPlayersRepo.find).toHaveBeenCalledWith({
-        relations: ['player'],
-        order: { createdAt: 'DESC' },
+        relations: ["player"],
+        order: { createdAt: "DESC" },
       });
     });
   });
 
-  describe('findOne', () => {
-    it('should return one market player', async () => {
+  describe("findOne", () => {
+    it("should return one market player", async () => {
       const id = uuid();
       const record = { id } as MarketPlayer;
       mockMarketPlayersRepo.findOne.mockResolvedValue(record);
@@ -107,18 +107,18 @@ describe('MarketPlayersService', () => {
       expect(result).toBe(record);
       expect(mockMarketPlayersRepo.findOne).toHaveBeenCalledWith({
         where: { id },
-        relations: ['player'],
+        relations: ["player"],
       });
     });
 
-    it('should throw if not found', async () => {
+    it("should throw if not found", async () => {
       mockMarketPlayersRepo.findOne.mockResolvedValue(null);
       await expect(service.findOne(uuid())).rejects.toThrow(NotFoundException);
     });
   });
 
-  describe('findBySeller', () => {
-    it('should return all players by seller', async () => {
+  describe("findBySeller", () => {
+    it("should return all players by seller", async () => {
       const sellerId = uuid();
       const records = [{ id: uuid(), seller_id: sellerId }] as MarketPlayer[];
       mockMarketPlayersRepo.find.mockResolvedValue(records);
@@ -127,14 +127,14 @@ describe('MarketPlayersService', () => {
       expect(result).toBe(records);
       expect(mockMarketPlayersRepo.find).toHaveBeenCalledWith({
         where: { seller_id: sellerId },
-        relations: ['player'],
-        order: { createdAt: 'DESC' },
+        relations: ["player"],
+        order: { createdAt: "DESC" },
       });
     });
   });
 
-  describe('updatePrice', () => {
-    it('should update price if user is seller', async () => {
+  describe("updatePrice", () => {
+    it("should update price if user is seller", async () => {
       const id = uuid();
       const userId = uuid();
       const record = { id, price: 50, seller_id: userId } as MarketPlayer;
@@ -146,20 +146,20 @@ describe('MarketPlayersService', () => {
       expect(mockMarketPlayersRepo.save).toHaveBeenCalledWith({ ...record, price: 150 });
     });
 
-    it('should throw if user is not seller', async () => {
+    it("should throw if user is not seller", async () => {
       const id = uuid();
       const record = { id, price: 50, seller_id: uuid() } as MarketPlayer;
       mockMarketPlayersRepo.findOne.mockResolvedValue(record);
       await expect(service.updatePrice(id, 100, uuid())).rejects.toThrow(ForbiddenException);
     });
 
-    it('should throw if price is negative', async () => {
+    it("should throw if price is negative", async () => {
       await expect(service.updatePrice(uuid(), -10, uuid())).rejects.toThrow(BadRequestException);
     });
   });
 
-  describe('remove', () => {
-    it('should remove if user is seller', async () => {
+  describe("remove", () => {
+    it("should remove if user is seller", async () => {
       const id = uuid();
       const userId = uuid();
       const record = { id, seller_id: userId } as MarketPlayer;

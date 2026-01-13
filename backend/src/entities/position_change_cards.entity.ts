@@ -1,21 +1,21 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, JoinColumn } from 'typeorm';
-import { Storage } from './';
-import { Positions } from '../enums';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, JoinColumn } from "typeorm";
+import { Storage } from "./";
+import { Positions } from "../enums";
 
 @Entity()
 export class PositionChangeCard {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ type: 'enum', enum: Positions })
+  @Column({ type: "enum", enum: Positions })
   new_position: Positions;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: "uuid" })
   storage_id: string;
 
-  @ManyToOne(() => Storage, storage => storage.position_change_cards, {
-    onDelete: 'CASCADE',
+  @ManyToOne(() => Storage, (storage) => storage.position_change_cards, {
+    onDelete: "CASCADE",
   })
-  @JoinColumn({ name: 'storage_id' })
+  @JoinColumn({ name: "storage_id" })
   storage: Storage;
 }

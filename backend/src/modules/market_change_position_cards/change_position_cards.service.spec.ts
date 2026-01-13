@@ -1,20 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { MarketPositionChangeCardsService } from './change_position_cards.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import {
-  MarketPositionChangeCard,
-  PositionChangeCard,
-  User,
-} from '../../entities';
-import { Repository } from 'typeorm';
-import {
-  NotFoundException,
-  BadRequestException,
-  ForbiddenException,
-} from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
+import { Test, TestingModule } from "@nestjs/testing";
+import { MarketPositionChangeCardsService } from "./change_position_cards.service";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { MarketPositionChangeCard, PositionChangeCard, User } from "../../entities";
+import { Repository } from "typeorm";
+import { NotFoundException, BadRequestException, ForbiddenException } from "@nestjs/common";
+import { v4 as uuid } from "uuid";
 
-describe('MarketPositionChangeCardsService', () => {
+describe("MarketPositionChangeCardsService", () => {
   let service: MarketPositionChangeCardsService;
   let marketCardsRepo: Repository<MarketPositionChangeCard>;
   let cardsRepo: Repository<PositionChangeCard>;
@@ -47,9 +39,7 @@ describe('MarketPositionChangeCardsService', () => {
       ],
     }).compile();
 
-    service = module.get<MarketPositionChangeCardsService>(
-      MarketPositionChangeCardsService,
-    );
+    service = module.get<MarketPositionChangeCardsService>(MarketPositionChangeCardsService);
     marketCardsRepo = module.get(getRepositoryToken(MarketPositionChangeCard));
     cardsRepo = module.get(getRepositoryToken(PositionChangeCard));
     usersRepo = module.get(getRepositoryToken(User));
@@ -57,8 +47,8 @@ describe('MarketPositionChangeCardsService', () => {
     jest.clearAllMocks();
   });
 
-  describe('create', () => {
-    it('should create a market card successfully', async () => {
+  describe("create", () => {
+    it("should create a market card successfully", async () => {
       const cardId = uuid();
       const sellerId = uuid();
       const card = { id: cardId } as PositionChangeCard;
@@ -85,7 +75,7 @@ describe('MarketPositionChangeCardsService', () => {
       expect(mockMarketCardsRepo.save).toHaveBeenCalledWith(created);
     });
 
-    it('should throw if card does not exist', async () => {
+    it("should throw if card does not exist", async () => {
       mockCardsRepo.findOne.mockResolvedValue(null);
       await expect(
         service.create({
@@ -96,7 +86,7 @@ describe('MarketPositionChangeCardsService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw if seller does not exist', async () => {
+    it("should throw if seller does not exist", async () => {
       mockCardsRepo.findOne.mockResolvedValue({ id: uuid() });
       mockUsersRepo.findOne.mockResolvedValue(null);
       await expect(
@@ -108,7 +98,7 @@ describe('MarketPositionChangeCardsService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw if price is negative', async () => {
+    it("should throw if price is negative", async () => {
       await expect(
         service.create({
           position_change_card_id: uuid(),
@@ -119,25 +109,22 @@ describe('MarketPositionChangeCardsService', () => {
     });
   });
 
-  describe('findAll', () => {
-    it('should return all market cards', async () => {
-      const records = [
-        { id: uuid() },
-        { id: uuid() },
-      ] as MarketPositionChangeCard[];
+  describe("findAll", () => {
+    it("should return all market cards", async () => {
+      const records = [{ id: uuid() }, { id: uuid() }] as MarketPositionChangeCard[];
       mockMarketCardsRepo.find.mockResolvedValue(records);
 
       const result = await service.findAll();
       expect(result).toBe(records);
       expect(mockMarketCardsRepo.find).toHaveBeenCalledWith({
-        relations: ['positionChangeCard'],
-        order: { createdAt: 'DESC' },
+        relations: ["positionChangeCard"],
+        order: { createdAt: "DESC" },
       });
     });
   });
 
-  describe('findOne', () => {
-    it('should return one market card', async () => {
+  describe("findOne", () => {
+    it("should return one market card", async () => {
       const id = uuid();
       const record = { id } as MarketPositionChangeCard;
       mockMarketCardsRepo.findOne.mockResolvedValue(record);
@@ -146,36 +133,34 @@ describe('MarketPositionChangeCardsService', () => {
       expect(result).toBe(record);
       expect(mockMarketCardsRepo.findOne).toHaveBeenCalledWith({
         where: { id },
-        relations: ['positionChangeCard'],
+        relations: ["positionChangeCard"],
       });
     });
 
-    it('should throw if not found', async () => {
+    it("should throw if not found", async () => {
       mockMarketCardsRepo.findOne.mockResolvedValue(null);
       await expect(service.findOne(uuid())).rejects.toThrow(NotFoundException);
     });
   });
 
-  describe('findBySeller', () => {
-    it('should return all cards by seller', async () => {
+  describe("findBySeller", () => {
+    it("should return all cards by seller", async () => {
       const sellerId = uuid();
-      const records = [
-        { id: uuid(), seller_id: sellerId },
-      ] as MarketPositionChangeCard[];
+      const records = [{ id: uuid(), seller_id: sellerId }] as MarketPositionChangeCard[];
       mockMarketCardsRepo.find.mockResolvedValue(records);
 
       const result = await service.findBySeller(sellerId);
       expect(result).toBe(records);
       expect(mockMarketCardsRepo.find).toHaveBeenCalledWith({
         where: { seller_id: sellerId },
-        relations: ['positionChangeCard'],
-        order: { createdAt: 'DESC' },
+        relations: ["positionChangeCard"],
+        order: { createdAt: "DESC" },
       });
     });
   });
 
-  describe('updatePrice', () => {
-    it('should update price if user is seller', async () => {
+  describe("updatePrice", () => {
+    it("should update price if user is seller", async () => {
       const id = uuid();
       const userId = uuid();
       const record = {
@@ -194,7 +179,7 @@ describe('MarketPositionChangeCardsService', () => {
       });
     });
 
-    it('should throw if user is not seller', async () => {
+    it("should throw if user is not seller", async () => {
       const id = uuid();
       const record = {
         id,
@@ -202,20 +187,16 @@ describe('MarketPositionChangeCardsService', () => {
         seller_id: uuid(),
       } as MarketPositionChangeCard;
       mockMarketCardsRepo.findOne.mockResolvedValue(record);
-      await expect(service.updatePrice(id, 100, uuid())).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(service.updatePrice(id, 100, uuid())).rejects.toThrow(ForbiddenException);
     });
 
-    it('should throw if price is negative', async () => {
-      await expect(service.updatePrice(uuid(), -10, uuid())).rejects.toThrow(
-        BadRequestException,
-      );
+    it("should throw if price is negative", async () => {
+      await expect(service.updatePrice(uuid(), -10, uuid())).rejects.toThrow(BadRequestException);
     });
   });
 
-  describe('remove', () => {
-    it('should remove if user is seller', async () => {
+  describe("remove", () => {
+    it("should remove if user is seller", async () => {
       const id = uuid();
       const userId = uuid();
       const record = { id, seller_id: userId } as MarketPositionChangeCard;

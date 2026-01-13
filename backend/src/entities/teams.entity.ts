@@ -1,24 +1,18 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  OneToOne,
-  OneToMany,
-  Column,
-} from 'typeorm';
-import { Storage, Player, Aura } from './';
+import { Entity, PrimaryGeneratedColumn, OneToOne, OneToMany, Column } from "typeorm";
+import { Storage, Player, Aura } from "./";
 
 @Entity()
 export class Team {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column()
   name: string;
 
-  @OneToMany(() => Player, (player) => player.team, { onDelete: 'CASCADE' })
+  @OneToMany(() => Player, (player) => player.team, { onDelete: "CASCADE" })
   players: Player[];
 
-  @OneToOne(() => Storage, (storage) => storage.team, { onDelete: 'CASCADE' })
+  @OneToOne(() => Storage, (storage) => storage.team, { onDelete: "CASCADE" })
   storage: Storage;
 
   @OneToMany(() => Player, (player) => player.team, { cascade: true })

@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, JoinColumn, ManyToOne, Column } from "typeorm";
-import { Storage, Team } from './'
+import { Storage, Team } from "./";
 import { Auras } from "../enums";
 
 @Entity()
@@ -10,18 +10,18 @@ export class Aura {
   @Column({
     type: "enum",
     enum: Auras,
-    default: Auras.NONE
+    default: Auras.NONE,
   })
-  name: Auras
+  name: Auras;
 
-  @ManyToOne(() => Storage, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'storage_id' })
+  @ManyToOne(() => Storage, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "storage_id" })
   storage: Storage;
 
-  @Column('uuid')
-  storage_id: string; 
+  @Column("uuid")
+  storage_id: string;
 
-  @ManyToOne(() => Team, (team) => team.auras, { onDelete: 'CASCADE', nullable: true })
-  @JoinColumn({ name: 'team_id' })
+  @ManyToOne(() => Team, (team) => team.auras, { onDelete: "CASCADE", nullable: true })
+  @JoinColumn({ name: "team_id" })
   team: Team;
 }

@@ -3,11 +3,11 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { MarketPlayer, Player, User } from '../../entities';
-import { Logger } from '@nestjs/common';
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { MarketPlayer, Player, User } from "../../entities";
+import { Logger } from "@nestjs/common";
 
 @Injectable()
 export class MarketPlayersService {
@@ -34,19 +34,19 @@ export class MarketPlayersService {
 
     if (price < 0) {
       this.logger.error(`Price must be positive: ${price}`);
-      throw new BadRequestException('Price must be positive');
+      throw new BadRequestException("Price must be positive");
     }
 
     const player = await this.playersRepo.findOne({ where: { id: player_id } });
     if (!player) {
       this.logger.error(`Player with ID ${player_id} not found`);
-      throw new NotFoundException('Player not found');
+      throw new NotFoundException("Player not found");
     }
 
     const seller = await this.usersRepo.findOne({ where: { id: seller_id } });
     if (!seller) {
       this.logger.error(`Seller with ID ${seller_id} not found`);
-      throw new NotFoundException('Seller not found');
+      throw new NotFoundException("Seller not found");
     }
 
     const marketPlayer = this.marketPlayersRepo.create({
@@ -63,8 +63,8 @@ export class MarketPlayersService {
   async findAll(): Promise<MarketPlayer[]> {
     this.logger.log(`Fetching all market player entries`);
     const response = await this.marketPlayersRepo.find({
-      relations: ['player'],
-      order: { createdAt: 'DESC' },
+      relations: ["player"],
+      order: { createdAt: "DESC" },
     });
     this.logger.log(`All market player entries fetched successfully`);
     return response;
@@ -74,39 +74,31 @@ export class MarketPlayersService {
     this.logger.log(`Fetching market player entry with ID: ${id}`);
     const record = await this.marketPlayersRepo.findOne({
       where: { id },
-      relations: ['player'],
+      relations: ["player"],
     });
     if (!record) {
       this.logger.error(`MarketPlayer with ID ${id} not found`);
-      throw new NotFoundException('MarketPlayer not found');
+      throw new NotFoundException("MarketPlayer not found");
     }
     return record;
   }
 
   async findBySeller(seller_id: string): Promise<MarketPlayer[]> {
-    this.logger.log(
-      `Fetching market player entries for seller ID: ${seller_id}`,
-    );
+    this.logger.log(`Fetching market player entries for seller ID: ${seller_id}`);
     const response = await this.marketPlayersRepo.find({
       where: { seller_id },
-      relations: ['player'],
-      order: { createdAt: 'DESC' },
+      relations: ["player"],
+      order: { createdAt: "DESC" },
     });
-    this.logger.log(
-      `Market player entries for seller ID ${seller_id} retrieved successfully`,
-    );
+    this.logger.log(`Market player entries for seller ID ${seller_id} retrieved successfully`);
     return response;
   }
 
-  async updatePrice(
-    id: string,
-    price: number,
-    userId: string,
-  ): Promise<MarketPlayer> {
+  async updatePrice(id: string, price: number, userId: string): Promise<MarketPlayer> {
     this.logger.log(`Updating price for market player entry with ID: ${id}`);
     if (price < 0) {
       this.logger.error(`Price must be positive: ${price}`);
-      throw new BadRequestException('Price must be positive');
+      throw new BadRequestException("Price must be positive");
     }
 
     const record = await this.findOne(id);
@@ -114,15 +106,13 @@ export class MarketPlayersService {
       this.logger.error(
         `User with ID ${userId} is not the seller of market player entry with ID ${id}`,
       );
-      throw new ForbiddenException('You can only update your own listings');
+      throw new ForbiddenException("You can only update your own listings");
     }
 
     record.price = price;
     const response = await this.marketPlayersRepo.save(record);
 
-    this.logger.log(
-      `Price for market player entry with ID ${id} updated successfully`,
-    );
+    this.logger.log(`Price for market player entry with ID ${id} updated successfully`);
     return response;
   }
 

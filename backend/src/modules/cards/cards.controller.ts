@@ -9,11 +9,11 @@ import {
   UseGuards,
   BadRequestException,
   ParseUUIDPipe,
-} from '@nestjs/common';
-import { CardsService } from './cards.service';
-import { AuthGuard } from '../../guards/auth.guard';
+} from "@nestjs/common";
+import { CardsService } from "./cards.service";
+import { AuthGuard } from "../../guards/auth.guard";
 
-@Controller('cards')
+@Controller("cards")
 export class CardsController {
   constructor(private readonly cardsService: CardsService) {}
 
@@ -28,20 +28,20 @@ export class CardsController {
     return this.cardsService.findAll();
   }
 
-  @Get('user')
+  @Get("user")
   @UseGuards(AuthGuard)
   async findAllByUser(@Req() req) {
     return this.cardsService.findAllByUser(req.user.id);
   }
 
-  @Get(':id')
+  @Get(":id")
   @UseGuards(AuthGuard)
-  async findOne(@Param('id', new ParseUUIDPipe()) id: string, @Req() req) {
+  async findOne(@Param("id", new ParseUUIDPipe()) id: string, @Req() req) {
     return this.cardsService.findOne(id, req.user.id);
   }
 
-  @Delete(':id')
-  async delete(@Param('id', new ParseUUIDPipe()) id: string) {
+  @Delete(":id")
+  async delete(@Param("id", new ParseUUIDPipe()) id: string) {
     return this.cardsService.delete(id);
   }
 }

@@ -9,11 +9,11 @@ import {
   Delete,
   UseGuards,
   BadRequestException,
-} from '@nestjs/common';
-import { TeamsService } from './teams.service';
-import { AuthGuard } from '../../guards/auth.guard';
+} from "@nestjs/common";
+import { TeamsService } from "./teams.service";
+import { AuthGuard } from "../../guards/auth.guard";
 
-@Controller('teams')
+@Controller("teams")
 export class TeamsController {
   constructor(private readonly teamsService: TeamsService) {}
 
@@ -30,28 +30,28 @@ export class TeamsController {
     return this.teamsService.find();
   }
 
-  @Get(':id')
+  @Get(":id")
   @UseGuards(AuthGuard)
-  async findOneTeam(@Param('id') id: string) {
+  async findOneTeam(@Param("id") id: string) {
     return this.teamsService.findOne(id);
   }
 
-  @Put('/update')
+  @Put("/update")
   @UseGuards(AuthGuard)
   async updateMyTeam(@Req() req, @Body() body: any) {
     const userId = req.user.id;
     const { teamId, ...updateData } = body;
 
     if (!teamId) {
-      throw new BadRequestException('teamId is required');
+      throw new BadRequestException("teamId is required");
     }
 
     return this.teamsService.update(teamId, updateData, userId);
   }
 
-  @Delete('/delete/:id')
+  @Delete("/delete/:id")
   @UseGuards(AuthGuard)
-  async deleteMyTeam(@Req() req, @Param('id') id: string) {
+  async deleteMyTeam(@Req() req, @Param("id") id: string) {
     const userId = req.user.id;
     return this.teamsService.delete(id, userId);
   }

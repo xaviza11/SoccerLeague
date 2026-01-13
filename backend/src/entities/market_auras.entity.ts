@@ -6,7 +6,7 @@ export class MarketAura {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @OneToOne(() => Aura, { onDelete: "NO ACTION" }) 
+  @OneToOne(() => Aura, { onDelete: "NO ACTION" })
   @JoinColumn({ name: "aura_id" })
   aura: Aura;
 
@@ -21,14 +21,14 @@ export class MarketAura {
 
   @Column({
     type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP"
+    default: () => "CURRENT_TIMESTAMP",
   })
   createdAt: Date;
 
   @Column({
     type: "timestamp",
     default: () => "CURRENT_TIMESTAMP",
-    onUpdate: "CURRENT_TIMESTAMP"
+    onUpdate: "CURRENT_TIMESTAMP",
   })
   updatedAt: Date;
 }

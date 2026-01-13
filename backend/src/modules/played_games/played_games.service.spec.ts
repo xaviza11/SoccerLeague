@@ -1,12 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { PlayedGamesService } from './played_games.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { GameHistory, User } from '../../entities';
-import { Repository } from 'typeorm';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
+import { Test, TestingModule } from "@nestjs/testing";
+import { PlayedGamesService } from "./played_games.service";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { GameHistory, User } from "../../entities";
+import { Repository } from "typeorm";
+import { NotFoundException, BadRequestException } from "@nestjs/common";
+import { v4 as uuid } from "uuid";
 
-describe('PlayedGamesService', () => {
+describe("PlayedGamesService", () => {
   let service: PlayedGamesService;
   let gameHistoryRepo: Repository<GameHistory>;
   let usersRepo: Repository<User>;
@@ -45,12 +45,12 @@ describe('PlayedGamesService', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should create a game history successfully', async () => {
+  describe("create", () => {
+    it("should create a game history successfully", async () => {
       const p1 = { id: uuid() } as User;
       const p2 = { id: uuid() } as User;
 
@@ -69,11 +69,11 @@ describe('PlayedGamesService', () => {
 
       const result = await service.create(data);
 
-      expect(result).toHaveProperty('id');
+      expect(result).toHaveProperty("id");
       expect(mockGameHistoryRepo.save).toHaveBeenCalled();
     });
 
-    it('should throw if player one does not exist', async () => {
+    it("should throw if player one does not exist", async () => {
       mockUsersRepo.findOne.mockResolvedValueOnce(null);
 
       await expect(
@@ -85,8 +85,8 @@ describe('PlayedGamesService', () => {
     });
   });
 
-  describe('findOne', () => {
-    it('should return one game history', async () => {
+  describe("findOne", () => {
+    it("should return one game history", async () => {
       const id = uuid();
       const record = { id } as GameHistory;
 
@@ -97,15 +97,15 @@ describe('PlayedGamesService', () => {
       expect(result).toBe(record);
     });
 
-    it('should throw if game not found', async () => {
+    it("should throw if game not found", async () => {
       mockGameHistoryRepo.findOne.mockResolvedValue(null);
 
       await expect(service.findOne(uuid())).rejects.toThrow(NotFoundException);
     });
   });
 
-  describe('findAll', () => {
-    it('should return all game history records', async () => {
+  describe("findAll", () => {
+    it("should return all game history records", async () => {
       const records = [{ id: uuid() }, { id: uuid() }] as GameHistory[];
 
       mockGameHistoryRepo.find.mockResolvedValue(records);
@@ -114,8 +114,8 @@ describe('PlayedGamesService', () => {
     });
   });
 
-  describe('update', () => {
-    it('should update a record', async () => {
+  describe("update", () => {
+    it("should update a record", async () => {
       const id = uuid();
       const existing = { id, result: [0, 0] } as GameHistory;
 
@@ -132,8 +132,8 @@ describe('PlayedGamesService', () => {
     });
   });
 
-  describe('delete', () => {
-    it('should delete a record', async () => {
+  describe("delete", () => {
+    it("should delete a record", async () => {
       const id = uuid();
       const record = { id } as GameHistory;
 
@@ -142,12 +142,12 @@ describe('PlayedGamesService', () => {
 
       const result = await service.delete(id);
 
-      expect(result.message).toBe('Game history entry deleted successfully');
+      expect(result.message).toBe("Game history entry deleted successfully");
     });
   });
 
-  describe('findByUser', () => {
-    it('should return all games of a user', async () => {
+  describe("findByUser", () => {
+    it("should return all games of a user", async () => {
       const userId = uuid();
       const user = { id: userId } as User;
 
@@ -161,7 +161,7 @@ describe('PlayedGamesService', () => {
       expect(result).toBe(games);
     });
 
-    it('should throw if user not found', async () => {
+    it("should throw if user not found", async () => {
       mockUsersRepo.findOne.mockResolvedValue(null);
 
       await expect(service.findByUser(uuid())).rejects.toThrow(NotFoundException);

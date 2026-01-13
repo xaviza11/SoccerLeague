@@ -1,12 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, Index } from 'typeorm';
-import { User } from './';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, Index } from "typeorm";
+import { User } from "./";
 
 @Entity()
 export class UserStats {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Index('idx_userstats_elo')
+  @Index("idx_userstats_elo")
   @Column()
   elo: number;
 
@@ -16,6 +16,6 @@ export class UserStats {
   @Column()
   total_games: number;
 
-  @OneToOne(() => User, user => user.stats, {onDelete: 'CASCADE'})
+  @OneToOne(() => User, (user) => user.stats, { onDelete: "CASCADE" })
   user: User;
 }

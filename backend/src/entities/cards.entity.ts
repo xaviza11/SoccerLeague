@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, JoinColumn, ManyToOne, Column } from "typeorm";
-import { Storage } from './'
+import { Storage } from "./";
 import { Cards } from "../enums";
 
 @Entity()
@@ -10,7 +10,7 @@ export class Card {
   @Column({
     type: "enum",
     enum: Cards,
-    default: Cards.NONE
+    default: Cards.NONE,
   })
   name: Cards;
 

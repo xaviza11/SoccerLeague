@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { GameController } from './game.controller';
-import { GameService } from './game.service';
-import { AuthGuard } from '../../guards/auth.guard';
-import { v4 as uuid } from 'uuid';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from "@nestjs/testing";
+import { GameController } from "./game.controller";
+import { GameService } from "./game.service";
+import { AuthGuard } from "../../guards/auth.guard";
+import { v4 as uuid } from "uuid";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 
-describe('GameController', () => {
+describe("GameController", () => {
   let controller: GameController;
   let service: GameService;
 
@@ -41,11 +41,11 @@ describe('GameController', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  it('should create a human vs human game', async () => {
+  it("should create a human vs human game", async () => {
     const playerTwoId = uuid();
     const playerOneId = uuid();
     const game = {
@@ -59,14 +59,10 @@ describe('GameController', () => {
     const result = await controller.create(playerOneId, playerTwoId, false);
 
     expect(result).toEqual(game);
-    expect(mockService.create).toHaveBeenCalledWith(
-      playerOneId,
-      playerTwoId,
-      false,
-    );
+    expect(mockService.create).toHaveBeenCalledWith(playerOneId, playerTwoId, false);
   });
 
-  it('should create a game vs AI', async () => {
+  it("should create a game vs AI", async () => {
     const playerTwoId = null;
     const playerOneId = uuid();
     const game = {
@@ -77,27 +73,23 @@ describe('GameController', () => {
     };
     mockService.create.mockResolvedValue(game);
 
-    const result = await controller.create(
-      playerOneId,
-      playerTwoId,
-      game.is_ai_game,
-    );
+    const result = await controller.create(playerOneId, playerTwoId, game.is_ai_game);
 
     expect(result).toEqual(game);
     expect(mockService.create).toHaveBeenCalledWith(playerOneId, null, true);
   });
 
-  it('should throw BadRequestException if human game missing player_two_id', async () => {
+  it("should throw BadRequestException if human game missing player_two_id", async () => {
     const playerOneId = uuid(); // any valid UUID
     const isAiGame = false;
 
     // Pass no player_two_id
-    await expect(
-      controller.create(playerOneId, null, isAiGame),
-    ).rejects.toThrow(BadRequestException);
+    await expect(controller.create(playerOneId, null, isAiGame)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
-  it('should return all games', async () => {
+  it("should return all games", async () => {
     const games = [{ id: uuid() }, { id: uuid() }];
     mockService.findAll.mockResolvedValue(games);
 
@@ -106,7 +98,7 @@ describe('GameController', () => {
     expect(mockService.findAll).toHaveBeenCalled();
   });
 
-  it('should return all games of the logged-in user', async () => {
+  it("should return all games of the logged-in user", async () => {
     const games = [{ id: uuid() }];
     mockService.findAllByUser.mockResolvedValue(games);
 
@@ -115,7 +107,7 @@ describe('GameController', () => {
     expect(mockService.findAllByUser).toHaveBeenCalledWith(mockUser.id);
   });
 
-  it('should return a single game', async () => {
+  it("should return a single game", async () => {
     const id = uuid();
     const game = { id };
     mockService.findOne.mockResolvedValue(game);
@@ -125,7 +117,7 @@ describe('GameController', () => {
     expect(mockService.findOne).toHaveBeenCalledWith(id);
   });
 
-  it('should delete a game', async () => {
+  it("should delete a game", async () => {
     const id = uuid();
     const response = { deleted: true };
 

@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { TeamsService } from './teams.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Team, Storage, User } from '../../entities';
-import { NotFoundException } from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
+import { Test, TestingModule } from "@nestjs/testing";
+import { TeamsService } from "./teams.service";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { Team, Storage, User } from "../../entities";
+import { NotFoundException } from "@nestjs/common";
+import { v4 as uuid } from "uuid";
 
-describe('TeamsService', () => {
+describe("TeamsService", () => {
   let service: TeamsService;
   let mockTeamsRepo: any;
   let mockStorageRepo: any;
@@ -43,7 +43,7 @@ describe('TeamsService', () => {
 
   const fakeTeam = () => ({
     id: uuid(),
-    name: 'YourTeam',
+    name: "YourTeam",
     players: [],
     bench_players: [],
     auras: [],
@@ -52,11 +52,11 @@ describe('TeamsService', () => {
 
   const fakeUser = () => ({ id: uuid() });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  it('should create a team with storage', async () => {
+  it("should create a team with storage", async () => {
     const team = fakeTeam();
     const storage = team.storage;
     const user = fakeUser();
@@ -73,7 +73,7 @@ describe('TeamsService', () => {
     expect(mockStorageRepo.create).toHaveBeenCalled();
     expect(mockStorageRepo.save).toHaveBeenCalledWith(storage);
     expect(mockTeamsRepo.create).toHaveBeenCalledWith({
-      name: 'YourTeam',
+      name: "YourTeam",
       storage,
       players: [],
       bench_players: [],
@@ -83,24 +83,24 @@ describe('TeamsService', () => {
     expect(result).toEqual(team);
   });
 
-  it('should throw NotFoundException when creating team if user not found', async () => {
+  it("should throw NotFoundException when creating team if user not found", async () => {
     mockUserRepo.findOne.mockResolvedValue(null);
     await expect(service.create(uuid())).rejects.toThrow(NotFoundException);
   });
 
-  it('should return all teams with full relations', async () => {
+  it("should return all teams with full relations", async () => {
     const teams = [fakeTeam(), fakeTeam()];
     mockTeamsRepo.find.mockResolvedValue(teams);
 
     const result = await service.find();
 
     expect(mockTeamsRepo.find).toHaveBeenCalledWith({
-      relations: ['players', 'bench_players', 'auras', 'storage'],
+      relations: ["players", "bench_players", "auras", "storage"],
     });
     expect(result).toEqual(teams);
   });
 
-  it('should return a team by id with full relations', async () => {
+  it("should return a team by id with full relations", async () => {
     const team = fakeTeam();
     mockTeamsRepo.findOne.mockResolvedValue(team);
 
@@ -108,19 +108,19 @@ describe('TeamsService', () => {
 
     expect(mockTeamsRepo.findOne).toHaveBeenCalledWith({
       where: { id: team.id },
-      relations: ['players', 'bench_players', 'auras', 'storage'],
+      relations: ["players", "bench_players", "auras", "storage"],
     });
     expect(result).toEqual(team);
   });
 
-  it('should throw NotFoundException if team not found', async () => {
+  it("should throw NotFoundException if team not found", async () => {
     mockTeamsRepo.findOne.mockResolvedValue(null);
     await expect(service.findOne(uuid())).rejects.toThrow(NotFoundException);
   });
 
-  it('should update a team', async () => {
+  it("should update a team", async () => {
     const team = fakeTeam();
-    const dto: Partial<Team> = { name: 'NewName' };
+    const dto: Partial<Team> = { name: "NewName" };
     const user = fakeUser();
 
     mockUserRepo.findOne.mockResolvedValue(user);
@@ -132,18 +132,18 @@ describe('TeamsService', () => {
     expect(mockUserRepo.findOne).toHaveBeenCalledWith({ where: { id: user.id } });
     expect(mockTeamsRepo.findOne).toHaveBeenCalledWith({
       where: { id: team.id },
-      relations: ['players', 'bench_players', 'auras', 'storage'],
+      relations: ["players", "bench_players", "auras", "storage"],
     });
     expect(mockTeamsRepo.save).toHaveBeenCalledWith({ ...team, ...dto });
     expect(result).toEqual({ ...team, ...dto });
   });
 
-  it('should throw NotFoundException if updating with non-existent user', async () => {
+  it("should throw NotFoundException if updating with non-existent user", async () => {
     mockUserRepo.findOne.mockResolvedValue(null);
     await expect(service.update(uuid(), {}, uuid())).rejects.toThrow(NotFoundException);
   });
 
-  it('should throw NotFoundException if updating non-existent team', async () => {
+  it("should throw NotFoundException if updating non-existent team", async () => {
     const user = fakeUser();
     mockUserRepo.findOne.mockResolvedValue(user);
     mockTeamsRepo.findOne.mockResolvedValue(null);
@@ -151,7 +151,7 @@ describe('TeamsService', () => {
     await expect(service.update(uuid(), {}, user.id)).rejects.toThrow(NotFoundException);
   });
 
-  it('should delete a team', async () => {
+  it("should delete a team", async () => {
     const team = fakeTeam();
     const user = fakeUser();
 
@@ -164,10 +164,10 @@ describe('TeamsService', () => {
     expect(mockUserRepo.findOne).toHaveBeenCalledWith({ where: { id: user.id } });
     expect(service.findOne).toHaveBeenCalledWith(team.id);
     expect(mockTeamsRepo.remove).toHaveBeenCalledWith(team);
-    expect(result).toEqual({ message: 'Team deleted successfully' });
+    expect(result).toEqual({ message: "Team deleted successfully" });
   });
 
-  it('should throw NotFoundException if deleting with non-existent user', async () => {
+  it("should throw NotFoundException if deleting with non-existent user", async () => {
     mockUserRepo.findOne.mockResolvedValue(null);
     await expect(service.delete(uuid(), uuid())).rejects.toThrow(NotFoundException);
   });

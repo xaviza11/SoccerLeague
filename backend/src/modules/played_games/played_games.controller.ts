@@ -8,10 +8,10 @@ import {
   BadRequestException,
   ParseUUIDPipe,
   Patch,
-} from '@nestjs/common';
-import { PlayedGamesService } from './played_games.service';
+} from "@nestjs/common";
+import { PlayedGamesService } from "./played_games.service";
 
-@Controller('played-games')
+@Controller("played-games")
 export class PlayedGamesController {
   constructor(private readonly playedGamesService: PlayedGamesService) {}
 
@@ -27,7 +27,7 @@ export class PlayedGamesController {
     },
   ) {
     if (!body.player_one_id || !body.result) {
-      throw new BadRequestException('player_one_id and result are required');
+      throw new BadRequestException("player_one_id and result are required");
     }
 
     return this.playedGamesService.create(body);
@@ -38,14 +38,14 @@ export class PlayedGamesController {
     return this.playedGamesService.findAll();
   }
 
-  @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+  @Get(":id")
+  async findOne(@Param("id", ParseUUIDPipe) id: string) {
     return this.playedGamesService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch(":id")
   async update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body()
     updates: {
       player_one_id?: string;
@@ -58,13 +58,13 @@ export class PlayedGamesController {
     return this.playedGamesService.update(id, updates);
   }
 
-  @Delete(':id')
-  async delete(@Param('id', ParseUUIDPipe) id: string) {
+  @Delete(":id")
+  async delete(@Param("id", ParseUUIDPipe) id: string) {
     return this.playedGamesService.delete(id);
   }
 
-  @Get('user/:userId')
-  async findByUser(@Param('userId', ParseUUIDPipe) userId: string) {
+  @Get("user/:userId")
+  async findByUser(@Param("userId", ParseUUIDPipe) userId: string) {
     return this.playedGamesService.findByUser(userId);
   }
 }

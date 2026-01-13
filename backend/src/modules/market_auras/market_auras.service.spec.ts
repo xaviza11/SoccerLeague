@@ -1,12 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { MarketAurasService } from './market_auras.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { MarketAura, Aura, User } from '../../entities';
-import { Repository } from 'typeorm';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
+import { Test, TestingModule } from "@nestjs/testing";
+import { MarketAurasService } from "./market_auras.service";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { MarketAura, Aura, User } from "../../entities";
+import { Repository } from "typeorm";
+import { NotFoundException, BadRequestException } from "@nestjs/common";
+import { v4 as uuid } from "uuid";
 
-describe('MarketAurasService', () => {
+describe("MarketAurasService", () => {
   let service: MarketAurasService;
   let marketAurasRepo: Repository<MarketAura>;
   let aurasRepo: Repository<Aura>;
@@ -46,12 +46,12 @@ describe('MarketAurasService', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should create a market aura successfully', async () => {
+  describe("create", () => {
+    it("should create a market aura successfully", async () => {
       const auraId = uuid();
       const sellerId = uuid();
       const aura = { id: auraId } as Aura;
@@ -72,14 +72,14 @@ describe('MarketAurasService', () => {
       expect(mockMarketAurasRepo.save).toHaveBeenCalledWith(created);
     });
 
-    it('should throw if aura does not exist', async () => {
+    it("should throw if aura does not exist", async () => {
       mockAurasRepo.findOne.mockResolvedValue(null);
       await expect(
         service.create({ aura_id: uuid(), seller_id: uuid(), price: 100 }),
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw if seller does not exist', async () => {
+    it("should throw if seller does not exist", async () => {
       mockAurasRepo.findOne.mockResolvedValue({ id: uuid() });
       mockUsersRepo.findOne.mockResolvedValue(null);
       await expect(
@@ -87,28 +87,28 @@ describe('MarketAurasService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw if price is negative', async () => {
+    it("should throw if price is negative", async () => {
       await expect(
         service.create({ aura_id: uuid(), seller_id: uuid(), price: -10 }),
       ).rejects.toThrow(BadRequestException);
     });
   });
 
-  describe('findAll', () => {
-    it('should return all market auras', async () => {
+  describe("findAll", () => {
+    it("should return all market auras", async () => {
       const records = [{ id: uuid() }, { id: uuid() }] as MarketAura[];
       mockMarketAurasRepo.find.mockResolvedValue(records);
       const result = await service.findAll();
       expect(result).toBe(records);
       expect(mockMarketAurasRepo.find).toHaveBeenCalledWith({
-        relations: ['aura'],
-        order: { createdAt: 'DESC' },
+        relations: ["aura"],
+        order: { createdAt: "DESC" },
       });
     });
   });
 
-  describe('findOne', () => {
-    it('should return one market aura', async () => {
+  describe("findOne", () => {
+    it("should return one market aura", async () => {
       const id = uuid();
       const record = { id } as MarketAura;
       mockMarketAurasRepo.findOne.mockResolvedValue(record);
@@ -117,18 +117,18 @@ describe('MarketAurasService', () => {
       expect(result).toBe(record);
       expect(mockMarketAurasRepo.findOne).toHaveBeenCalledWith({
         where: { id },
-        relations: ['aura'],
+        relations: ["aura"],
       });
     });
 
-    it('should throw if not found', async () => {
+    it("should throw if not found", async () => {
       mockMarketAurasRepo.findOne.mockResolvedValue(null);
       await expect(service.findOne(uuid())).rejects.toThrow(NotFoundException);
     });
   });
 
-  describe('findBySeller', () => {
-    it('should return all auras by seller', async () => {
+  describe("findBySeller", () => {
+    it("should return all auras by seller", async () => {
       const sellerId = uuid();
       const records = [{ id: uuid(), seller_id: sellerId }] as MarketAura[];
       mockMarketAurasRepo.find.mockResolvedValue(records);
@@ -137,13 +137,13 @@ describe('MarketAurasService', () => {
       expect(result).toBe(records);
       expect(mockMarketAurasRepo.find).toHaveBeenCalledWith({
         where: { seller_id: sellerId },
-        relations: ['aura'],
+        relations: ["aura"],
       });
     });
   });
 
-  describe('updatePrice', () => {
-    it('should update price if user is seller', async () => {
+  describe("updatePrice", () => {
+    it("should update price if user is seller", async () => {
       const id = uuid();
       const userId = uuid();
       const record = { id, price: 50, seller_id: userId } as MarketAura;
@@ -155,7 +155,7 @@ describe('MarketAurasService', () => {
       expect(mockMarketAurasRepo.save).toHaveBeenCalledWith({ ...record, price: 150 });
     });
 
-    it('should throw if user is not seller', async () => {
+    it("should throw if user is not seller", async () => {
       const id = uuid();
       const record = { id, price: 50, seller_id: uuid() } as MarketAura;
       mockMarketAurasRepo.findOne.mockResolvedValue(record);
@@ -163,13 +163,13 @@ describe('MarketAurasService', () => {
       await expect(service.updatePrice(id, 100, uuid())).rejects.toThrow(BadRequestException);
     });
 
-    it('should throw if price is negative', async () => {
+    it("should throw if price is negative", async () => {
       await expect(service.updatePrice(uuid(), -10, uuid())).rejects.toThrow(BadRequestException);
     });
   });
 
-  describe('remove', () => {
-    it('should remove if user is seller', async () => {
+  describe("remove", () => {
+    it("should remove if user is seller", async () => {
       const id = uuid();
       const userId = uuid();
       const record = { id, seller_id: userId } as MarketAura;

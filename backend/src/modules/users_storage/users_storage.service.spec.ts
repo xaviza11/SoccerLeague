@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UsersStorageService } from './users_storage.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Storage, Team, PositionChangeCard, Card, User } from '../../entities';
-import { v4 as uuid } from 'uuid';
-import { NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from "@nestjs/testing";
+import { UsersStorageService } from "./users_storage.service";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { Storage, Team, PositionChangeCard, Card, User } from "../../entities";
+import { v4 as uuid } from "uuid";
+import { NotFoundException } from "@nestjs/common";
 
-describe('UsersStorageService (unit)', () => {
+describe("UsersStorageService (unit)", () => {
   let service: UsersStorageService;
 
   const mockStorageRepo = {
@@ -38,11 +38,11 @@ describe('UsersStorageService (unit)', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  it('should create a storage', async () => {
+  it("should create a storage", async () => {
     const fakeStorage = { id: uuid(), cards: [], position_change_cards: [], team: null };
     mockUserRepo.findOne.mockResolvedValue({ id: uuid() });
     mockStorageRepo.create.mockReturnValue(fakeStorage);
@@ -55,12 +55,12 @@ describe('UsersStorageService (unit)', () => {
     expect(mockStorageRepo.save).toHaveBeenCalledWith(fakeStorage);
   });
 
-  it('should throw if user not found when creating storage', async () => {
+  it("should throw if user not found when creating storage", async () => {
     mockUserRepo.findOne.mockResolvedValue(null);
     await expect(service.createStorage(uuid())).rejects.toThrow(NotFoundException);
   });
 
-  it('should add a team to storage', async () => {
+  it("should add a team to storage", async () => {
     const storageId = uuid();
     const teamId = uuid();
     const storage = { id: storageId, team: null };
@@ -76,7 +76,7 @@ describe('UsersStorageService (unit)', () => {
     expect(mockStorageRepo.save).toHaveBeenCalledWith(storage);
   });
 
-  it('should throw if team not found', async () => {
+  it("should throw if team not found", async () => {
     const storage = { id: uuid(), team: null };
     mockUserRepo.findOne.mockResolvedValue({ id: uuid() });
     mockStorageRepo.findOne.mockResolvedValue(storage);
@@ -85,12 +85,15 @@ describe('UsersStorageService (unit)', () => {
     await expect(service.addTeam(uuid(), uuid(), storage.id)).rejects.toThrow(NotFoundException);
   });
 
-  it('should add a card to storage', async () => {
+  it("should add a card to storage", async () => {
     const storage = { id: uuid(), cards: [] };
     const card = { id: uuid(), storage };
     mockStorageRepo.findOne.mockResolvedValue(storage);
     mockCardRepo.findOne.mockResolvedValue(card);
-    mockCardRepo.save.mockImplementation((c) => { storage.cards.push(c as never); return Promise.resolve(c); });
+    mockCardRepo.save.mockImplementation((c) => {
+      storage.cards.push(c as never);
+      return Promise.resolve(c);
+    });
     mockStorageRepo.save.mockImplementation((s) => Promise.resolve(s));
 
     const updated = await service.addCard(storage.id, card.id);
@@ -99,7 +102,7 @@ describe('UsersStorageService (unit)', () => {
     expect(mockCardRepo.save).toHaveBeenCalledWith(card);
   });
 
-  it('should throw if card not found', async () => {
+  it("should throw if card not found", async () => {
     const storage = { id: uuid(), cards: [] };
     mockStorageRepo.findOne.mockResolvedValue(storage);
     mockCardRepo.findOne.mockResolvedValue(null);
@@ -107,12 +110,15 @@ describe('UsersStorageService (unit)', () => {
     await expect(service.addCard(storage.id, uuid())).rejects.toThrow(NotFoundException);
   });
 
-  it('should add a position change card', async () => {
+  it("should add a position change card", async () => {
     const storage = { id: uuid(), position_change_cards: [] };
     const pcCard = { id: uuid(), storage };
     mockStorageRepo.findOne.mockResolvedValue(storage);
     mockPositionChangeRepo.findOne.mockResolvedValue(pcCard);
-    mockPositionChangeRepo.save.mockImplementation((c) => { storage.position_change_cards.push(c as never); return Promise.resolve(c); });
+    mockPositionChangeRepo.save.mockImplementation((c) => {
+      storage.position_change_cards.push(c as never);
+      return Promise.resolve(c);
+    });
     mockStorageRepo.save.mockImplementation((s) => Promise.resolve(s));
 
     const updated = await service.addPositionChangeCard(storage.id, pcCard.id);
@@ -121,15 +127,17 @@ describe('UsersStorageService (unit)', () => {
     expect(mockPositionChangeRepo.save).toHaveBeenCalledWith(pcCard);
   });
 
-  it('should throw if position change card not found', async () => {
+  it("should throw if position change card not found", async () => {
     const storage = { id: uuid(), position_change_cards: [] };
     mockStorageRepo.findOne.mockResolvedValue(storage);
     mockPositionChangeRepo.findOne.mockResolvedValue(null);
 
-    await expect(service.addPositionChangeCard(storage.id, uuid())).rejects.toThrow(NotFoundException);
+    await expect(service.addPositionChangeCard(storage.id, uuid())).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
-  it('should find one storage', async () => {
+  it("should find one storage", async () => {
     const storage = { id: uuid() };
     mockStorageRepo.findOne.mockResolvedValue(storage);
 
@@ -142,13 +150,13 @@ describe('UsersStorageService (unit)', () => {
     });
   });
 
-  it('should throw if storage not found', async () => {
+  it("should throw if storage not found", async () => {
     mockStorageRepo.findOne.mockResolvedValue(null);
 
     await expect(service.findOne(uuid())).rejects.toThrow(NotFoundException);
   });
 
-  it('should find all storages', async () => {
+  it("should find all storages", async () => {
     const storages = [{ id: uuid() }, { id: uuid() }];
     mockStorageRepo.find.mockResolvedValue(storages);
 
@@ -160,7 +168,7 @@ describe('UsersStorageService (unit)', () => {
     });
   });
 
-  it('should delete storage', async () => {
+  it("should delete storage", async () => {
     mockUserRepo.findOne.mockResolvedValue({ id: uuid() });
     mockStorageRepo.delete.mockResolvedValue({ affected: 1 });
 
@@ -168,7 +176,7 @@ describe('UsersStorageService (unit)', () => {
     expect(mockStorageRepo.delete).toHaveBeenCalled();
   });
 
-  it('should throw when deleting non-existent storage', async () => {
+  it("should throw when deleting non-existent storage", async () => {
     mockUserRepo.findOne.mockResolvedValue({ id: uuid() });
     mockStorageRepo.delete.mockResolvedValue({ affected: 0 });
 

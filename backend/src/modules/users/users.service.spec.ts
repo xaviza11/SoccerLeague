@@ -1,13 +1,13 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from './users.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { User, Storage, UserStats } from '../../entities';
-import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
+import { Test, TestingModule } from "@nestjs/testing";
+import { UsersService } from "./users.service";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { User, Storage, UserStats } from "../../entities";
+import * as bcrypt from "bcrypt";
+import { JwtService } from "@nestjs/jwt";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { v4 as uuid } from "uuid";
 
-describe('UsersService (unit)', () => {
+describe("UsersService (unit)", () => {
   let service: UsersService;
 
   let mockUsersRepo: any;
@@ -23,7 +23,7 @@ describe('UsersService (unit)', () => {
     };
 
     mockJwtService = {
-      sign: jest.fn().mockReturnValue('token'),
+      sign: jest.fn().mockReturnValue("token"),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -44,115 +44,117 @@ describe('UsersService (unit)', () => {
     return { id: uuid(), name, email, password } as User;
   }
 
-  it('should create a user', async () => {
-    const password = 'Password123';
+  it("should create a user", async () => {
+    const password = "Password123";
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = createFakeUser('Alice', 'alice@test.com', hashedPassword);
+    const user = createFakeUser("Alice", "alice@test.com", hashedPassword);
 
     mockUsersRepo.create.mockReturnValue(user);
     mockUsersRepo.save.mockResolvedValue(user);
 
-    const result = await service.createUser('Alice', 'alice@test.com', password);
+    const result = await service.createUser("Alice", "alice@test.com", password);
     expect(result).toEqual({ email: user.email, id: user.id, name: user.name });
     expect(mockUsersRepo.create).toHaveBeenCalled();
     expect(mockUsersRepo.save).toHaveBeenCalled();
   });
 
-  it('should throw if email already exists on create', async () => {
+  it("should throw if email already exists on create", async () => {
     mockUsersRepo.findOne.mockResolvedValueOnce({} as User); // simulate existing email
-    await expect(service.createUser('Bob', 'bob@test.com', 'Password123')).rejects.toThrow(BadRequestException);
+    await expect(service.createUser("Bob", "bob@test.com", "Password123")).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
-  it('should update user with correct currentPassword', async () => {
-    const oldPassword = 'Secret123';
+  it("should update user with correct currentPassword", async () => {
+    const oldPassword = "Secret123";
     const hashedOld = await bcrypt.hash(oldPassword, 10);
-    const user = createFakeUser('Bob', 'bob@test.com', hashedOld);
+    const user = createFakeUser("Bob", "bob@test.com", hashedOld);
 
     mockUsersRepo.findOne.mockResolvedValue(user);
     mockUsersRepo.save.mockImplementation((u) => Promise.resolve({ ...user, ...u }));
 
     const updated = await service.updateUser(user.id, {
-      name: 'Bob Updated',
-      email: 'bob2@test.com',
-      password: 'NewPassword123',
+      name: "Bob Updated",
+      email: "bob2@test.com",
+      password: "NewPassword123",
       currentPassword: oldPassword,
     });
 
-    expect(updated.name).toBe('Bob Updated');
-    expect(updated.email).toBe('bob2@test.com');
+    expect(updated.name).toBe("Bob Updated");
+    expect(updated.email).toBe("bob2@test.com");
   });
 
-  it('should throw if updating with wrong currentPassword', async () => {
-    const hashedOld = await bcrypt.hash('Secret123', 10);
-    const user = createFakeUser('Bob', 'bob@test.com', hashedOld);
+  it("should throw if updating with wrong currentPassword", async () => {
+    const hashedOld = await bcrypt.hash("Secret123", 10);
+    const user = createFakeUser("Bob", "bob@test.com", hashedOld);
     mockUsersRepo.findOne.mockResolvedValue(user);
 
     await expect(
-      service.updateUser(user.id, { name: 'Fail', currentPassword: 'Wrong123' }),
+      service.updateUser(user.id, { name: "Fail", currentPassword: "Wrong123" }),
     ).rejects.toThrow(BadRequestException);
   });
 
-  it('should search users by name', async () => {
+  it("should search users by name", async () => {
     const users = [
-      createFakeUser('John', 'john1@test.com', 'pass'),
-      createFakeUser('John', 'john2@test.com', 'pass'),
+      createFakeUser("John", "john1@test.com", "pass"),
+      createFakeUser("John", "john2@test.com", "pass"),
     ];
     mockUsersRepo.find.mockResolvedValue(users);
 
-    const result = await service.searchUsersByName('John');
+    const result = await service.searchUsersByName("John");
     const expected = users.map(({ password, recovery_password, ...rest }) => rest);
 
     expect(result).toEqual(expected);
-    expect(mockUsersRepo.find).toHaveBeenCalledWith({ where: { name: 'John' }, take: 20 });
+    expect(mockUsersRepo.find).toHaveBeenCalledWith({ where: { name: "John" }, take: 20 });
   });
 
-  it('should find one user', async () => {
-    const user = createFakeUser('Charlie', 'charlie@test.com', 'pass');
+  it("should find one user", async () => {
+    const user = createFakeUser("Charlie", "charlie@test.com", "pass");
     mockUsersRepo.findOne.mockResolvedValue(user);
 
     const found = await service.findOne(user.id);
     expect(found).toEqual({ email: user.email, id: user.id, name: user.name });
   });
 
-  it('should throw if user not found', async () => {
+  it("should throw if user not found", async () => {
     mockUsersRepo.findOne.mockResolvedValue(null);
     await expect(service.findOne(uuid())).rejects.toThrow(NotFoundException);
   });
 
-  it('should delete a user with correct password', async () => {
-    const hashed = await bcrypt.hash('pass123ADG', 10);
-    const user = createFakeUser('Dave', 'dave@test.com', hashed);
+  it("should delete a user with correct password", async () => {
+    const hashed = await bcrypt.hash("pass123ADG", 10);
+    const user = createFakeUser("Dave", "dave@test.com", hashed);
     mockUsersRepo.findOne.mockResolvedValue(user);
     mockUsersRepo.delete.mockResolvedValue({ affected: 1 });
 
-    await expect(service.deleteUser(user.id, 'pass123ADG')).resolves.not.toThrow();
+    await expect(service.deleteUser(user.id, "pass123ADG")).resolves.not.toThrow();
   });
 
-  it('should throw if deleting with wrong password', async () => {
-    const hashed = await bcrypt.hash('pass123ADV', 10);
-    const user = createFakeUser('Eve', 'eve@test.com', hashed);
+  it("should throw if deleting with wrong password", async () => {
+    const hashed = await bcrypt.hash("pass123ADV", 10);
+    const user = createFakeUser("Eve", "eve@test.com", hashed);
     mockUsersRepo.findOne.mockResolvedValue(user);
 
-    await expect(service.deleteUser(user.id, 'wrongpass')).rejects.toThrow(BadRequestException);
+    await expect(service.deleteUser(user.id, "wrongpass")).rejects.toThrow(BadRequestException);
   });
 
-  it('should login user with correct credentials', async () => {
-    const password = 'Password123';
+  it("should login user with correct credentials", async () => {
+    const password = "Password123";
     const hashed = await bcrypt.hash(password, 10);
-    const user = createFakeUser('Frank', 'frank@test.com', hashed);
+    const user = createFakeUser("Frank", "frank@test.com", hashed);
     mockUsersRepo.findOne.mockResolvedValue(user);
 
     const result = await service.login(user.email, password);
-    expect(result.accessToken).toBe('token');
+    expect(result.accessToken).toBe("token");
     expect(result.name).toBe(user.name);
   });
 
-  it('should throw if login with wrong credentials', async () => {
-    const password = 'Password123';
+  it("should throw if login with wrong credentials", async () => {
+    const password = "Password123";
     const hashed = await bcrypt.hash(password, 10);
-    const user = createFakeUser('Grace', 'grace@test.com', hashed);
+    const user = createFakeUser("Grace", "grace@test.com", hashed);
     mockUsersRepo.findOne.mockResolvedValue(user);
 
-    await expect(service.login(user.email, 'WrongPass')).rejects.toThrow(BadRequestException);
+    await expect(service.login(user.email, "WrongPass")).rejects.toThrow(BadRequestException);
   });
 });

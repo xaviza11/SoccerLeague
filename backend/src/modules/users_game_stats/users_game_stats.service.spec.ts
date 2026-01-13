@@ -1,12 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UsersGameStatsService } from './users_game_stats.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { UserStats, User } from '../../entities';
-import { NotFoundException } from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
-import { MoreThan } from 'typeorm';
+import { Test, TestingModule } from "@nestjs/testing";
+import { UsersGameStatsService } from "./users_game_stats.service";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { UserStats, User } from "../../entities";
+import { NotFoundException } from "@nestjs/common";
+import { v4 as uuid } from "uuid";
+import { MoreThan } from "typeorm";
 
-describe('UsersGameStatsService (unit)', () => {
+describe("UsersGameStatsService (unit)", () => {
   let service: UsersGameStatsService;
 
   let mockUserStatsRepo: any;
@@ -40,7 +40,7 @@ describe('UsersGameStatsService (unit)', () => {
   });
 
   function createFakeUser(id?: string): User {
-    return { id: id || uuid(), name: 'Alice' } as User;
+    return { id: id || uuid(), name: "Alice" } as User;
   }
 
   function createFakeStats(user: User): UserStats {
@@ -53,7 +53,7 @@ describe('UsersGameStatsService (unit)', () => {
     } as UserStats;
   }
 
-  it('should create user game stats', async () => {
+  it("should create user game stats", async () => {
     const user = createFakeUser();
     const stats = createFakeStats(user);
 
@@ -78,12 +78,12 @@ describe('UsersGameStatsService (unit)', () => {
     expect(mockUserStatsRepo.save).toHaveBeenCalledWith(stats);
   });
 
-  it('should throw if user not found when creating stats', async () => {
+  it("should throw if user not found when creating stats", async () => {
     mockUsersRepo.findOne.mockResolvedValue(null);
     await expect(service.create(uuid())).rejects.toThrow(NotFoundException);
   });
 
-  it('should find one stats by id', async () => {
+  it("should find one stats by id", async () => {
     const stats = createFakeStats(createFakeUser());
     mockUserStatsRepo.findOne.mockResolvedValue(stats);
 
@@ -91,17 +91,17 @@ describe('UsersGameStatsService (unit)', () => {
 
     expect(mockUserStatsRepo.findOne).toHaveBeenCalledWith({
       where: { id: stats.id },
-      relations: ['user'],
+      relations: ["user"],
     });
     expect(result).toEqual(stats);
   });
 
-  it('should throw if stats not found by id', async () => {
+  it("should throw if stats not found by id", async () => {
     mockUserStatsRepo.findOne.mockResolvedValue(null);
     await expect(service.findOne(uuid())).rejects.toThrow(NotFoundException);
   });
 
-  it('should update stats by user', async () => {
+  it("should update stats by user", async () => {
     const user = createFakeUser();
     const stats = createFakeStats(user);
 
@@ -122,14 +122,12 @@ describe('UsersGameStatsService (unit)', () => {
     expect(mockUserStatsRepo.save).toHaveBeenCalled();
   });
 
-  it('should throw if updating stats and user has no stats', async () => {
+  it("should throw if updating stats and user has no stats", async () => {
     mockUserStatsRepo.findOne.mockResolvedValue(null);
-    await expect(
-      service.update(uuid(), { elo: 12000 }),
-    ).rejects.toThrow(NotFoundException);
+    await expect(service.update(uuid(), { elo: 12000 })).rejects.toThrow(NotFoundException);
   });
 
-  it('should delete stats by user', async () => {
+  it("should delete stats by user", async () => {
     const user = createFakeUser();
     const stats = createFakeStats(user);
 
@@ -140,41 +138,41 @@ describe('UsersGameStatsService (unit)', () => {
     expect(mockUserStatsRepo.remove).toHaveBeenCalledWith(stats);
   });
 
-  it('should throw if deleting stats and user has no stats', async () => {
+  it("should throw if deleting stats and user has no stats", async () => {
     mockUserStatsRepo.findOne.mockResolvedValue(null);
     await expect(service.delete(uuid())).rejects.toThrow(NotFoundException);
   });
 
-  it('should get top N users', async () => {
+  it("should get top N users", async () => {
     const stats = createFakeStats(createFakeUser());
     mockUserStatsRepo.find.mockResolvedValue([stats]);
 
     const top = await service.getTop(1);
 
     expect(mockUserStatsRepo.find).toHaveBeenCalledWith({
-      relations: ['user'],
-      order: { elo: 'DESC' },
+      relations: ["user"],
+      order: { elo: "DESC" },
       take: 1,
     });
     expect(top).toEqual([stats]);
   });
 
-  it('should get leaderboard paginated', async () => {
+  it("should get leaderboard paginated", async () => {
     const stats = createFakeStats(createFakeUser());
     mockUserStatsRepo.find.mockResolvedValue([stats]);
 
     const leaderboard = await service.getLeaderboard(2, 10);
 
     expect(mockUserStatsRepo.find).toHaveBeenCalledWith({
-      relations: ['user'],
-      order: { elo: 'DESC' },
+      relations: ["user"],
+      order: { elo: "DESC" },
       skip: 10,
       take: 10,
     });
     expect(leaderboard).toEqual([stats]);
   });
 
-  it('should return correct user rank', async () => {
+  it("should return correct user rank", async () => {
     const user = createFakeUser();
     const stats = createFakeStats(user);
     stats.elo = 10000;
@@ -190,7 +188,7 @@ describe('UsersGameStatsService (unit)', () => {
     expect(rank).toBe(6);
   });
 
-  it('should return null when user has no stats for rank', async () => {
+  it("should return null when user has no stats for rank", async () => {
     mockUserStatsRepo.findOne.mockResolvedValue(null);
 
     const rank = await service.getUserRank(uuid());

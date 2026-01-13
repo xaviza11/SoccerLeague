@@ -9,11 +9,11 @@ import {
   Put,
   Query,
   UseGuards,
-} from '@nestjs/common';
-import { UsersGameStatsService } from './users_game_stats.service';
-import { AuthGuard } from '../../guards/auth.guard';
+} from "@nestjs/common";
+import { UsersGameStatsService } from "./users_game_stats.service";
+import { AuthGuard } from "../../guards/auth.guard";
 
-@Controller('users-game-stats')
+@Controller("users-game-stats")
 export class UsersGameStatsController {
   constructor(private readonly usersGameStatsService: UsersGameStatsService) {}
 
@@ -29,29 +29,23 @@ export class UsersGameStatsController {
     return this.usersGameStatsService.findAll();
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
+  @Get(":id")
+  async findOne(@Param("id") id: string) {
     return this.usersGameStatsService.findOne(id);
   }
 
-  @Get('/ranking/top')
-  async getTop(@Query('limit') limit: number = 100) {
+  @Get("/ranking/top")
+  async getTop(@Query("limit") limit: number = 100) {
     return this.usersGameStatsService.getTop(Number(limit));
   }
 
-  @Get('/ranking/leaderboard')
-  async getLeaderboard(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 50,
-  ) {
-    return this.usersGameStatsService.getLeaderboard(
-      Number(page),
-      Number(limit),
-    );
+  @Get("/ranking/leaderboard")
+  async getLeaderboard(@Query("page") page: number = 1, @Query("limit") limit: number = 50) {
+    return this.usersGameStatsService.getLeaderboard(Number(page), Number(limit));
   }
 
-  @Get('/ranking/rank/:userId')
-  async getUserRank(@Param('userId') userId: string) {
+  @Get("/ranking/rank/:userId")
+  async getUserRank(@Param("userId") userId: string) {
     return this.usersGameStatsService.getUserRank(userId);
   }
 

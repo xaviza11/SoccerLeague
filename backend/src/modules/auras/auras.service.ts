@@ -1,14 +1,10 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Aura, Storage, User } from '../../entities';
-import { validate as isUUID } from 'uuid';
-import { Auras } from '../../enums';
-import { Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Aura, Storage, User } from "../../entities";
+import { validate as isUUID } from "uuid";
+import { Auras } from "../../enums";
+import { Logger } from "@nestjs/common";
 
 @Injectable()
 export class AurasService {
@@ -35,23 +31,23 @@ export class AurasService {
 
     if (!isUUID(userId)) {
       this.logger.log(`Invalid user ID: ${userId}`);
-      throw new BadRequestException('Invalid user ID');
+      throw new BadRequestException("Invalid user ID");
     }
 
     const user = await this.usersRepo.findOne({
       where: { id: userId },
-      relations: ['storage'],
+      relations: ["storage"],
     });
 
     if (!user) {
       this.logger.log(`User not found with id: ${userId}`);
-      throw new NotFoundException('User not found');
+      throw new NotFoundException("User not found");
     }
 
     if (!user.storage) {
       this.logger.log(`User storage not found for user id: ${userId}`);
-      throw new NotFoundException('User storage not found');
-    } 
+      throw new NotFoundException("User storage not found");
+    }
 
     const newAura = this.auraRepo.create({
       name: this.createRandomAuraName(),
@@ -67,26 +63,24 @@ export class AurasService {
     this.logger.log(`Fetching aura with id: ${auraId} for user with id: ${userId}`);
     if (!isUUID(auraId)) {
       this.logger.log(`Invalid aura ID: ${auraId}`);
-      throw new BadRequestException('Invalid aura ID');
-    } 
+      throw new BadRequestException("Invalid aura ID");
+    }
     if (!isUUID(userId)) {
       this.logger.log(`Invalid user ID: ${userId}`);
-      throw new BadRequestException('Invalid user ID');
-    } 
+      throw new BadRequestException("Invalid user ID");
+    }
 
     const aura = await this.auraRepo.findOne({
       where: {
         id: auraId,
         storage: { user: { id: userId } },
       },
-      relations: ['storage', 'storage.user'],
+      relations: ["storage", "storage.user"],
     });
 
     if (!aura) {
       this.logger.log(`Aura not found with id: ${auraId} for user with id: ${userId}`);
-      throw new NotFoundException(
-        'Aura not found or does not belong to this user',
-      );
+      throw new NotFoundException("Aura not found or does not belong to this user");
     }
 
     this.logger.log(`Aura found with id: ${auraId} for user with id: ${userId}`);
@@ -94,8 +88,8 @@ export class AurasService {
   }
 
   async findAll(): Promise<Aura[]> {
-    this.logger.log('Fetching all auras');
-    const response = await this.auraRepo.find({ relations: ['storage'] });
+    this.logger.log("Fetching all auras");
+    const response = await this.auraRepo.find({ relations: ["storage"] });
     this.logger.log(`Found ${response.length} auras`);
     return response;
   }
@@ -104,26 +98,26 @@ export class AurasService {
     this.logger.log(`Fetching all auras for user with id: ${userId}`);
     if (!isUUID(userId)) {
       this.logger.log(`Invalid user ID: ${userId}`);
-      throw new BadRequestException('Invalid user ID');
-    } 
+      throw new BadRequestException("Invalid user ID");
+    }
 
     const user = await this.usersRepo.findOne({
       where: { id: userId },
-      relations: ['storage'],
+      relations: ["storage"],
     });
 
     if (!user) {
       this.logger.log(`User not found with id: ${userId}`);
-      throw new NotFoundException('User not found');
-    } 
+      throw new NotFoundException("User not found");
+    }
     if (!user.storage) {
       this.logger.log(`User storage not found for user id: ${userId}`);
-      throw new NotFoundException('User storage not found');
-    } 
+      throw new NotFoundException("User storage not found");
+    }
 
     const response = await this.auraRepo.find({
       where: { storage_id: user.storage.id },
-      relations: ['storage'],
+      relations: ["storage"],
     });
     this.logger.log(`Found ${response.length} auras for user with id: ${userId}`);
     return response;
@@ -133,23 +127,21 @@ export class AurasService {
     this.logger.log(`Deleting aura with id: ${auraId}`);
     if (!isUUID(auraId)) {
       this.logger.log(`Invalid aura ID: ${auraId}`);
-      throw new BadRequestException('Invalid aura ID');
-    } 
+      throw new BadRequestException("Invalid aura ID");
+    }
 
     const aura = await this.auraRepo.findOne({
       where: { id: auraId },
-      relations: ['storage', 'storage.user'],
+      relations: ["storage", "storage.user"],
     });
 
     if (!aura) {
       this.logger.log(`Aura not found with id: ${auraId}`);
-      throw new NotFoundException(
-        'Aura not found or does not belong to this user',
-      );
+      throw new NotFoundException("Aura not found or does not belong to this user");
     }
 
     await this.auraRepo.delete(auraId);
     this.logger.log(`Aura deleted with id: ${auraId}`);
-    return { message: 'Aura deleted successfully' };
+    return { message: "Aura deleted successfully" };
   }
 }

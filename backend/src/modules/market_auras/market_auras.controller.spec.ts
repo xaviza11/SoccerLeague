@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { MarketAurasController } from './market_auras.controller';
-import { MarketAurasService } from './market_auras.service';
-import { v4 as uuid } from 'uuid';
-import { BadRequestException, ExecutionContext } from '@nestjs/common';
-import { AuthGuard } from '../../guards/auth.guard';
+import { Test, TestingModule } from "@nestjs/testing";
+import { MarketAurasController } from "./market_auras.controller";
+import { MarketAurasService } from "./market_auras.service";
+import { v4 as uuid } from "uuid";
+import { BadRequestException, ExecutionContext } from "@nestjs/common";
+import { AuthGuard } from "../../guards/auth.guard";
 
-describe('MarketAurasController', () => {
+describe("MarketAurasController", () => {
   let controller: MarketAurasController;
   let service: MarketAurasService;
 
@@ -37,12 +37,12 @@ describe('MarketAurasController', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should call service.create and return result', async () => {
+  describe("create", () => {
+    it("should call service.create and return result", async () => {
       const req = { user: { id: uuid() } };
       const dto = { aura_id: uuid(), price: 100 };
       const result = { id: uuid(), ...dto, seller_id: req.user.id };
@@ -55,18 +55,16 @@ describe('MarketAurasController', () => {
       });
     });
 
-    it('should throw BadRequestException if missing fields', () => {
+    it("should throw BadRequestException if missing fields", () => {
       const req = { user: { id: uuid() } };
       const dto = { aura_id: uuid() } as any;
 
-      expect(() => controller.create(req as any, dto)).toThrow(
-        BadRequestException,
-      );
+      expect(() => controller.create(req as any, dto)).toThrow(BadRequestException);
     });
   });
 
-  describe('findAll', () => {
-    it('should call service.findAll and return result', async () => {
+  describe("findAll", () => {
+    it("should call service.findAll and return result", async () => {
       const records = [{ id: uuid() }, { id: uuid() }];
       mockService.findAll.mockResolvedValue(records);
 
@@ -76,8 +74,8 @@ describe('MarketAurasController', () => {
     });
   });
 
-  describe('findOne', () => {
-    it('should call service.findOne and return result', async () => {
+  describe("findOne", () => {
+    it("should call service.findOne and return result", async () => {
       const id = uuid();
       const record = { id };
       mockService.findOne.mockResolvedValue(record);
@@ -88,8 +86,8 @@ describe('MarketAurasController', () => {
     });
   });
 
-  describe('findBySeller', () => {
-    it('should call service.findBySeller and return result', async () => {
+  describe("findBySeller", () => {
+    it("should call service.findBySeller and return result", async () => {
       const sellerId = uuid();
       const records = [{ id: uuid(), seller_id: sellerId }];
       mockService.findBySeller.mockResolvedValue(records);
@@ -100,8 +98,8 @@ describe('MarketAurasController', () => {
     });
   });
 
-  describe('updatePrice', () => {
-    it('should call service.updatePrice and return result', async () => {
+  describe("updatePrice", () => {
+    it("should call service.updatePrice and return result", async () => {
       const req = { user: { id: uuid() } };
       const id = uuid();
       const price = 150;
@@ -110,23 +108,19 @@ describe('MarketAurasController', () => {
 
       const result = await controller.updatePrice(id, price, req as any);
       expect(result).toBe(record);
-      expect(mockService.updatePrice).toHaveBeenCalledWith(
-        id,
-        price,
-        req.user.id,
-      );
+      expect(mockService.updatePrice).toHaveBeenCalledWith(id, price, req.user.id);
     });
 
-    it('should throw BadRequestException if price undefined', () => {
+    it("should throw BadRequestException if price undefined", () => {
       const req = { user: { id: uuid() } };
-      expect(() =>
-        controller.updatePrice(uuid(), undefined as any, req as any),
-      ).toThrow(BadRequestException);
+      expect(() => controller.updatePrice(uuid(), undefined as any, req as any)).toThrow(
+        BadRequestException,
+      );
     });
   });
 
-  describe('remove', () => {
-    it('should call service.remove', async () => {
+  describe("remove", () => {
+    it("should call service.remove", async () => {
       const req = { user: { id: uuid() } };
       const id = uuid();
       mockService.remove.mockResolvedValue(undefined);

@@ -1,35 +1,28 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  OneToMany,
-  OneToOne,
-  JoinColumn,
-} from 'typeorm';
-import { Card, Team, PositionChangeCard, User } from './';
+import { Entity, PrimaryGeneratedColumn, OneToMany, OneToOne, JoinColumn } from "typeorm";
+import { Card, Team, PositionChangeCard, User } from "./";
 
 @Entity()
 export class Storage {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @OneToOne(() => Team, { cascade: true, onDelete: 'CASCADE' })
+  @OneToOne(() => Team, { cascade: true, onDelete: "CASCADE" })
   @JoinColumn()
   team: Team;
 
   @OneToMany(() => PositionChangeCard, (pc) => pc.storage, {
     cascade: true,
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   })
   position_change_cards: PositionChangeCard[];
 
   @OneToMany(() => Card, (card) => card.storage, {
     cascade: true,
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   })
   cards: Card[];
 
   //! add auras
-
 
   @OneToOne(() => User, (user) => user.storage)
   user: User;

@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { MarketPlayersController } from './market_players.controller';
-import { MarketPlayersService } from './market_players.service';
-import { v4 as uuid } from 'uuid';
-import { BadRequestException, ExecutionContext, ForbiddenException } from '@nestjs/common';
-import { AuthGuard } from '../../guards/auth.guard';
+import { Test, TestingModule } from "@nestjs/testing";
+import { MarketPlayersController } from "./market_players.controller";
+import { MarketPlayersService } from "./market_players.service";
+import { v4 as uuid } from "uuid";
+import { BadRequestException, ExecutionContext, ForbiddenException } from "@nestjs/common";
+import { AuthGuard } from "../../guards/auth.guard";
 
-describe('MarketPlayersController', () => {
+describe("MarketPlayersController", () => {
   let controller: MarketPlayersController;
   let service: MarketPlayersService;
 
@@ -37,12 +37,12 @@ describe('MarketPlayersController', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should call service.create and return result', async () => {
+  describe("create", () => {
+    it("should call service.create and return result", async () => {
       const req = { user: { id: uuid() } };
       const dto = { player_id: uuid(), price: 100 };
       const result = { id: uuid(), ...dto, seller_id: req.user.id };
@@ -55,15 +55,15 @@ describe('MarketPlayersController', () => {
       });
     });
 
-    it('should throw BadRequestException if missing fields', () => {
+    it("should throw BadRequestException if missing fields", () => {
       const req = { user: { id: uuid() } };
       const dto = { player_id: uuid() } as any;
       expect(() => controller.create(req as any, dto)).toThrow(BadRequestException);
     });
   });
 
-  describe('findAll', () => {
-    it('should call service.findAll and return result', async () => {
+  describe("findAll", () => {
+    it("should call service.findAll and return result", async () => {
       const records = [{ id: uuid() }, { id: uuid() }];
       mockService.findAll.mockResolvedValue(records);
 
@@ -73,8 +73,8 @@ describe('MarketPlayersController', () => {
     });
   });
 
-  describe('findOne', () => {
-    it('should call service.findOne and return result', async () => {
+  describe("findOne", () => {
+    it("should call service.findOne and return result", async () => {
       const id = uuid();
       const record = { id };
       mockService.findOne.mockResolvedValue(record);
@@ -85,8 +85,8 @@ describe('MarketPlayersController', () => {
     });
   });
 
-  describe('findBySeller', () => {
-    it('should call service.findBySeller and return result', async () => {
+  describe("findBySeller", () => {
+    it("should call service.findBySeller and return result", async () => {
       const sellerId = uuid();
       const records = [{ id: uuid(), seller_id: sellerId }];
       mockService.findBySeller.mockResolvedValue(records);
@@ -97,8 +97,8 @@ describe('MarketPlayersController', () => {
     });
   });
 
-  describe('updatePrice', () => {
-    it('should call service.updatePrice and return result', async () => {
+  describe("updatePrice", () => {
+    it("should call service.updatePrice and return result", async () => {
       const req = { user: { id: uuid() } };
       const price = 200;
       const id = uuid();
@@ -112,8 +112,8 @@ describe('MarketPlayersController', () => {
     });
   });
 
-  describe('remove', () => {
-    it('should call service.remove with userId', async () => {;
+  describe("remove", () => {
+    it("should call service.remove with userId", async () => {
       const id = uuid();
       mockService.remove.mockResolvedValue(undefined);
 
