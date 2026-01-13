@@ -16,6 +16,7 @@ import { MarketCardsModule } from './modules/market_cards/market_cards.module';
 import { MarketPlayersModule } from './modules/market_players/market_players.module';
 import { ChangePositionCardsModule } from './modules/market_change_position_cards/change_position_cards.module';
 import { TeamsModule } from './modules/teams/teams.module';
+import { LoggerModule } from 'pino-nestjs';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { TeamsModule } from './modules/teams/teams.module';
     MarketPlayersModule,
     ChangePositionCardsModule,
     TeamsModule,
+    LoggerModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
     }),

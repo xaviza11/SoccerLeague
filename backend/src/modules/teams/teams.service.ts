@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Team, Storage, User } from '../../entities';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class TeamsService {
@@ -20,17 +21,22 @@ export class TeamsService {
     private readonly storageRepo: Repository<Storage>,
   ) {}
 
+  private readonly logger = new Logger(TeamsService.name)
+
   async create(userId: string) {
+    this.logger.log(`Creating team for user ID: ${userId}`);
     const user = await this.usersRepo.findOne({
       where: { id: userId },
       relations: ['storage'],
     });
 
     if (!user) {
+      this.logger.log(`Failed to create team: User not found with ID: ${userId}`);
       throw new NotFoundException('User not found');
     }
 
     if (!user.storage) {
+      this.logger.log(`Failed to create team: User storage not found for user ID: ${userId}`);
       throw new NotFoundException('User storage not found');
     }
 
@@ -42,38 +48,52 @@ export class TeamsService {
       auras: [],
     });
 
-    return await this.teamsRepo.save(team);
+    const response = this.teamsRepo.create(team);
+    this.logger.log(`Team created successfully for user ID: ${userId}`);
+    return response
   }
 
   async find() {
-    return this.teamsRepo.find({
+    this.logger.log(`Fetching all teams`);
+    const response = await this.teamsRepo.find({
       relations: ['players', 'bench_players', 'auras', 'storage'],
     });
+    this.logger.log(`Teams retrieved successfully`);
+    return response;
   }
 
   async findOne(id: string) {
+    this.logger.log(`Fetching team with ID: ${id}`);
     const team = await this.teamsRepo.findOne({
       where: { id },
       relations: ['players', 'bench_players', 'auras', 'storage'],
     });
 
     if (!team) {
+      this.logger.log(`Team not found with ID: ${id}`);
       throw new NotFoundException('Team not found');
     }
 
+    this.logger.log(`Team retrieved successfully with ID: ${id}`);
     return team;
   }
 
   async update(id: string, dto: Partial<Team>, userId: string) {
+    this.logger.log(`Updating team with ID: ${id} for user ID: ${userId}`);
     const user = await this.usersRepo.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) {
+      this.logger.log(`Failed to update team: User not found with ID: ${userId}`);
+      throw new NotFoundException('User not found');
+    } 
 
+    this.logger.log(`User found with ID: ${userId}, proceeding to update team with ID: ${id}`);
     const team = await this.teamsRepo.findOne({
       where: { id },
       relations: ['players', 'bench_players', 'auras', 'storage'],
     });
 
     if (!team) {
+      this.logger.log(`Failed to update team: Team not found with ID: ${id}`);
       throw new NotFoundException('Team not found');
     }
 
@@ -82,16 +102,23 @@ export class TeamsService {
     if (dto.bench_players !== undefined) team.bench_players = dto.bench_players;
     if (dto.auras !== undefined) team.auras = dto.auras;
 
-    return this.teamsRepo.save(team);
+    const response = await this.teamsRepo.save(team);
+    this.logger.log(`Team updated successfully with ID: ${id}`);
+    return response
   }
 
   async delete(id: string, userId: string) {
+    this.logger.log(`Deleting team with ID: ${id} for user ID: ${userId}`);
     const user = await this.usersRepo.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) {
+      this.logger.log(`Failed to delete team: User not found with ID: ${userId}`);
+      throw new NotFoundException('User not found');
+    } 
 
     const team = await this.findOne(id);
     await this.teamsRepo.remove(team);
 
+    this.logger.log(`Team deleted successfully with ID: ${id}`);
     return { message: 'Team deleted successfully' };
   }
 }

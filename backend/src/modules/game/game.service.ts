@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Game, User } from '../../entities';
 import { validate as isUUID } from 'uuid';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class GameService {
@@ -18,17 +19,22 @@ export class GameService {
     private readonly usersRepo: Repository<User>,
   ) {}
 
+  private readonly logger = new Logger(GameService.name);
+
   async create(
     player_one_id: string,
     player_two_id: string | null,
     is_ai_game: boolean,
   ) {
+    this.logger.log(`Creating game: player_one_id=${player_one_id}, player_two_id=${player_two_id}, is_ai_game=${is_ai_game}`);
     if (!isUUID(player_one_id)) {
+      this.logger.log(`Invalid player_one_id: ${player_one_id}`);
       throw new BadRequestException('Invalid player_one_id');
     }
 
     if (!is_ai_game) {
       if (!isUUID(player_two_id)) {
+        this.logger.log(`Invalid player_two_id: ${player_two_id}`);
         throw new BadRequestException('Invalid player_two_id');
       }
     }
@@ -36,13 +42,20 @@ export class GameService {
     const player1 = await this.usersRepo.findOne({
       where: { id: player_one_id },
     });
-    if (!player1) throw new NotFoundException('Player 1 not found');
+
+    if (!player1) {
+      this.logger.log(`Player 1 not found with id: ${player_one_id}`);
+      throw new NotFoundException('Player 1 not found');
+    } 
 
     if (!is_ai_game && player_two_id !== null) {
       const player2 = await this.usersRepo.findOne({
         where: { id: player_two_id },
       });
-      if (!player2) throw new NotFoundException('Player 2 not found');
+      if (!player2) {
+        this.logger.log(`Player 2 not found with id: ${player_two_id}`);
+        throw new NotFoundException('Player 2 not found');
+      } 
     }
 
     const game = this.gameRepo.create({
@@ -51,34 +64,50 @@ export class GameService {
       is_ai_game: !!is_ai_game,
     });
 
-    return await this.gameRepo.save(game);
+    const response = await this.gameRepo.save(game);
+    this.logger.log(`Game created successfully with ID: ${response.id}`);
+    return response;
   }
 
   async findAll() {
-    return this.gameRepo.find();
+    this.logger.log('Fetching all games');
+    const response = await this.gameRepo.find();
+    this.logger.log(`Found ${response.length} games`);
+    return response;
   }
 
   async findAllByUser(userId: string) {
+    this.logger.log(`Fetching all games for user with id: ${userId}`);
     if (!isUUID(userId)) {
+      this.logger.log(`Invalid userId: ${userId}`);
       throw new BadRequestException('Invalid userId');
     }
 
-    return this.gameRepo.find({
+    const response = await this.gameRepo.find({
       where: [{ player_one_id: userId }, { player_two_id: userId }],
     });
+    this.logger.log(`Found ${response.length} games for user with id: ${userId}`);
+    return response;
   }
 
   async findOne(id: string) {
+    this.logger.log(`Fetching game with id: ${id}`);
     const game = await this.gameRepo.findOne({ where: { id } });
-    if (!game) throw new NotFoundException('Game not found');
+    if (!game) {
+      this.logger.log(`Game not found with id: ${id}`);
+      throw new NotFoundException('Game not found');
+    } 
     return game;
   }
 
   async remove(id: string) {
+    this.logger.log(`Removing game with id: ${id}`);
     const game = await this.gameRepo.findOne({ where: { id } });
 
-    if (game === null) return new NotFoundException('Game not found');
-
+    if (game === null) {
+      this.logger.log(`Game not found with id: ${id}`);
+      throw new NotFoundException('Game not found');
+    } 
     await this.gameRepo.delete(game.id);
     return { deleted: true };
   }
