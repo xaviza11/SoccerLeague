@@ -12,7 +12,7 @@ import {
 } from "@nestjs/common";
 import { MarketPlayersService } from "./market_players.service";
 import { AuthGuard } from "../../guards/auth.guard";
-import { User } from "../../decorators/user.decorator"
+import { User } from "../../decorators/user.decorator";
 
 @Controller("market-players")
 export class MarketPlayersController {

@@ -12,7 +12,7 @@ import {
 import { PlayerService } from "./player.service";
 import { AuthGuard } from "../../guards/auth.guard";
 import { Player } from "../../entities";
-import { User } from "../../decorators/user.decorator"
+import { User } from "../../decorators/user.decorator";
 
 @Controller("player")
 export class PlayerController {

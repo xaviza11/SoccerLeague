@@ -19,7 +19,10 @@ export class PositionChangeCardsController {
   constructor(private readonly positionsChangeCardService: PositionChangeCardsService) {}
 
   @Post()
-  async create(@Body("storageId", new ParseUUIDPipe()) storageId: string, @User("id") userId: string) {
+  async create(
+    @Body("storageId", new ParseUUIDPipe()) storageId: string,
+    @User("id") userId: string,
+  ) {
     if (!storageId) {
       throw new BadRequestException("storageId is required");
     }

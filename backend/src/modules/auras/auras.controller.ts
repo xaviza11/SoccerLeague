@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Param,
-  Delete,
-  UseGuards,
-  ParseUUIDPipe,
-} from "@nestjs/common";
+import { Controller, Get, Post, Param, Delete, UseGuards, ParseUUIDPipe } from "@nestjs/common";
 import { AurasService } from "./auras.service";
 import { AuthGuard } from "../../guards/auth.guard";
 import { User } from "../../decorators/user.decorator";

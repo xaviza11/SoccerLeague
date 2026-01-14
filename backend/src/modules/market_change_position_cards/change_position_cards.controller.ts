@@ -20,7 +20,10 @@ export class MarketPositionChangeCardsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@User("id") userId: string, @Body() body: { position_change_card_id: string; price: number }) {
+  create(
+    @User("id") userId: string,
+    @Body() body: { position_change_card_id: string; price: number },
+  ) {
     if (!body.position_change_card_id || body.price === undefined) {
       throw new BadRequestException("Missing required fields");
     }

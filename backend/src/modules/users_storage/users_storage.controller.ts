@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Delete, Get, UseGuards, Param } from "@nestjs/common";
 import { UsersStorageService } from "./users_storage.service";
 import { AuthGuard } from "../../guards/auth.guard";
-import { User } from "../../decorators/user.decorator"
+import { User } from "../../decorators/user.decorator";
 
 @Controller("users-storage")
 export class UsersStorageController {
@@ -14,10 +14,7 @@ export class UsersStorageController {
   }
 
   @Post("positions-change")
-  async addPositionCard(
-    @Body("card") card: string,
-    @Body("storageId") storageId: string,
-  ) {
+  async addPositionCard(@Body("card") card: string, @Body("storageId") storageId: string) {
     return this.usersStorageService.addPositionChangeCard(storageId, card);
   }
 
@@ -54,4 +51,3 @@ export class UsersStorageController {
     return this.usersStorageService.findAll();
   }
 }
-

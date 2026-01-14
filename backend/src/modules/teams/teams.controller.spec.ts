@@ -86,7 +86,9 @@ describe("TeamsController", () => {
   it("should throw BadRequestException if teamId is missing in update", async () => {
     const body = { name: "New Team Name" };
 
-    await expect(controller.updateMyTeam(mockUserReq.user.id, body)).rejects.toThrow(BadRequestException);
+    await expect(controller.updateMyTeam(mockUserReq.user.id, body)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it("should delete a team", async () => {

@@ -1,17 +1,7 @@
-import {
-  Controller,
-  Post,
-  Param,
-  Body,
-  Delete,
-  Get,
-  Put,
-  Query,
-  UseGuards,
-} from "@nestjs/common";
+import { Controller, Post, Param, Body, Delete, Get, Put, Query, UseGuards } from "@nestjs/common";
 import { UsersGameStatsService } from "./users_game_stats.service";
 import { AuthGuard } from "../../guards/auth.guard";
-import { User } from "../../decorators/user.decorator"
+import { User } from "../../decorators/user.decorator";
 
 @Controller("users-game-stats")
 export class UsersGameStatsController {
