@@ -41,7 +41,7 @@ describe("TeamsController", () => {
     const team = { id: "team-1" };
     mockTeamsService.create.mockResolvedValue(team);
 
-    const result = await controller.createTeam(mockUserReq);
+    const result = await controller.createTeam(mockUserReq.user.id);
 
     expect(service.create).toHaveBeenCalledWith(mockUserReq.user.id);
     expect(result).toEqual(team);
@@ -73,7 +73,7 @@ describe("TeamsController", () => {
 
     mockTeamsService.update.mockResolvedValue(updated);
 
-    const result = await controller.updateMyTeam(mockUserReq, body);
+    const result = await controller.updateMyTeam(mockUserReq.user.id, body);
 
     expect(service.update).toHaveBeenCalledWith(
       "team-123",
@@ -86,7 +86,7 @@ describe("TeamsController", () => {
   it("should throw BadRequestException if teamId is missing in update", async () => {
     const body = { name: "New Team Name" };
 
-    await expect(controller.updateMyTeam(mockUserReq, body)).rejects.toThrow(BadRequestException);
+    await expect(controller.updateMyTeam(mockUserReq.user.id, body)).rejects.toThrow(BadRequestException);
   });
 
   it("should delete a team", async () => {
@@ -95,10 +95,10 @@ describe("TeamsController", () => {
 
     mockTeamsService.delete.mockResolvedValue(deleted);
 
-    const reqWithTeam = { user: { id: "user-123" } };
-    const result = await controller.deleteMyTeam(reqWithTeam, teamId);
+    const req = { user: { id: "user-123" } };
+    const result = await controller.deleteMyTeam(req.user.id, teamId);
 
-    expect(service.delete).toHaveBeenCalledWith(teamId, reqWithTeam.user.id);
+    expect(service.delete).toHaveBeenCalledWith(teamId, req.user.id);
     expect(result).toEqual(deleted);
   });
 });

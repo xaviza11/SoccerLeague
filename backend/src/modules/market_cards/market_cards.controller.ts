@@ -9,10 +9,10 @@ import {
   ParseUUIDPipe,
   BadRequestException,
   UseGuards,
-  Req,
 } from "@nestjs/common";
 import { MarketCardsService } from "./market_cards.service";
 import { AuthGuard } from "../../guards/auth.guard";
+import { User } from "../../decorators/user.decorator";
 
 @Controller("market-cards")
 export class MarketCardsController {
@@ -20,11 +20,11 @@ export class MarketCardsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@Req() req: any, @Body() body: { card_id: string; price: number }) {
+  create(@User("id") userId: string, @Body() body: { card_id: string; price: number }) {
     if (!body.card_id || body.price === undefined) {
       throw new BadRequestException("Missing required fields");
     }
-    return this.marketCardsService.create({ ...body, seller_id: req.user.id });
+    return this.marketCardsService.create({ ...body, seller_id: userId });
   }
 
   @Get()
@@ -45,12 +45,12 @@ export class MarketCardsController {
   @Patch(":id/price")
   @UseGuards(AuthGuard)
   updatePrice(
-    @Req() req: any,
+    @User("id") userId: string,
     @Param("id", new ParseUUIDPipe()) id: string,
     @Body("price") price: number,
   ) {
     if (price === undefined) throw new BadRequestException("Price is required");
-    return this.marketCardsService.updatePrice(id, price, req.user.id);
+    return this.marketCardsService.updatePrice(id, price, userId);
   }
 
   @Delete(":id")

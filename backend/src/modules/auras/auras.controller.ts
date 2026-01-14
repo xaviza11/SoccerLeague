@@ -2,16 +2,14 @@ import {
   Controller,
   Get,
   Post,
-  Body,
   Param,
-  Req,
   Delete,
   UseGuards,
-  BadRequestException,
   ParseUUIDPipe,
 } from "@nestjs/common";
 import { AurasService } from "./auras.service";
 import { AuthGuard } from "../../guards/auth.guard";
+import { User } from "../../decorators/user.decorator";
 
 @Controller("auras")
 export class AurasController {
@@ -19,8 +17,8 @@ export class AurasController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async create(@Req() req) {
-    return this.aurasService.create(req.user.id);
+  async create(@User("id") userId: string) {
+    return this.aurasService.create(userId);
   }
 
   @Get()
@@ -30,14 +28,14 @@ export class AurasController {
 
   @Get("user")
   @UseGuards(AuthGuard)
-  async findAllByUser(@Req() req) {
-    return this.aurasService.findAllByUser(req.user.id);
+  async findAllByUser(@User("id") userId: string) {
+    return this.aurasService.findAllByUser(userId);
   }
 
   @Get(":id")
   @UseGuards(AuthGuard)
-  async findOne(@Param("id", new ParseUUIDPipe()) id: string, @Req() req) {
-    return this.aurasService.findOne(id, req.user.id);
+  async findOne(@Param("id", new ParseUUIDPipe()) id: string, @User("id") userId: string) {
+    return this.aurasService.findOne(id, userId);
   }
 
   @Delete(":id")

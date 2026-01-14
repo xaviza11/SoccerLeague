@@ -43,7 +43,7 @@ describe("CardsController", () => {
       const card = { id: "card123" };
       mockService.create.mockResolvedValueOnce(card);
 
-      const result = await controller.create(req);
+      const result = await controller.create(req.user.id);
 
       expect(mockService.create).toHaveBeenCalledWith("user123");
       expect(result).toEqual(card);
@@ -68,7 +68,7 @@ describe("CardsController", () => {
       const cards = [{ id: "1" }];
       mockService.findAllByUser.mockResolvedValue(cards);
 
-      const result = await controller.findAllByUser(req);
+      const result = await controller.findAllByUser(req.user.id);
 
       expect(mockService.findAllByUser).toHaveBeenCalledWith("user123");
       expect(result).toEqual(cards);
@@ -82,7 +82,7 @@ describe("CardsController", () => {
 
       mockService.findOne.mockResolvedValue(card);
 
-      const result = await controller.findOne("card123", req);
+      const result = await controller.findOne("card123", req.user.id);
 
       expect(mockService.findOne).toHaveBeenCalledWith("card123", "user123");
       expect(result).toEqual(card);

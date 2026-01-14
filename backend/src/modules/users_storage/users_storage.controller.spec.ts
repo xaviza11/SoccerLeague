@@ -38,25 +38,23 @@ describe("UsersStorageController", () => {
 
   it("should create storage", async () => {
     const req = { user: { id: "user1" } };
-    const result = await controller.createStorage(req);
+    const result = await controller.createStorage(req.user.id);
     expect(result).toBe("storage created");
     expect(mockUsersStorageService.createStorage).toHaveBeenCalledWith(req.user.id);
   });
 
   it("should add a position change card", async () => {
-    const req = { user: { id: "user1" } };
     const card = "card123";
     const storageId = "storage1";
-    const result = await controller.addPositionCard(req, card, storageId);
+    const result = await controller.addPositionCard(card, storageId);
     expect(result).toBe("position card added");
     expect(mockUsersStorageService.addPositionChangeCard).toHaveBeenCalledWith(storageId, card);
   });
 
   it("should add a card", async () => {
-    const req = { user: { id: "user1" } };
     const card = "card456";
     const storageId = "storage2";
-    const result = await controller.addCard(req, card, storageId);
+    const result = await controller.addCard(card, storageId);
     expect(result).toBe("card added");
     expect(mockUsersStorageService.addCard).toHaveBeenCalledWith(storageId, card);
   });
@@ -65,7 +63,7 @@ describe("UsersStorageController", () => {
     const req = { user: { id: "user1" } };
     const teamId = "team789";
     const storageId = "storage3";
-    const result = await controller.addTeam(req, teamId, storageId);
+    const result = await controller.addTeam(req.user.id, teamId, storageId);
     expect(result).toBe("team added");
     expect(mockUsersStorageService.addTeam).toHaveBeenCalledWith(req.user.id, teamId, storageId);
   });
@@ -73,7 +71,7 @@ describe("UsersStorageController", () => {
   it("should delete storage", async () => {
     const req = { user: { id: "user1" } };
     const body = "storage4";
-    const result = await controller.deleteStorage(req, body);
+    const result = await controller.deleteStorage(req.user.id, body);
     expect(result).toBe("storage deleted");
     expect(mockUsersStorageService.deleteStorage).toHaveBeenCalledWith(req.user.id, body);
   });
@@ -87,7 +85,7 @@ describe("UsersStorageController", () => {
 
   it("should find all storages", async () => {
     const req = { user: { id: "user1" } };
-    const result = await controller.findAll(req);
+    const result = await controller.findAll();
     expect(result).toEqual(["all storages"]);
     expect(mockUsersStorageService.findAll).toHaveBeenCalled();
   });

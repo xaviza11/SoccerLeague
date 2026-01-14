@@ -45,7 +45,7 @@ describe("UsersGameStatsController", () => {
 
   it("should create user game stats", async () => {
     const req = { user: { id: "user123" } };
-    const result = await controller.createUserGameStats(req);
+    const result = await controller.createUserGameStats(req.user.id);
     expect(result).toBe("created stats");
     expect(mockUsersGameStatsService.create).toHaveBeenCalledWith("user123");
   });
@@ -83,14 +83,14 @@ describe("UsersGameStatsController", () => {
   it("should update stats", async () => {
     const req = { user: { id: "user123" } };
     const body = { score: 100 };
-    const result = await controller.update(body, req);
+    const result = await controller.update(body, req.user.id);
     expect(result).toBe("updated stats");
     expect(mockUsersGameStatsService.update).toHaveBeenCalledWith("user123", body);
   });
 
   it("should delete stats", async () => {
     const req = { user: { id: "user123" } };
-    const result = await controller.remove(req);
+    const result = await controller.remove(req.user.id);
     expect(result).toBe("deleted stats");
     expect(mockUsersGameStatsService.delete).toHaveBeenCalledWith("user123");
   });

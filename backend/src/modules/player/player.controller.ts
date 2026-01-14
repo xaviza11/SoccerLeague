@@ -6,20 +6,20 @@ import {
   Delete,
   Body,
   Param,
-  Req,
   UseGuards,
   BadRequestException,
 } from "@nestjs/common";
 import { PlayerService } from "./player.service";
 import { AuthGuard } from "../../guards/auth.guard";
 import { Player } from "../../entities";
+import { User } from "../../decorators/user.decorator"
 
 @Controller("player")
 export class PlayerController {
   constructor(private readonly playerService: PlayerService) {}
 
   @Post()
-  async create(@Req() req, @Body() body: Partial<Player>) {
+  async create(@Body() body: Partial<Player>) {
     if (!body.name || !body.team) {
       throw new BadRequestException("Name and team are required");
     }

@@ -4,7 +4,6 @@ import {
   Post,
   Body,
   Param,
-  Req,
   Put,
   Delete,
   UseGuards,
@@ -12,6 +11,7 @@ import {
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { AuthGuard } from "../../guards/auth.guard";
+import { User } from "../../decorators/user.decorator";
 
 @Controller("users")
 export class UsersController {
@@ -29,8 +29,7 @@ export class UsersController {
 
   @Get("me")
   @UseGuards(AuthGuard)
-  async findMe(@Req() req) {
-    const userId = req.user.sub;
+  async findMe(@User("id") userId: string) {
     return this.usersService.findOne(userId);
   }
 
@@ -50,7 +49,7 @@ export class UsersController {
   @Put("")
   @UseGuards(AuthGuard)
   update(
-    @Req() req,
+    @User("id") userId: string,
     @Body()
     body: {
       name?: string;
@@ -62,15 +61,15 @@ export class UsersController {
     if (!body.currentPassword) {
       throw new BadRequestException("Current password is required - CRUD");
     }
-    return this.usersService.updateUser(req.user.sub, body);
+    return this.usersService.updateUser(userId, body);
   }
 
   @Delete("")
   @UseGuards(AuthGuard)
-  delete(@Req() req, @Body() body: { currentPassword: string }) {
+  delete(@User("id") userId: string, @Body() body: { currentPassword: string }) {
     if (!body.currentPassword) {
       throw new BadRequestException("Current password is required - CRUD");
     }
-    return this.usersService.deleteUser(req.user.sub, body.currentPassword);
+    return this.usersService.deleteUser(userId, body.currentPassword);
   }
 }

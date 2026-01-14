@@ -12,6 +12,7 @@ import {
 } from "@nestjs/common";
 import { TeamsService } from "./teams.service";
 import { AuthGuard } from "../../guards/auth.guard";
+import { User } from "../../decorators/user.decorator";
 
 @Controller("teams")
 export class TeamsController {
@@ -19,8 +20,7 @@ export class TeamsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async createTeam(@Req() req) {
-    const userId = req.user.id;
+  async createTeam(@User("id") userId: string) {
     return this.teamsService.create(userId);
   }
 
@@ -38,8 +38,7 @@ export class TeamsController {
 
   @Put("/update")
   @UseGuards(AuthGuard)
-  async updateMyTeam(@Req() req, @Body() body: any) {
-    const userId = req.user.id;
+  async updateMyTeam(@User("id") userId: string, @Body() body: any) {
     const { teamId, ...updateData } = body;
 
     if (!teamId) {
@@ -51,8 +50,7 @@ export class TeamsController {
 
   @Delete("/delete/:id")
   @UseGuards(AuthGuard)
-  async deleteMyTeam(@Req() req, @Param("id") id: string) {
-    const userId = req.user.id;
+  async deleteMyTeam(@User("id") userId: string, @Param("id") id: string) {
     return this.teamsService.delete(id, userId);
   }
 }

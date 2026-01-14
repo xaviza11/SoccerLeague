@@ -13,6 +13,7 @@ import {
 } from "@nestjs/common";
 import { MarketAurasService } from "./market_auras.service";
 import { AuthGuard } from "../../guards/auth.guard";
+import { User } from "../../decorators/user.decorator";
 
 @Controller("market-auras")
 export class MarketAurasController {
@@ -20,8 +21,8 @@ export class MarketAurasController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Req() req: any, @Body() body: { aura_id: string; price: number }) {
-    const seller_id = req.user.id;
+  create(@User("id") userId: string, @Body() body: { aura_id: string; price: number }) {
+    const seller_id = userId;
     if (!body.aura_id || body.price === undefined) {
       throw new BadRequestException("Missing required fields");
     }

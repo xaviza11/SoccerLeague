@@ -48,7 +48,7 @@ describe("MarketAurasController", () => {
       const result = { id: uuid(), ...dto, seller_id: req.user.id };
       mockService.create.mockResolvedValue(result);
 
-      expect(await controller.create(req as any, dto)).toBe(result);
+      expect(await controller.create(req.user.id, dto)).toBe(result);
       expect(mockService.create).toHaveBeenCalledWith({
         ...dto,
         seller_id: req.user.id,
@@ -59,7 +59,7 @@ describe("MarketAurasController", () => {
       const req = { user: { id: uuid() } };
       const dto = { aura_id: uuid() } as any;
 
-      expect(() => controller.create(req as any, dto)).toThrow(BadRequestException);
+      expect(() => controller.create(req.user.id, dto)).toThrow(BadRequestException);
     });
   });
 

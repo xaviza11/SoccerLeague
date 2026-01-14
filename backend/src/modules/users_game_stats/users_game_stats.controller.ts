@@ -2,7 +2,6 @@ import {
   Controller,
   Post,
   Param,
-  Req,
   Body,
   Delete,
   Get,
@@ -12,6 +11,7 @@ import {
 } from "@nestjs/common";
 import { UsersGameStatsService } from "./users_game_stats.service";
 import { AuthGuard } from "../../guards/auth.guard";
+import { User } from "../../decorators/user.decorator"
 
 @Controller("users-game-stats")
 export class UsersGameStatsController {
@@ -19,8 +19,7 @@ export class UsersGameStatsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async createUserGameStats(@Req() req) {
-    const userId = req.user.id;
+  async createUserGameStats(@User("id") userId: string) {
     return this.usersGameStatsService.create(userId);
   }
 
@@ -51,15 +50,13 @@ export class UsersGameStatsController {
 
   @Put()
   @UseGuards(AuthGuard)
-  async update(@Body() body: any, @Req() req) {
-    const userId = req.user.id;
+  async update(@Body() body: any, @User("id") userId: string) {
     return this.usersGameStatsService.update(userId, body);
   }
 
   @Delete()
   @UseGuards(AuthGuard)
-  async remove(@Req() req) {
-    const userId = req.user.id;
+  async remove(@User("id") userId: string) {
     return this.usersGameStatsService.delete(userId);
   }
 }

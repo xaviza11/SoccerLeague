@@ -50,7 +50,7 @@ describe("MarketPositionChangeCardsController", () => {
       const result = { id: uuid(), ...dto, seller_id: req.user.id };
       mockService.create.mockResolvedValue(result);
 
-      expect(await controller.create(req as any, dto)).toBe(result);
+      expect(await controller.create(req.user.id, dto)).toBe(result);
       expect(mockService.create).toHaveBeenCalledWith({
         ...dto,
         seller_id: req.user.id,
@@ -60,7 +60,7 @@ describe("MarketPositionChangeCardsController", () => {
     it("should throw BadRequestException if missing fields", () => {
       const req = { user: { id: uuid() } };
       const dto = { position_change_card_id: uuid() } as any;
-      expect(() => controller.create(req as any, dto)).toThrow(BadRequestException);
+      expect(() => controller.create(req.user.id, dto)).toThrow(BadRequestException);
     });
   });
 
@@ -108,7 +108,7 @@ describe("MarketPositionChangeCardsController", () => {
 
       mockService.updatePrice.mockResolvedValue(mockResult);
 
-      const result = await controller.updatePrice(req as any, id, price);
+      const result = await controller.updatePrice(req.user.id, id, price);
       expect(result).toEqual(mockResult);
       expect(mockService.updatePrice).toHaveBeenCalledWith(id, price, req.user.id);
     });

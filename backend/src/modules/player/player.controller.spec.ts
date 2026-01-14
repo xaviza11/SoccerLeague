@@ -38,17 +38,15 @@ describe("PlayerController", () => {
   });
 
   it("should create a player", async () => {
-    const req = { user: { id: "user1" } };
-    const body: Partial<Player> = { name: "Player1", team: "Team1" };
-    const result = await controller.create(req, body);
+    const body: Partial<Player> = { name: "Player1" };
+    const result = await controller.create(body);
     expect(result).toBe("player created");
     expect(mockPlayerService.create).toHaveBeenCalledWith(body);
   });
 
   it("should throw BadRequestException if name or team is missing", async () => {
-    const req = { user: { id: "user1" } };
     const body: Partial<Player> = { name: "Player1" }; // missing team
-    await expect(controller.create(req, body)).rejects.toThrow(BadRequestException);
+    await expect(controller.create(body)).rejects.toThrow(BadRequestException);
   });
 
   it("should find all players", async () => {

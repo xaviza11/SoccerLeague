@@ -146,7 +146,7 @@ describe("UsersStorageService (unit)", () => {
     expect(found).toBe(storage);
     expect(mockStorageRepo.findOne).toHaveBeenCalledWith({
       where: { id: storage.id },
-      relations: { cards: true, position_change_cards: true, team: true, user: true },
+      relations: { cards: true, position_change_cards: true, team: true },
     });
   });
 

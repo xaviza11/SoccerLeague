@@ -62,17 +62,17 @@ describe("UsersController", () => {
   });
 
   it("should update a user", async () => {
-    const req = { user: { sub: "user123" } };
+    const req = { user: { id: "user123" } };
     const body = { name: "NewName", currentPassword: "1234" };
-    const result = await controller.update(req, body);
+    const result = await controller.update(req.user.id, body);
     expect(result).toBe("user updated");
     expect(mockUsersService.updateUser).toHaveBeenCalledWith("user123", body);
   });
 
   it("should delete a user", async () => {
-    const req = { user: { sub: "user123" } };
+    const req = { user: { id: "user123" } };
     const body = { currentPassword: "1234" };
-    const result = await controller.delete(req, body);
+    const result = await controller.delete(req.user.id, body);
     expect(result).toBe("user deleted");
     expect(mockUsersService.deleteUser).toHaveBeenCalledWith("user123", "1234");
   });

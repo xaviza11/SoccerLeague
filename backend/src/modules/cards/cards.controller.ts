@@ -2,16 +2,14 @@ import {
   Controller,
   Get,
   Post,
-  Body,
   Param,
-  Req,
   Delete,
   UseGuards,
-  BadRequestException,
   ParseUUIDPipe,
 } from "@nestjs/common";
 import { CardsService } from "./cards.service";
 import { AuthGuard } from "../../guards/auth.guard";
+import { User } from "../../decorators/user.decorator";
 
 @Controller("cards")
 export class CardsController {
@@ -19,8 +17,8 @@ export class CardsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async create(@Req() req) {
-    return this.cardsService.create(req.user.id);
+  async create(@User("id") userId: string) {
+    return this.cardsService.create(userId);
   }
 
   @Get()
@@ -30,14 +28,14 @@ export class CardsController {
 
   @Get("user")
   @UseGuards(AuthGuard)
-  async findAllByUser(@Req() req) {
-    return this.cardsService.findAllByUser(req.user.id);
+  async findAllByUser(@User("id") userId: string) {
+    return this.cardsService.findAllByUser(userId);
   }
 
   @Get(":id")
   @UseGuards(AuthGuard)
-  async findOne(@Param("id", new ParseUUIDPipe()) id: string, @Req() req) {
-    return this.cardsService.findOne(id, req.user.id);
+  async findOne(@Param("id", new ParseUUIDPipe()) id: string, @User("id") userId: string) {
+    return this.cardsService.findOne(id, userId);
   }
 
   @Delete(":id")

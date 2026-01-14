@@ -102,7 +102,7 @@ describe("GameController", () => {
     const games = [{ id: uuid() }];
     mockService.findAllByUser.mockResolvedValue(games);
 
-    const result = await controller.findAllByUser({ user: mockUser });
+    const result = await controller.findAllByUser(mockUser.id);
     expect(result).toEqual(games);
     expect(mockService.findAllByUser).toHaveBeenCalledWith(mockUser.id);
   });

@@ -1,3 +1,4 @@
+// auth.guard.ts
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 
@@ -7,8 +8,8 @@ export class AuthGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
-
     const authHeader = request.headers["authorization"];
+
     if (!authHeader) throw new UnauthorizedException("Token missing");
 
     const [, token] = authHeader.split(" ");
@@ -17,7 +18,7 @@ export class AuthGuard implements CanActivate {
       const payload = this.jwtService.verify(token);
       request.user = payload;
       return true;
-    } catch (err) {
+    } catch {
       throw new UnauthorizedException("Invalid token");
     }
   }

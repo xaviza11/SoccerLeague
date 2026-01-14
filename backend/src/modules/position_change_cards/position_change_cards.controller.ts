@@ -4,7 +4,6 @@ import {
   Post,
   Body,
   Param,
-  Req,
   Delete,
   UseGuards,
   BadRequestException,
@@ -12,6 +11,7 @@ import {
 } from "@nestjs/common";
 import { PositionChangeCardsService } from "./position_change_cards.service";
 import { AuthGuard } from "../../guards/auth.guard";
+import { User } from "../../decorators/user.decorator";
 
 @UseGuards(AuthGuard)
 @Controller("position-change-cards")
@@ -19,12 +19,12 @@ export class PositionChangeCardsController {
   constructor(private readonly positionsChangeCardService: PositionChangeCardsService) {}
 
   @Post()
-  async create(@Body("storageId", new ParseUUIDPipe()) storageId: string, @Req() req) {
+  async create(@Body("storageId", new ParseUUIDPipe()) storageId: string, @User("id") userId: string) {
     if (!storageId) {
       throw new BadRequestException("storageId is required");
     }
 
-    return this.positionsChangeCardService.create(storageId, req.user.id);
+    return this.positionsChangeCardService.create(storageId, userId);
   }
 
   @Get()
@@ -33,13 +33,13 @@ export class PositionChangeCardsController {
   }
 
   @Get("user")
-  async findAllByUser(@Req() req) {
-    return this.positionsChangeCardService.findAllByUser(req.user.id);
+  async findAllByUser(@User("id") userId: string) {
+    return this.positionsChangeCardService.findAllByUser(userId);
   }
 
   @Get(":id")
-  async findOne(@Param("id", new ParseUUIDPipe()) id: string, @Req() req) {
-    return this.positionsChangeCardService.findOne(id, req.user.id);
+  async findOne(@Param("id", new ParseUUIDPipe()) id: string, @User("id") userId: string) {
+    return this.positionsChangeCardService.findOne(id, userId);
   }
 
   @Delete(":id")

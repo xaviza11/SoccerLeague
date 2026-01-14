@@ -59,7 +59,7 @@ describe("UsersService (unit)", () => {
   });
 
   it("should throw if email already exists on create", async () => {
-    mockUsersRepo.findOne.mockResolvedValueOnce({} as User); // simulate existing email
+    mockUsersRepo.findOne.mockResolvedValueOnce({} as User);
     await expect(service.createUser("Bob", "bob@test.com", "Password123")).rejects.toThrow(
       BadRequestException,
     );
