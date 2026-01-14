@@ -3,7 +3,7 @@ type ErrorRule = {
   key: string;
 };
 
-export class AuthErrorTranslator {
+class AuthErrorTranslator {
   private static readonly rules: ErrorRule[] = [
     {
       match: "Name must have almost one character",
@@ -45,3 +45,5 @@ export class AuthErrorTranslator {
     return rule?.key ?? "errors.auth.errorCreatingUser";
   }
 }
+
+export default AuthErrorTranslator;

@@ -1,4 +1,4 @@
-//@ts-ignore
-import DefaultNavbar from './DefaultNavbar';
+//@ts-expect-error
+import DefaultNavbar from "./DefaultNavbar";
 
-export {DefaultNavbar};
+export { DefaultNavbar };

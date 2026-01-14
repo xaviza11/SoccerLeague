@@ -9,6 +9,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     success: true,
-    message: "Cookie have been delete"
+    message: "Cookie have been delete",
   };
 });

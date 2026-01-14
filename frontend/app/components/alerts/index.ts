@@ -1,3 +1,3 @@
-//@ts-ignore
-import Alert from "./Alert.vue"
-export {Alert}
+//@ts-expect-error
+import Alert from "./Alert.vue";
+export { Alert };

@@ -8,5 +8,5 @@
 </template>
 
 <script setup>
-import { Alert } from "../components/alerts";
+import { Alert } from "@/components/alerts";
 </script>

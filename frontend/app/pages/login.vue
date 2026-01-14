@@ -52,38 +52,24 @@
 
 <script setup lang="ts">
 import { useForm, useField } from "vee-validate";
-import * as yup from "yup";
-import { handlerLogin } from "../handlers/users";
-import { useUserStore } from "../stores";
-import { useAlert } from "../composables/useAlert";
+//@ts-expect-error
+import { createLoginSchema } from "@/yup/index.ts";
+//@ts-expect-error
+import { useLogin } from "#imports";
 
-//@ts-ignore
+//@ts-expect-error
 definePageMeta({
   layout: "no-navbar-footer",
 });
 
-//@ts-ignore
-const { t, setLocale } = useI18n();
-//@ts-ignore
+//@ts-expect-error
+const { t } = useI18n();
+//@ts-expect-error
 const localePath = useLocalePath();
 
-const userStore = useUserStore();
-const { showAlert } = useAlert();
+const { login } = useLogin();
 
-const invalidEmailErr = t("warnings.auth.invalidEmail");
-const emailRequiredErr = t("warnings.auth.emailRequired");
-const passwordRequiredErr = t("warnings.auth.passwordRequired");
-const passwordLengthErr = t("warnings.auth.passwordLength");
-const passwordFormatErr = t("warnings.auth.passwordFormat");
-
-const schema = yup.object({
-  email: yup.string().email(invalidEmailErr).required(emailRequiredErr),
-  password: yup
-    .string()
-    .required(passwordRequiredErr)
-    .min(8, passwordLengthErr)
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, passwordFormatErr),
-});
+const schema = createLoginSchema(t);
 
 const { handleSubmit, errors } = useForm({
   validationSchema: schema,
@@ -92,26 +78,15 @@ const { handleSubmit, errors } = useForm({
 const { value: email } = useField<string>("email");
 const { value: password } = useField<string>("password");
 
-const onSubmit = handleSubmit(async (values) => {
-  try {
-    const response = await handlerLogin({
-      email: values.email,
-      password: values.password,
-    });
+const onSubmit = handleSubmit(async ({ email, password }) => {
+  const success = await login(email, password, t);
 
-    userStore.setName(response.username as string);
-
-    //@ts-ignore
+  if (success) {
+    //@ts-expect-error
     await navigateTo(localePath("/"));
-  } catch (error: any) {
-    showAlert({
-      message: error.message || t("warnings.auth.loginFailed"),
-      statusCode: error.status || 400,
-    });
   }
 });
 </script>
-
 
 <style module="style">
 .main {

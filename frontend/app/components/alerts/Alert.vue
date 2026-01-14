@@ -8,7 +8,8 @@
 </template>
 
 <script setup lang="ts">
-import { useAlert } from "../../composables/useAlert";
+//@ts-expect-error
+import { useAlert } from "#imports";
 import { useI18n } from "vue-i18n";
 
 const { alerts, removeAlert: remove } = useAlert();
@@ -38,7 +39,9 @@ const { t } = useI18n();
   border-radius: 8px;
   width: 40vw;
   height: 20vh;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.4), 0 10px 60px rgba(0,0,0,0.3);
+  box-shadow:
+    0 0 50px rgba(0, 0, 0, 0.4),
+    0 10px 60px rgba(0, 0, 0, 0.3);
   text-align: center;
   font-weight: 500;
   color: var(--text-full-black);

@@ -1,6 +1,6 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { describe, it, expect, vi } from "vitest";
-//@ts-ignore
+import { describe, it, expect } from "vitest";
+//@ts-expect-error
 import Login from "../../app/pages/login.vue";
 
 describe("Login Page", () => {
@@ -12,7 +12,7 @@ describe("Login Page", () => {
             install(app: any) {
               app.config.globalProperties.$t = (key: string) => key;
               app.provide("t", (key: string) => key);
-              app.provide("setLocale", (locale: string) => {});
+              app.provide("setLocale", () => {});
               app.provide("localePath", (name: string) => `/${name}`);
             },
           },

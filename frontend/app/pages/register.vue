@@ -22,11 +22,7 @@
 
         <div>
           <label>
-            <Icon
-              name="mdi:account-outline"
-              size="18"
-              :class="style.blackIcon"
-            />
+            <Icon name="mdi:account-outline" size="18" :class="style.blackIcon" />
             {{ t("pages.register.name") }}
           </label>
           <input type="name" v-model="name" :class="style.formInput" />
@@ -44,27 +40,15 @@
 
         <div>
           <label>
-            <Icon
-              name="mdi:lock-check-outline"
-              size="18"
-              style="color: black"
-            />
+            <Icon name="mdi:lock-check-outline" size="18" style="color: black" />
             {{ t("pages.register.repeatPassword") }}
           </label>
-          <input
-            type="password"
-            v-model="confirmPassword"
-            :class="style.formInput"
-          />
+          <input type="password" v-model="confirmPassword" :class="style.formInput" />
           <span :class="style.spanError">{{ errors.confirmPassword }}</span>
         </div>
 
         <button type="submit" :class="style.button">
-          <Icon
-            name="mdi:account-plus-outline"
-            size="18"
-            :class="style.whiteIcon"
-          />
+          <Icon name="mdi:account-plus-outline" size="18" :class="style.whiteIcon" />
           {{ t("pages.register.register") }}
         </button>
 
@@ -74,7 +58,7 @@
             {{ t("pages.register.goLogin") }}
           </NuxtLink>
 
-          <NuxtLink :to="localePath('')" :class="style.linkButton">
+          <NuxtLink :to="localePath('index')" :class="style.linkButton">
             <Icon name="mdi:home" size="16" :class="style.blackIcon" />
             {{ t("pages.register.goHome") }}
           </NuxtLink>
@@ -86,91 +70,40 @@
 
 <script setup lang="ts">
 import { useForm, useField } from "vee-validate";
-import * as yup from "yup";
 import { useI18n } from "vue-i18n";
-import { handlerCreateUser } from "../handlers/users";
-import { useAlert } from "../composables/useAlert";
-import { useUserStore } from "../stores/index";
+//@ts-expect-error
+import { createRegisterSchema } from "@/yup";
+//@ts-expect-error
+import { useRegister } from "#imports";
 
-//@ts-ignore
+//@ts-expect-error
 definePageMeta({
   layout: "no-navbar-footer",
 });
 
-//@ts-ignore
 const { t } = useI18n();
-//@ts-ignore
+//@ts-expect-error
 const localePath = useLocalePath();
 
-const userStore = useUserStore();
+const { register } = useRegister();
 
-const { showAlert } = useAlert();
-
-const invalidEmailErr = t("warnings.auth.invalidEmail");
-const emailRequiredErr = t("warnings.auth.emailRequired");
-const passwordRequiredErr = t("warnings.auth.passwordRequired");
-const passwordLengthErr = t("warnings.auth.passwordLength");
-const passwordFormatErr = t("warnings.auth.passwordFormat");
-const passwordMatchErr = t("warnings.auth.passwordsMatch");
-const confirmPasswordErr = t("warnings.auth.confirmPassword");
-const nameRequiredErr = t("warnings.auth.invalidName");
-
-const schema = yup.object({
-  name: yup.string().required(nameRequiredErr),
-
-  email: yup.string().email(invalidEmailErr).required(emailRequiredErr),
-
-  password: yup
-    .string()
-    .required(passwordRequiredErr)
-    .min(8, passwordLengthErr)
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, passwordFormatErr),
-
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref("password")], passwordMatchErr)
-    .required(confirmPasswordErr),
-});
+const schema = createRegisterSchema(t);
 
 const { handleSubmit, errors } = useForm({
   validationSchema: schema,
 });
 
-const { value: email } = useField<string>("email");
 const { value: name } = useField<string>("name");
+const { value: email } = useField<string>("email");
 const { value: password } = useField<string>("password");
 const { value: confirmPassword } = useField<string>("confirmPassword");
 
-const onSubmit = handleSubmit(async (values) => {
+const onSubmit = handleSubmit(async ({ name, email, password }) => {
+  const success = await register(name, email, password, t);
 
-  if (!values.name) {
-    showAlert({ message: "warnings.auth.invalidName", statusCode: 400 });
-    return;
-  }
-
-  if (!values.email) {
-    showAlert({ message: "warnings.auth.emailRequired", statusCode: 400 });
-    return;
-  }
-
-  if (!values.password) {
-    showAlert({ message: "warnings.auth.passwordRequired", statusCode: 400 });
-    return;
-  }
-
-  try {
-    const response = await handlerCreateUser({
-      name: values.name,
-      email: values.email,
-      password: values.password,
-    });
-
-    userStore.setName(response.username as string);
-
-    //@ts-ignore
+  if (success) {
+    //@ts-expect-error
     await navigateTo(localePath("/"));
-  } catch (error) {
-    showAlert({ message: error.message, statusCode: error.status });
   }
 });
 </script>

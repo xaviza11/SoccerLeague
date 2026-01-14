@@ -1,6 +1,5 @@
 <template>
-  <footer :class="style.footerContainer">
-  </footer>
+  <footer :class="style.footerContainer"></footer>
 </template>
 
 <style module="style">

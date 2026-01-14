@@ -1,4 +1,4 @@
-//@ts-ignore
+//@ts-expect-error
 import SwitchLocales from "./SwitchLocales";
 
-export default { SwitchLocales };
+export { SwitchLocales };

@@ -60,7 +60,7 @@
         </div>
 
         <div :class="style.dropdownFooter">
-          <SwitchLocale />
+          <SwitchLocales />
           <button @click="logout">
             <Icon name="mdi:logout" size="18" :class="style.blackIcon" />
           </button>
@@ -72,9 +72,9 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import { useUserStore } from "../../stores";
-import { handlerLogout } from "../../handlers/users";
-import SwitchLocale from "../buttons/SwitchLocales.vue";
+import { useUserStore } from "#imports";
+import { handlerLogout } from "@/handlers/users";
+import { SwitchLocales } from "@/components/buttons";
 
 const { t } = useI18n();
 const localePath = useLocalePath();
@@ -96,7 +96,7 @@ const toggleMenu = () => {
 const logout = async () => {
   try {
     await handlerLogout();
-    userStore.reset(); 
+    userStore.reset();
     isOpen.value = false;
   } catch (error) {
     console.error("Error:", error);

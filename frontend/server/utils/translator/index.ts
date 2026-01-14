@@ -1,3 +1,3 @@
-import { AuthErrorTranslator } from "./AuthTranslator";
+import AuthErrorTranslator from "./AuthTranslator";
 
-export {AuthErrorTranslator}
+export { AuthErrorTranslator };

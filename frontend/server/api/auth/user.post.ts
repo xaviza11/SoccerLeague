@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
   try {
     const response = await axios.post<CreateUserResponse>(
       `${configService.BFF_API}/api/users`,
-      payload
+      payload,
     );
 
     const token = response.data.token;
@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
       path: "/",
     });
 
-    return {username: response.data.username};
+    return { username: response.data.username };
   } catch (error) {
     const err = error as AxiosError<BffErrorResponse>;
 
@@ -46,8 +46,7 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: err.response.status,
         statusMessage:
-          AuthErrorTranslator.translate(err.response.data?.message) ||
-          "Translate Error fail",
+          AuthErrorTranslator.translate(err.response.data?.message) || "Translate Error fail",
       });
     }
 

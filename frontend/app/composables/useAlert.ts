@@ -21,7 +21,7 @@ const cleanMessage = (message: string) => {
   return lastSpaceIndex !== -1 ? message.slice(lastSpaceIndex + 1) : message;
 };
 
-export function useAlert() {
+export default function useAlert() {
   const getAlertType = (statusCode: number): AlertType => {
     if (statusCode >= 200 && statusCode < 300) return "success";
     if (statusCode >= 400 && statusCode < 500) return "warning";
@@ -44,7 +44,7 @@ export function useAlert() {
   };
 
   const removeAlert = (id: number) => {
-    alerts.value = alerts.value.filter(a => a.id !== id);
+    alerts.value = alerts.value.filter((a) => a.id !== id);
   };
 
   return { alerts, showAlert, removeAlert };

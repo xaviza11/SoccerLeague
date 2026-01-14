@@ -1,17 +1,23 @@
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
-export const useUserStore = defineStore('user', () => {
-  const name = ref<string | null>(null)
-  
-  function setName(newName: string) {
-    name.value = newName
-  }
+const useUserStore = defineStore(
+  "user",
+  () => {
+    const name = ref<string | null>(null);
 
-  function reset() {
-    name.value = null
-  }
+    function setName(newName: string) {
+      name.value = newName;
+    }
 
-  return { name, setName, reset }
-}, {
-  persist: true 
-})
+    function reset() {
+      name.value = null;
+    }
+
+    return { name, setName, reset };
+  },
+  {
+    persist: true,
+  },
+);
+
+export default useUserStore;
