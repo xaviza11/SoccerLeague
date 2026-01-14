@@ -4,9 +4,7 @@ import { isUUID } from "../common/validators/index.js";
 import { configService, handleError } from "../common/helpers/index.js";
 import type { CreateTeamResponse } from "../models/dto/responses/teams/index.js";
 import type { NormalizedError } from "../models/dto/errors/index.js";
-import {
-  ValidationError,
-} from "../common/errors/index.js";
+import { ValidationError } from "../common/errors/index.js";
 import type {
   UpdateTeamPayload,
   DeleteTeamPayload,
@@ -73,9 +71,8 @@ export class TeamsClient {
     payload: GetTeamPayload,
   ): Promise<NormalizedError | GetTeamResponse> {
     try {
-
-      if(!isUUID(payload.teamId)) {
-        throw new ValidationError('Invalid team ID')
+      if (!isUUID(payload.teamId)) {
+        throw new ValidationError("Invalid team ID");
       }
 
       const response = await axios.get<GetTeamResponse>(
@@ -98,9 +95,8 @@ export class TeamsClient {
     payload: DeleteTeamPayload,
   ): Promise<NormalizedError | void> {
     try {
-
-      if(!isUUID(payload.teamId)){
-        throw new ValidationError('Invalid team ID')
+      if (!isUUID(payload.teamId)) {
+        throw new ValidationError("Invalid team ID");
       }
 
       await axios.delete(`${this.CRUD_API}${this.baseEndpoint}`, {

@@ -33,7 +33,7 @@ export class UserClient {
   }
 
   public async create(
-    payload: UserRegistrationPayload
+    payload: UserRegistrationPayload,
   ): Promise<UserRegistrationResponse | NormalizedError> {
     try {
       if (!validateEmail(payload.email)) {
@@ -52,9 +52,7 @@ export class UserClient {
     }
   }
 
-  public async login(
-    payload: UserLoginPayload
-  ): Promise<UserLoginResponse | NormalizedError> {
+  public async login(payload: UserLoginPayload): Promise<UserLoginResponse | NormalizedError> {
     try {
       if (!validateEmail(payload.email)) {
         throw new ValidationError("Invalid Email");
@@ -103,9 +101,7 @@ export class UserClient {
     }
   }*/
 
-  public async findMe(
-    token: string
-  ): Promise<UserFindOneResponse | NormalizedError> {
+  public async findMe(token: string): Promise<UserFindOneResponse | NormalizedError> {
     try {
       if (!token) {
         throw new AuthError("Missing auth token");
@@ -149,11 +145,10 @@ export class UserClient {
 
   public async deleteOne(
     token: string,
-    payload: UserDeleteOnePayload
+    payload: UserDeleteOnePayload,
   ): Promise<UserDeleteOneResponse | NormalizedError> {
-
-    if(!validatePassword(payload.currentPassword)) {
-      throw new ValidationError('Invalid Password')
+    if (!validatePassword(payload.currentPassword)) {
+      throw new ValidationError("Invalid Password");
     }
 
     try {

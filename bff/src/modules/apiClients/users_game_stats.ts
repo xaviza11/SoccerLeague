@@ -38,8 +38,7 @@ export class UsersGameStatsClient {
     token: string,
     payload: DeleteUsersGameStatsPayload,
   ): Promise<NormalizedError | void> {
-
-    if(!isUUID(payload.statsId)) throw new ValidationError('Invalid UUID')
+    if (!isUUID(payload.statsId)) throw new ValidationError("Invalid UUID");
 
     try {
       await axios.delete(`${this.CRUD_API}${this.deleteEndpoint}`, {

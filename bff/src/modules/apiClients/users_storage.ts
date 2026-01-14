@@ -12,9 +12,7 @@ import type {
   FindOneUsersStorageResponse,
 } from "../models/dto/responses/users_storage/index.js";
 import type { NormalizedError } from "../models/dto/errors/index.js";
-import {
-  ValidationError,
-} from "../common/errors/index.js";
+import { ValidationError } from "../common/errors/index.js";
 
 export class UsersStorageClient {
   private baseEndpoint = "/users-storage";
@@ -138,9 +136,8 @@ export class UsersStorageClient {
     payload: DeleteUsersStoragePayload,
   ): Promise<void | NormalizedError> {
     try {
-
-      if(!isUUID(payload.storageId)) {
-        throw new ValidationError('Invalid ID')
+      if (!isUUID(payload.storageId)) {
+        throw new ValidationError("Invalid ID");
       }
 
       await axios.delete(`${this.CRUD_API}${this.baseEndpoint}`, {

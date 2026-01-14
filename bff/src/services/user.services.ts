@@ -123,30 +123,26 @@ export class UserService {
   }
 
   public async login(payload: ServiceUserLoginPayload) {
-    try {
-      const user = await this.userClient.login(payload);
+    const user = await this.userClient.login(payload);
 
-      if (!("accessToken" in user)) {
-        throw new AuthError(user.message ?? "Invalid email or password");
-      }
-
-      const decryptedToken = user.accessToken;
-
-      const me = await this.userClient.findMe(decryptedToken);
-      if (!("name" in me)) throw new ServiceUnavailableError("Error on retrieve user - 001");
-      if (!("storage" in me)) throw new ServiceUnavailableError("Error on retrieve user - 002");
-      if (!("stats" in me)) throw new ServiceUnavailableError("Error on retrieve user - 003");
-      if (!("has_game" in me)) throw new ServiceUnavailableError("Error on retrieve user - 004");
-
-      return {
-        username: me.name,
-        token: TokenCrypto.encrypt(user.accessToken),
-        storage: me.storage,
-        stats: me.stats,
-        has_game: me.has_game,
-      };
-    } catch (error) {
-      throw error;
+    if (!("accessToken" in user)) {
+      throw new AuthError(user.message ?? "Invalid email or password");
     }
+
+    const decryptedToken = user.accessToken;
+
+    const me = await this.userClient.findMe(decryptedToken);
+    if (!("name" in me)) throw new ServiceUnavailableError("Error on retrieve user - 001");
+    if (!("storage" in me)) throw new ServiceUnavailableError("Error on retrieve user - 002");
+    if (!("stats" in me)) throw new ServiceUnavailableError("Error on retrieve user - 003");
+    if (!("has_game" in me)) throw new ServiceUnavailableError("Error on retrieve user - 004");
+
+    return {
+      username: me.name,
+      token: TokenCrypto.encrypt(user.accessToken),
+      storage: me.storage,
+      stats: me.stats,
+      has_game: me.has_game,
+    };
   }
 }
