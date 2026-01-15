@@ -23,7 +23,7 @@ export class UsersService {
     this.logger.log(`Creating user with email: ${email} and name: ${name}`);
     if (name.length === 0) {
       this.logger.log(`Failed to create user: Name is empty`);
-      throw new BadRequestException("Name must have almost one character  - CRUD");
+      throw new BadRequestException("Name must have almost one character - CRUD");
     }
 
     if (!validateEmail(email)) {
