@@ -1,11 +1,12 @@
 import { type FastifyInstance } from "fastify";
 import { GameDataService } from "../services/index.js";
 import { AuthError } from "../modules/common/errors/auth.js";
+import { GetGameDataSchema } from "../modules/swagger/gameData/index.js";
 
 export async function gameDataRoute(app: FastifyInstance) {
   const gameDataService = new GameDataService();
 
-  app.get("/game-data", async (request, reply) => {
+  app.get("/api/game-data", { schema: GetGameDataSchema }, async (request, reply) => {
     try {
       request.log.info("Retrieving game data");
 

@@ -16,6 +16,7 @@ import {
   AuthError,
   ConflictError,
   ServiceUnavailableError,
+  BadRequestError,
 } from "../modules/common/errors/index.js";
 
 export class UserService {
@@ -35,7 +36,15 @@ export class UserService {
       this.currentPassword = payload.password;
 
       if (!("id" in user)) {
-        throw new ConflictError(user.message ?? "Error creating user - 000");
+        if (user.message?.includes("Service unavailable")) {
+          throw new ServiceUnavailableError(user.message);
+        }
+
+        if (user.message?.includes("already in use")) {
+          throw new ConflictError(user.message);
+        }
+
+        throw new BadRequestError(user.message ?? "Error creating user - 000");
       }
 
       const login = await this.userClient.login({
@@ -125,17 +134,31 @@ export class UserService {
   public async login(payload: ServiceUserLoginPayload) {
     const user = await this.userClient.login(payload);
 
+    if (!("id" in user)) {
+      if ("message" in user) {
+        if (user.message?.includes("Service unavailable")) {
+          throw new ServiceUnavailableError(user.message);
+        }
+
+        if (user.message?.includes("Invalid credentials")) {
+          throw new AuthError(user.message);
+        }
+
+        throw new BadRequestError(user.message ?? "Error on retrieve user - 000");
+      }
+    }
+
     if (!("accessToken" in user)) {
-      throw new AuthError(user.message ?? "Invalid email or password");
+      throw new AuthError("Error retrieve user - 001");
     }
 
     const decryptedToken = user.accessToken;
 
     const me = await this.userClient.findMe(decryptedToken);
-    if (!("name" in me)) throw new ServiceUnavailableError("Error on retrieve user - 001");
-    if (!("storage" in me)) throw new ServiceUnavailableError("Error on retrieve user - 002");
-    if (!("stats" in me)) throw new ServiceUnavailableError("Error on retrieve user - 003");
-    if (!("has_game" in me)) throw new ServiceUnavailableError("Error on retrieve user - 004");
+    if (!("name" in me)) throw new ServiceUnavailableError("Error on retrieve user - 002");
+    if (!("storage" in me)) throw new ServiceUnavailableError("Error on retrieve user - 003");
+    if (!("stats" in me)) throw new ServiceUnavailableError("Error on retrieve user - 004");
+    if (!("has_game" in me)) throw new ServiceUnavailableError("Error on retrieve user - 005");
 
     return {
       username: me.name,

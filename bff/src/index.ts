@@ -7,11 +7,23 @@ const fastify = Fastify({
   logger: true,
 });
 
-fastify.register(userRoutes, { prefix: "api" });
-fastify.register(gameDataRoute, { prefix: "api" });
+// Swagger Documentation
+await fastify.register(import("@fastify/swagger"));
+
+// Swagger UI
+await fastify.register(import("@fastify/swagger-ui"), {
+  routePrefix: "/documentation",
+});
+
+// Routes
+fastify.register(userRoutes);
+fastify.register(gameDataRoute);
 
 try {
-  await fastify.listen({ port: parseInt(configService.BFF_PORT), host: "0.0.0.0" });
+  await fastify.listen({
+    port: parseInt(configService.BFF_PORT),
+    host: "0.0.0.0",
+  });
 } catch (err) {
   fastify.log.error(err);
   process.exit(1);

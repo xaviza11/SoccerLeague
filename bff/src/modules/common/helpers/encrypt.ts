@@ -1,5 +1,6 @@
 import * as crypto from "crypto";
 import { configService } from "../../../envConfig.js";
+import { AuthError } from "../errors/auth.js";
 
 export class TokenCrypto {
   private static readonly algorithm = "aes-256-cbc";
@@ -36,25 +37,29 @@ export class TokenCrypto {
   }
 
   static decrypt(encryptedToken: string): string {
-    if (!encryptedToken) {
-      throw new Error("Encrypted token is required for decryption");
+    try {
+      if (!encryptedToken) {
+        throw new Error("Encrypted token is required for decryption");
+      }
+
+      const parts = encryptedToken.split(":");
+
+      if (parts.length !== 2) {
+        throw new Error("Invalid encrypted token format");
+      }
+
+      const [ivHex, encryptedHex] = parts;
+
+      const iv = Buffer.from(ivHex as string, "hex");
+      const encryptedText = Buffer.from(encryptedHex as string, "hex");
+
+      const decipher = crypto.createDecipheriv(this.algorithm, this.getSecretKey(), iv);
+
+      const decrypted = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
+
+      return decrypted.toString("utf8");
+    } catch {
+      throw new AuthError("Invalid token");
     }
-
-    const parts = encryptedToken.split(":");
-
-    if (parts.length !== 2) {
-      throw new Error("Invalid encrypted token format");
-    }
-
-    const [ivHex, encryptedHex] = parts;
-
-    const iv = Buffer.from(ivHex as string, "hex");
-    const encryptedText = Buffer.from(encryptedHex as string, "hex");
-
-    const decipher = crypto.createDecipheriv(this.algorithm, this.getSecretKey(), iv);
-
-    const decrypted = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
-
-    return decrypted.toString("utf8");
   }
 }

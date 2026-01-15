@@ -21,6 +21,8 @@
     "check": "npm run lint && npm run fmt:check"
   },
   "dependencies": {
+    "@fastify/swagger": "^9.6.1",
+    "@fastify/swagger-ui": "^5.2.4",
     "axios": "^1.13.2",
     "dotenv": "^17.2.3",
     "fastify": "^5.6.2",

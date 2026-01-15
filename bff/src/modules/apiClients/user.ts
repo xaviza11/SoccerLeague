@@ -36,6 +36,10 @@ export class UserClient {
     payload: UserRegistrationPayload,
   ): Promise<UserRegistrationResponse | NormalizedError> {
     try {
+      if (payload.name.length === 0) {
+        throw new ValidationError("Name must have almost one character");
+      }
+
       if (!validateEmail(payload.email)) {
         throw new ValidationError("Invalid Email");
       }

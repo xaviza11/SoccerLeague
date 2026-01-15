@@ -4,11 +4,12 @@ import type {
   ServiceUserRegistrationPayload,
   ServiceUserLoginPayload,
 } from "../modules/models/dto/servicePayloads/users/index.js";
+import { CreateUserSchema, LoginSchema } from "../modules/swagger/users/index.js";
 
 export async function userRoutes(app: FastifyInstance) {
   const userService = new UserService();
 
-  app.post("/users", async (request, reply) => {
+  app.post("/api/users", { schema: CreateUserSchema }, async (request, reply) => {
     try {
       request.log.info("Registering new user");
       const payload = request.body as ServiceUserRegistrationPayload;
@@ -23,7 +24,7 @@ export async function userRoutes(app: FastifyInstance) {
     }
   });
 
-  app.post("/users/login", async (request, reply) => {
+  app.post("/api/users/login", { schema: LoginSchema }, async (request, reply) => {
     try {
       request.log.info("User login attempt");
       const payload = request.body as ServiceUserLoginPayload;

@@ -10,6 +10,7 @@ export class GameDataService {
 
   public async retrieveGameData(payload: ServiceRetrieveGameDataPayload) {
     const decryptedToken = TokenCrypto.decrypt(payload.token);
+
     const me = await this.userClient.findMe(decryptedToken);
 
     if (!("storage" in me)) throw new ServiceUnavailableError("Error on retrieve game data - 001");
