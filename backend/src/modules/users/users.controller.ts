@@ -29,7 +29,7 @@ export class UsersController {
 
   @Get("me")
   @UseGuards(AuthGuard)
-  async findMe(@User("id") userId: string) {
+  async findMe(@User("sub") userId: string) {
     return this.usersService.findOne(userId);
   }
 
@@ -49,7 +49,7 @@ export class UsersController {
   @Put("")
   @UseGuards(AuthGuard)
   update(
-    @User("id") userId: string,
+    @User("sub") userId: string,
     @Body()
     body: {
       name?: string;
@@ -66,7 +66,7 @@ export class UsersController {
 
   @Delete("")
   @UseGuards(AuthGuard)
-  delete(@User("id") userId: string, @Body() body: { currentPassword: string }) {
+  delete(@User("sub") userId: string, @Body() body: { currentPassword: string }) {
     if (!body.currentPassword) {
       throw new BadRequestException("Current password is required - CRUD");
     }

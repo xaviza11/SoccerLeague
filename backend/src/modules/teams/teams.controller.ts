@@ -20,7 +20,7 @@ export class TeamsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async createTeam(@User("id") userId: string) {
+  async createTeam(@User("sub") userId: string) {
     return this.teamsService.create(userId);
   }
 
@@ -38,7 +38,7 @@ export class TeamsController {
 
   @Put("/update")
   @UseGuards(AuthGuard)
-  async updateMyTeam(@User("id") userId: string, @Body() body: any) {
+  async updateMyTeam(@User("sub") userId: string, @Body() body: any) {
     const { teamId, ...updateData } = body;
 
     if (!teamId) {
@@ -50,7 +50,7 @@ export class TeamsController {
 
   @Delete("/delete/:id")
   @UseGuards(AuthGuard)
-  async deleteMyTeam(@User("id") userId: string, @Param("id") id: string) {
+  async deleteMyTeam(@User("sub") userId: string, @Param("id") id: string) {
     return this.teamsService.delete(id, userId);
   }
 }

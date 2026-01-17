@@ -21,7 +21,7 @@ export class MarketAurasController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@User("id") userId: string, @Body() body: { aura_id: string; price: number }) {
+  create(@User("sub") userId: string, @Body() body: { aura_id: string; price: number }) {
     const seller_id = userId;
     if (!body.aura_id || body.price === undefined) {
       throw new BadRequestException("Missing required fields");

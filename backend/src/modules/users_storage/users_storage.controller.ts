@@ -9,7 +9,7 @@ export class UsersStorageController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async createStorage(@User("id") userId: string) {
+  async createStorage(@User("sub") userId: string) {
     return this.usersStorageService.createStorage(userId);
   }
 
@@ -26,7 +26,7 @@ export class UsersStorageController {
   @Post("team")
   @UseGuards(AuthGuard)
   async addTeam(
-    @User("id") userId: string,
+    @User("sub") userId: string,
     @Body("teamId") teamId: string,
     @Body("storageId") storageId: string,
   ) {
@@ -35,7 +35,7 @@ export class UsersStorageController {
 
   @Delete()
   @UseGuards(AuthGuard)
-  async deleteStorage(@User("id") userId: string, @Body("storageId") storageId: string) {
+  async deleteStorage(@User("sub") userId: string, @Body("storageId") storageId: string) {
     return this.usersStorageService.deleteStorage(userId, storageId);
   }
 

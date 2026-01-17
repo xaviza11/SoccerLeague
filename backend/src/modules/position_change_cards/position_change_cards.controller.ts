@@ -21,7 +21,7 @@ export class PositionChangeCardsController {
   @Post()
   async create(
     @Body("storageId", new ParseUUIDPipe()) storageId: string,
-    @User("id") userId: string,
+    @User("sub") userId: string,
   ) {
     if (!storageId) {
       throw new BadRequestException("storageId is required");
@@ -36,12 +36,12 @@ export class PositionChangeCardsController {
   }
 
   @Get("user")
-  async findAllByUser(@User("id") userId: string) {
+  async findAllByUser(@User("sub") userId: string) {
     return this.positionsChangeCardService.findAllByUser(userId);
   }
 
   @Get(":id")
-  async findOne(@Param("id", new ParseUUIDPipe()) id: string, @User("id") userId: string) {
+  async findOne(@Param("id", new ParseUUIDPipe()) id: string, @User("sub") userId: string) {
     return this.positionsChangeCardService.findOne(id, userId);
   }
 

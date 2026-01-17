@@ -9,7 +9,7 @@ export class UsersGameStatsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async createUserGameStats(@User("id") userId: string) {
+  async createUserGameStats(@User("sub") userId: string) {
     return this.usersGameStatsService.create(userId);
   }
 
@@ -40,13 +40,13 @@ export class UsersGameStatsController {
 
   @Put()
   @UseGuards(AuthGuard)
-  async update(@Body() body: any, @User("id") userId: string) {
+  async update(@Body() body: any, @User("sub") userId: string) {
     return this.usersGameStatsService.update(userId, body);
   }
 
   @Delete()
   @UseGuards(AuthGuard)
-  async remove(@User("id") userId: string) {
+  async remove(@User("sub") userId: string) {
     return this.usersGameStatsService.delete(userId);
   }
 }

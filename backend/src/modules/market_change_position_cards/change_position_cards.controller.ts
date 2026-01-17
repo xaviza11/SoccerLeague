@@ -21,7 +21,7 @@ export class MarketPositionChangeCardsController {
   @Post()
   @UseGuards(AuthGuard)
   create(
-    @User("id") userId: string,
+    @User("sub") userId: string,
     @Body() body: { position_change_card_id: string; price: number },
   ) {
     if (!body.position_change_card_id || body.price === undefined) {
@@ -48,7 +48,7 @@ export class MarketPositionChangeCardsController {
   @Patch(":id/price")
   @UseGuards(AuthGuard)
   updatePrice(
-    @User("id") userId: string,
+    @User("sub") userId: string,
     @Param("id", new ParseUUIDPipe()) id: string,
     @Body("price") price: number,
   ) {

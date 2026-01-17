@@ -20,7 +20,7 @@ export class MarketPlayersController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@User("id") userId: string, @Body() body: { player_id: string; price: number }) {
+  create(@User("sub") userId: string, @Body() body: { player_id: string; price: number }) {
     if (!body.player_id || body.price === undefined) {
       throw new BadRequestException("Missing required fields");
     }
@@ -45,7 +45,7 @@ export class MarketPlayersController {
   @Patch(":id/price")
   @UseGuards(AuthGuard)
   updatePrice(
-    @User("id") userId: string,
+    @User("sub") userId: string,
     @Param("id", new ParseUUIDPipe()) id: string,
     @Body("price") price: number,
   ) {

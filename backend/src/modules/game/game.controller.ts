@@ -37,7 +37,7 @@ export class GameController {
   }
 
   @Get("user")
-  async findAllByUser(@User("id") userId: string) {
+  async findAllByUser(@User("sub") userId: string) {
     return this.gameService.findAllByUser(userId);
   }
 

@@ -9,7 +9,7 @@ export class CardsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async create(@User("id") userId: string) {
+  async create(@User("sub") userId: string) {
     return this.cardsService.create(userId);
   }
 
@@ -20,13 +20,13 @@ export class CardsController {
 
   @Get("user")
   @UseGuards(AuthGuard)
-  async findAllByUser(@User("id") userId: string) {
+  async findAllByUser(@User("sub") userId: string) {
     return this.cardsService.findAllByUser(userId);
   }
 
   @Get(":id")
   @UseGuards(AuthGuard)
-  async findOne(@Param("id", new ParseUUIDPipe()) id: string, @User("id") userId: string) {
+  async findOne(@Param("id", new ParseUUIDPipe()) id: string, @User("sub") userId: string) {
     return this.cardsService.findOne(id, userId);
   }
 
