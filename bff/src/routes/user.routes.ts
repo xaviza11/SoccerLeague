@@ -9,7 +9,7 @@ import { CreateUserSchema, LoginSchema } from "../modules/swagger/users/index.js
 export async function userRoutes(app: FastifyInstance) {
   const userService = new UserService();
 
-  app.post("/api/users", { schema: CreateUserSchema }, async (request, reply) => {
+  app.post("/users", { schema: CreateUserSchema }, async (request, reply) => {
     try {
       request.log.info("Registering new user");
       const payload = request.body as ServiceUserRegistrationPayload;
@@ -24,7 +24,7 @@ export async function userRoutes(app: FastifyInstance) {
     }
   });
 
-  app.post("/api/users/login", { schema: LoginSchema }, async (request, reply) => {
+  app.post("/users/login", { schema: LoginSchema }, async (request, reply) => {
     try {
       request.log.info("User login attempt");
       const payload = request.body as ServiceUserLoginPayload;

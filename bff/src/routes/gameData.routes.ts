@@ -6,7 +6,7 @@ import { GetGameDataSchema } from "../modules/swagger/gameData/index.js";
 export async function gameDataRoute(app: FastifyInstance) {
   const gameDataService = new GameDataService();
 
-  app.get("/api/game-data", { schema: GetGameDataSchema }, async (request, reply) => {
+  app.get("/game-data", { schema: GetGameDataSchema }, async (request, reply) => {
     try {
       request.log.info("Retrieving game data");
 

@@ -16,8 +16,8 @@ await fastify.register(import("@fastify/swagger-ui"), {
 });
 
 // Routes
-fastify.register(userRoutes);
-fastify.register(gameDataRoute);
+fastify.register(userRoutes, {prefix: "api"});
+fastify.register(gameDataRoute, {prefix: "api"});
 
 try {
   await fastify.listen({
