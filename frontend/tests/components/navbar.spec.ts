@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-//@ts-expect-error
 import { DefaultNavbar } from "../../app/components/navbars";
 
 describe("Navbar", () => {

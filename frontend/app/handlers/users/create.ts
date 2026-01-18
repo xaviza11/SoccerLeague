@@ -6,6 +6,14 @@ interface CreateUserPayload {
 
 interface CreateUserResponse {
   username: string;
+  token: string;
+  storage: {id: string};
+  stats: {
+    id: string;
+    elo: number;
+    money: number;
+    total_games: number;
+  }
 }
 
 export const handlerCreateUser = async (
