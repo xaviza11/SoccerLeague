@@ -118,7 +118,7 @@ const GameDataResponseSchema = {
       properties: {
         message: {
           type: "string",
-          enum: ["Error on retrieve game data - 001", "Error on retrieve game data - 002"],
+          enum: ["Error on retrieve game data - 001"],
         },
       },
     },

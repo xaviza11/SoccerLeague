@@ -1,7 +1,7 @@
 import { UserClient, UsersStorageClient, TeamsClient } from "../modules/apiClients/index.js";
 import type { ServiceRetrieveGameDataPayload } from "../modules/models/dto/servicePayloads/gameData/index.js";
 import { TokenCrypto } from "../modules/common/helpers/index.js";
-import { ServiceUnavailableError } from "../modules/common/errors/index.js";
+import { AuthError, ServiceUnavailableError } from "../modules/common/errors/index.js";
 
 export class GameDataService {
   private userClient = new UserClient();
@@ -13,14 +13,14 @@ export class GameDataService {
 
     const me = await this.userClient.findMe(decryptedToken);
 
-    if (!("storage" in me)) throw new ServiceUnavailableError("Error on retrieve game data - 001");
+    if (!("storage" in me)) throw new AuthError("Invalid token");
 
     const storage = await this.usersStorageClient.findOne(decryptedToken, {
       storageId: me.storage.id,
     });
 
     if (!("team" in storage))
-      throw new ServiceUnavailableError("Error on retrieve game data - 002");
+      throw new ServiceUnavailableError("Error on retrieve game data - 001");
 
     const team = await this.teamsClient.getTeam(decryptedToken, {
       teamId: storage.team.id,
