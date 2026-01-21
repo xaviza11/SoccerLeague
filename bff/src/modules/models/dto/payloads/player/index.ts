@@ -6,6 +6,8 @@ interface CreatePlayerPayload {
     id: string;
   };
 
+  isBench: Boolean
+
   position: string;
   current_position: string;
   original_position: string;
