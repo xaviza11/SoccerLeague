@@ -1,6 +1,18 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, ManyToOne } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  JoinColumn,
+  ManyToOne,
+} from "typeorm";
 import { Card, Team } from "./";
-import { Countries, DefensiveInstructions, OffensiveInstructions, Positions } from "../enums";
+import {
+  Countries,
+  DefensiveInstructions,
+  OffensiveInstructions,
+  Positions,
+} from "../enums";
 
 class Skills {
   @Column({ default: 0 }) shooting: number;
@@ -88,6 +100,9 @@ export class Player {
 
   @Column({ nullable: true })
   image: string;
+
+  @Column({ default: false })
+  isBench: boolean;
 
   @OneToOne(() => Card, { nullable: true })
   @JoinColumn()

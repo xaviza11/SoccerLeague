@@ -40,7 +40,6 @@ export class TeamsService {
       name: "YourTeam",
       storage: user.storage,
       players: [],
-      bench_players: [],
       auras: [],
     });
 
@@ -53,7 +52,7 @@ export class TeamsService {
   async find() {
     this.logger.log(`Fetching all teams`);
     const response = await this.teamsRepo.find({
-      relations: ["players", "bench_players", "auras", "storage"],
+      relations: ["players", "auras", "storage"],
     });
     this.logger.log(`Teams retrieved successfully`);
     return response;
@@ -63,7 +62,7 @@ export class TeamsService {
     this.logger.log(`Fetching team with ID: ${id}`);
     const team = await this.teamsRepo.findOne({
       where: { id },
-      relations: ["players", "bench_players", "auras", "storage"],
+      relations: ["players", "auras", "storage"],
     });
 
     if (!team) {
@@ -86,7 +85,7 @@ export class TeamsService {
     this.logger.log(`User found with ID: ${userId}, proceeding to update team with ID: ${id}`);
     const team = await this.teamsRepo.findOne({
       where: { id },
-      relations: ["players", "bench_players", "auras", "storage"],
+      relations: ["players", "auras", "storage"],
     });
 
     if (!team) {
@@ -96,7 +95,6 @@ export class TeamsService {
 
     if (dto.name !== undefined) team.name = dto.name;
     if (dto.players !== undefined) team.players = dto.players;
-    if (dto.bench_players !== undefined) team.bench_players = dto.bench_players;
     if (dto.auras !== undefined) team.auras = dto.auras;
 
     const response = await this.teamsRepo.save(team);
