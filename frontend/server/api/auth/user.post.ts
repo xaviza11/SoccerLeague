@@ -11,6 +11,12 @@ interface CreateUserPayload {
 interface CreateUserResponse {
   username: string;
   token: string;
+  storage: { id: string };
+  stats: {
+    elo: number;
+    money: number;
+    total_games: number;
+  };
 }
 
 interface BffErrorResponse {
@@ -38,7 +44,13 @@ export default defineEventHandler(async (event) => {
       path: "/",
     });
 
-    return { username: response.data.username };
+    return {
+      username: response.data.username,
+      storage: response.data.storage,
+      elo: response.data.stats.elo,
+      money: response.data.stats.money,
+      total_games: response.data.stats.total_games,
+    };
   } catch (error) {
     const err = error as AxiosError<BffErrorResponse>;
 

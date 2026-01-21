@@ -53,16 +53,16 @@
 <script setup lang="ts">
 import { useForm, useField } from "vee-validate";
 //@ts-expect-error
-import { createLoginSchema } from "@/yup/index.ts";
+import { createLoginSchema } from "@/yup";
 //@ts-expect-error
 import { useLogin } from "#imports";
+import { useI18n } from "vue-i18n";
 
 //@ts-expect-error
 definePageMeta({
   layout: "no-navbar-footer",
 });
 
-//@ts-expect-error
 const { t } = useI18n();
 //@ts-expect-error
 const localePath = useLocalePath();
@@ -105,6 +105,7 @@ const onSubmit = handleSubmit(async ({ email, password }) => {
 
 .formWrapper {
   display: flex;
+  width: 25vw;
   max-width: 25vw;
   flex-direction: column;
   justify-content: center;

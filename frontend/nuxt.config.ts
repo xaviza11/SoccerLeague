@@ -73,6 +73,11 @@ export default defineNuxtConfig({
         en: "/register",
         ca: "/registre",
       },
+      team: {
+        es: "/equipo",
+        ca: "/equip",
+        en: "/team",
+      },
     },
   },
 
@@ -92,6 +97,10 @@ export default defineNuxtConfig({
     "/es/registro": { prerender: true },
     "/en/register": { prerender: true },
     "/ca/registre": { prerender: true },
+
+    "/es/equipo": { ssr: true },
+    "/en/team": { ssr: true },
+    "/ca/equip": { ssr: true },
 
     /*
     // static page

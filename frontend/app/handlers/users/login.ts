@@ -6,13 +6,13 @@ interface LoginUserPayload {
 interface LoginUserResponse {
   username: string;
   token: string;
-  storage: {id: string};
+  storage: { id: string };
   stats: {
     id: string;
     elo: number;
     money: number;
     total_games: number;
-  }
+  };
 }
 
 export const handlerLogin = async (payload: LoginUserPayload): Promise<LoginUserResponse> => {

@@ -1,3 +1,4 @@
 import AuthErrorTranslator from "./AuthTranslator";
+import TeamTranslator from "./TeamTranslator"
 
-export { AuthErrorTranslator };
+export { AuthErrorTranslator, TeamTranslator };

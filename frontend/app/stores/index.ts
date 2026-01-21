@@ -1,3 +1,4 @@
 import useUserStore from "./userStore";
+import useGameDataStore from "./gameDataStore";
 
-export { useUserStore };
+export { useUserStore, useGameDataStore };

@@ -109,6 +109,12 @@ span {
   --accent-hover: #dccfb6;
   --accent-content: #1e293b;
 
+  /* Card Gradient */
+  --bronze-gradient: linear-gradient(135deg, #7a4b2a 0%, #b3734a 45%, #63391d 100%);
+  --silver-gradient: linear-gradient(135deg, #979797 0%, #aaa9a9 45%, #707070 100%);
+  --gold-gradient: linear-gradient(135deg, #d4af37 0%, #b3a25c 45%, #b8860b 100%);
+  --diamond-gradient: linear-gradient(135deg, #00c6ff 0%, #5d00ff 50%, #0072ff 100%);
+
   /* Backgrounds */
   --bg-main: #0f172a;
   --bg-surface: #1e293b;

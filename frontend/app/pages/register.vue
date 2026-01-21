@@ -125,6 +125,7 @@ const onSubmit = handleSubmit(async ({ name, email, password }) => {
 
 .formWrapper {
   display: flex;
+  width: 25vw;
   max-width: 25vw;
   flex-direction: column;
   justify-content: center;

@@ -1,6 +1,6 @@
 // tests/pages/login.spec.ts
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { nextTick } from "vue";
 import { flushPromises } from "@vue/test-utils";
 //@ts-expect-error

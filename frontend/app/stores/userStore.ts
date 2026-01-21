@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { ref } from "vue";
 
 const useUserStore = defineStore(
   "user",
@@ -13,7 +14,7 @@ const useUserStore = defineStore(
       name.value = newName;
     }
 
-    function setStorage(newStorage: string){
+    function setStorage(newStorage: string) {
       storage.value = newStorage;
     }
 
@@ -37,7 +38,19 @@ const useUserStore = defineStore(
       totalGames.value = null;
     }
 
-    return { name, storage, elo, money, totalGames, setName, setStorage, setElo, setMoney, setTotalGames, reset };
+    return {
+      name,
+      storage,
+      elo,
+      money,
+      totalGames,
+      setName,
+      setStorage,
+      setElo,
+      setMoney,
+      setTotalGames,
+      reset,
+    };
   },
   {
     persist: true,

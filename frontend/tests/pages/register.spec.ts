@@ -23,20 +23,20 @@ describe("Register Page", () => {
     expect(wrapper.find('button[type="submit"]').exists()).toBe(true);
   });
 
-   it("test if should send the form", async () => {
+  it("test if should send the form", async () => {
     const wrapper = await mountSuspended(Register);
 
-    const nameInput = wrapper.find('input[type="name"]')
+    const nameInput = wrapper.find('input[type="name"]');
     const emailInput = wrapper.find('input[type="email"]');
     const passwordInputs = wrapper.findAll('input[type="password"]');
 
-    await nameInput.setValue("username")
+    await nameInput.setValue("username");
     await emailInput.setValue("testexamplecom");
     await passwordInputs[0].setValue("password123");
     await passwordInputs[1].setValue("password123");
 
-    const form = wrapper.find('form');
-    await form.trigger('submit');
+    const form = wrapper.find("form");
+    await form.trigger("submit");
 
     await flushPromises();
     await nextTick();
