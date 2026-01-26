@@ -11,6 +11,8 @@ interface CreatePlayerResponse {
   current_position: string;
   original_position: string;
 
+  isBench: string;
+
   number: number;
   height_cm: number;
   max_skill_level: number;
@@ -66,4 +68,35 @@ interface PlayerStats {
   total_games: number;
 }
 
-export type { CreatePlayerResponse };
+interface FindOnePlayerResponse {
+  id: string;
+  name: string;
+  country: string;
+
+  team: {
+    id: string;
+  };
+
+  position: string;
+  current_position: string;
+  original_position: string;
+
+  isBench: string;
+
+  number: number;
+  height_cm: number;
+  max_skill_level: number;
+
+  card: string | null;
+
+  status: PlayerStatus;
+  skills: PlayerSkills;
+  instructions: PlayerInstructions;
+  stats: PlayerStats;
+}
+
+interface UpdateIsBenchResponse {
+  
+}
+
+export type { CreatePlayerResponse, FindOnePlayerResponse, UpdateIsBenchResponse };

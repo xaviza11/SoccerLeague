@@ -67,4 +67,14 @@ interface PlayerStats {
   total_games: number;
 }
 
-export type { CreatePlayerPayload };
+
+interface FindOnePlayerPayload {
+  id: string;
+}
+
+interface UpdateIsBenchPayload {
+  id: string,
+  isBench: boolean
+}
+
+export type { CreatePlayerPayload, FindOnePlayerPayload, UpdateIsBenchPayload };

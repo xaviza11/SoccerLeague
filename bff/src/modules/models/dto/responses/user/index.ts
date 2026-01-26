@@ -1,3 +1,5 @@
+import type Player from "../../../interfaces/player.js";
+
 interface UserRegistrationResponse {
   id: string;
   name: string;
@@ -19,7 +21,7 @@ interface UserFindOneResponse {
   id: string;
   name: string;
   email: string;
-  storage: { id: string };
+  storage: { id: string, team: { id: string, players: Player[] } };
   stats: { id: string; elo: number; money: number; total_games: number };
   has_game: boolean;
 }

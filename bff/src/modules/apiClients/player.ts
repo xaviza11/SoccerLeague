@@ -1,8 +1,8 @@
 import axios from "axios";
 import { configService } from "../../envConfig.js";
 import { handleError } from "../common/helpers/handleError.js";
-import type { CreatePlayerPayload } from "../models/dto/payloads/player/index.js";
-import type { CreatePlayerResponse } from "../models/dto/responses/player/index.js";
+import type { CreatePlayerPayload, FindOnePlayerPayload } from "../models/dto/payloads/player/index.js";
+import type { CreatePlayerResponse, FindOnePlayerResponse, UpdateIsBenchResponse } from "../models/dto/responses/player/index.js";
 import type { NormalizedError } from "../models/dto/errors/index.js";
 
 export class PlayerClient {
@@ -27,6 +27,30 @@ export class PlayerClient {
       });
       return response.data;
     } catch (error) {
+      return handleError(error);
+    }
+  }
+  
+  public async findOnePlayer(
+    payload: FindOnePlayerPayload
+  ): Promise<FindOnePlayerResponse | NormalizedError> {
+    try {
+      const url = `${this.CRUD_API}/?id=${payload.id}}`;
+      const response = await axios.get(url);
+      return response.data;
+    }catch(error) {
+      return handleError(error);
+    }
+  }
+
+  public async updateIsBench(
+    payload: {id: string, isBench: boolean}
+  ): Promise<UpdateIsBenchResponse | NormalizedError> {
+    try {
+      const url = `${this.CRUD_API}/${payload.id}`
+      const response = await axios.put(url);
+      return response.data;      
+    }catch(error) {
       return handleError(error);
     }
   }

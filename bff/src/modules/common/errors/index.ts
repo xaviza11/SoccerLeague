@@ -4,6 +4,8 @@ import { NotFoundError } from "./not-found.js";
 import { ServiceUnavailableError } from "./service-unavailable.js";
 import { ValidationError } from "./validation.js";
 import { BadRequestError } from "./bad-request.js";
+import { UnprocessableEntityError } from "./unprocessable-entity-error.js";
+import { ForbiddenError } from "./forbidden.js";
 
 export {
   AuthError,
@@ -12,4 +14,6 @@ export {
   ServiceUnavailableError,
   ValidationError,
   BadRequestError,
+  UnprocessableEntityError,
+  ForbiddenError
 };
