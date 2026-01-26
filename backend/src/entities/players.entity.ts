@@ -104,8 +104,7 @@ export class Player {
   @Column({ default: false })
   isBench: boolean;
 
-  @OneToOne(() => Card, { nullable: true })
-  @JoinColumn()
+  @OneToOne(() => Card, (card) => card.player, { nullable: true })
   card: Card | null;
 
   @Column()

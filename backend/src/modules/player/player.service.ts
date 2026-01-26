@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User, Player, Team } from "../../entities";
@@ -21,7 +25,9 @@ export class PlayerService {
     this.logger.log(`Creating player for user ID: ${data.id}`);
     const user = await this.usersRepo.findOne({ where: { id: data.id } });
     if (!user) {
-      this.logger.log(`Failed to create player: User not found with ID: ${data.id}`);
+      this.logger.log(
+        `Failed to create player: User not found with ID: ${data.id}`,
+      );
       throw new NotFoundException("User not found");
     }
 
@@ -32,7 +38,9 @@ export class PlayerService {
 
     const team = await this.teamsRepo.findOne({ where: { id: data.team.id } });
     if (!team) {
-      this.logger.log(`Failed to create player: Team not found with ID: ${data.team.id}`);
+      this.logger.log(
+        `Failed to create player: Team not found with ID: ${data.team.id}`,
+      );
       throw new NotFoundException("Team not found");
     }
 
@@ -51,10 +59,12 @@ export class PlayerService {
 
   async findOne(id: string): Promise<Player> {
     this.logger.log(`Fetching player with ID: ${id}`);
+
     const player = await this.playersRepo.findOne({
       where: { id },
       relations: ["card"],
     });
+
     if (!player) {
       this.logger.log(`Player not found with ID: ${id}`);
       throw new NotFoundException("Player not found");
@@ -92,7 +102,9 @@ export class PlayerService {
     this.logger.log(`Fetching all players for user ID: ${userId}`);
     const user = await this.usersRepo.findOne({ where: { id: userId } });
     if (!user) {
-      this.logger.log(`Failed to fetch players: User not found with ID: ${userId}`);
+      this.logger.log(
+        `Failed to fetch players: User not found with ID: ${userId}`,
+      );
       throw new NotFoundException("User not found");
     }
 

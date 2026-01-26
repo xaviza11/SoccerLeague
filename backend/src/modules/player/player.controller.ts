@@ -28,9 +28,15 @@ export class PlayerController {
     });
   }
 
-  @Get()
+  @Get("all")
   async findAll() {
     return this.playerService.findAll();
+  }
+
+  @Get("user/:userId")
+  @UseGuards(AuthGuard)
+  async findAllByUser(@Param("userId") userId: string) {
+    return this.playerService.findAllPlayersByUser(userId);
   }
 
   @Get(":id")
@@ -46,11 +52,5 @@ export class PlayerController {
   @Delete(":id")
   async delete(@Param("id") id: string) {
     return this.playerService.delete(id);
-  }
-
-  @Get("user/:userId")
-  @UseGuards(AuthGuard)
-  async findAllByUser(@Param("userId") userId: string) {
-    return this.playerService.findAllPlayersByUser(userId);
   }
 }
