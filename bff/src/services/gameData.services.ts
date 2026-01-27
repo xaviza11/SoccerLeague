@@ -49,7 +49,7 @@ export class GameDataService {
     };
   }
 
-  public async updateTeamBench(payload: UpdateTeamServicePayload) {
+   public async updateTeamBench(payload: UpdateTeamServicePayload) {
     const decryptedToken = TokenCrypto.decrypt(payload.token);
 
     const me: UserFindOneResponse | NormalizedError =
@@ -59,16 +59,8 @@ export class GameDataService {
       throw new AuthError("Invalid token");
     }
 
-    if (!payload.players || !Array.isArray(payload.players)) {
-      throw new UnprocessableEntityError(
-        "Players payload is missing or invalid",
-      );
-    }
-
-    const isValidTeam = validateSquad(payload.players);
-
-    if (!isValidTeam.isValid) {
-      throw new UnprocessableEntityError(isValidTeam.message);
+    if (!payload.players || !Array.isArray(payload.players) || payload.players.length === 0) {
+      throw new UnprocessableEntityError("Players payload is missing or invalid");
     }
 
     const storage = await this.usersStorageClient.findOne(decryptedToken, {
@@ -83,42 +75,35 @@ export class GameDataService {
       teamId: storage.team.id,
     });
 
-    if (!("players" in team)) {
-      throw new UnprocessableEntityError("Error returning the player");
-    }
-
-    if (!Array.isArray(team.players)) {
+    if (!("players" in team) || !Array.isArray(team.players)) {
       throw new UnprocessableEntityError("Team players are invalid");
     }
 
-    for (const payloadPlayer of payload.players) {
-      if (!payloadPlayer?.id) {
+    const teamPlayerIds = team.players.map((p: Player) => p.id);
+    for (const p of payload.players) {
+      if (!p?.id) {
         throw new UnprocessableEntityError("Payload player id is missing");
       }
-
-      const player = await this.playersClient.findOnePlayer({
-        id: payloadPlayer.id,
-      });
-
-      if (!player) {
-        throw new UnprocessableEntityError(
-          `Player ${payloadPlayer.id} does not exist`,
-        );
+      if (!teamPlayerIds.includes(p.id)) {
+        throw new ForbiddenError(`Error updating lineup`);
       }
-
-      const storedPlayer = team.players.find(
-        (p: Player) => p.id === payloadPlayer.id,
-      );
-
-      if (!storedPlayer) {
-        throw new ForbiddenError(`Error updating player`);
-      }
-
-      await this.playersClient.updateIsBench({
-        id: payloadPlayer.id,
-        isBench: payloadPlayer.isBench,
-      });
     }
+
+    const updatedPlayers: Player[] = team.players.map((tp: Player) => {
+      const payloadPlayer = payload.players.find(pp => pp.id === tp.id);
+      return payloadPlayer ? { ...tp, isBench: payloadPlayer.isBench } : tp;
+    });
+
+    const isValidTeam = validateSquad(updatedPlayers);
+    
+    if (!isValidTeam.isValid) {
+      throw new UnprocessableEntityError(isValidTeam.message);
+    }
+
+    const r = await this.teamsClient.updateLineup(decryptedToken, {
+      teamId: team.id,
+      players: updatedPlayers.map(p => ({ id: p.id, isBench: p.isBench })),
+    });
 
     return { message: "success" };
   }

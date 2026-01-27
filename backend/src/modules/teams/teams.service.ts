@@ -1,8 +1,15 @@
-import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+  UnprocessableEntityException
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Team, Storage, User } from "../../entities";
 import { Logger } from "@nestjs/common";
+import { validateSquad } from "../../validators/team";
 
 @Injectable()
 export class TeamsService {
@@ -27,12 +34,16 @@ export class TeamsService {
     });
 
     if (!user) {
-      this.logger.log(`Failed to create team: User not found with ID: ${userId}`);
+      this.logger.log(
+        `Failed to create team: User not found with ID: ${userId}`,
+      );
       throw new NotFoundException("User not found");
     }
 
     if (!user.storage) {
-      this.logger.log(`Failed to create team: User storage not found for user ID: ${userId}`);
+      this.logger.log(
+        `Failed to create team: User storage not found for user ID: ${userId}`,
+      );
       throw new NotFoundException("User storage not found");
     }
 
@@ -44,7 +55,9 @@ export class TeamsService {
     });
 
     const savedTeam = await this.teamsRepo.save(team);
-    this.logger.log(`Team created successfully for user ID: ${userId}, team ID: ${savedTeam.id}`);
+    this.logger.log(
+      `Team created successfully for user ID: ${userId}, team ID: ${savedTeam.id}`,
+    );
 
     return savedTeam;
   }
@@ -78,11 +91,15 @@ export class TeamsService {
     this.logger.log(`Updating team with ID: ${id} for user ID: ${userId}`);
     const user = await this.usersRepo.findOne({ where: { id: userId } });
     if (!user) {
-      this.logger.log(`Failed to update team: User not found with ID: ${userId}`);
+      this.logger.log(
+        `Failed to update team: User not found with ID: ${userId}`,
+      );
       throw new NotFoundException("User not found");
     }
 
-    this.logger.log(`User found with ID: ${userId}, proceeding to update team with ID: ${id}`);
+    this.logger.log(
+      `User found with ID: ${userId}, proceeding to update team with ID: ${id}`,
+    );
     const team = await this.teamsRepo.findOne({
       where: { id },
       relations: ["players", "auras", "storage"],
@@ -102,11 +119,46 @@ export class TeamsService {
     return response;
   }
 
+  async updateLineup(
+    teamId: string,
+    playersPayload: { id: string; isBench: boolean }[],
+    userId: string,
+  ) {
+    const team = await this.teamsRepo.findOne({
+      where: {
+        id: teamId,
+        storage: { user: { id: userId } },
+      },
+      relations: ["players", "storage", "storage.user"],
+    });
+
+    if (!team) {
+      throw new ForbiddenException("Team does not belong to user");
+    }
+
+    for (const p of playersPayload) {
+      const player = team.players.find((tp) => tp.id === p.id);
+      if (!player) {
+        throw new UnprocessableEntityException(`Player ${p.id} not in team`);
+      }
+      player.isBench = p.isBench;
+    }
+
+    const validation = validateSquad(team.players);
+    if (!validation.isValid) {
+      throw new UnprocessableEntityException(validation.message);
+    }
+
+    return await this.teamsRepo.save(team);
+  }
+
   async delete(id: string, userId: string) {
     this.logger.log(`Deleting team with ID: ${id} for user ID: ${userId}`);
     const user = await this.usersRepo.findOne({ where: { id: userId } });
     if (!user) {
-      this.logger.log(`Failed to delete team: User not found with ID: ${userId}`);
+      this.logger.log(
+        `Failed to delete team: User not found with ID: ${userId}`,
+      );
       throw new NotFoundException("User not found");
     }
 

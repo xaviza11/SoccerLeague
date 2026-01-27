@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, OneToOne, OneToMany, Column } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToOne,
+  OneToMany,
+  Column,
+} from "typeorm";
 import { Storage, Player, Aura } from "./";
 
 @Entity()
@@ -9,7 +15,7 @@ export class Team {
   @Column()
   name: string;
 
-  @OneToOne(() => Storage, (storage) => storage.team, { onDelete: "CASCADE" })
+  @OneToOne(() => Storage, (storage) => storage.team)
   storage: Storage;
 
   @OneToMany(() => Player, (player) => player.team, { cascade: true })
@@ -18,4 +24,3 @@ export class Team {
   @OneToMany(() => Aura, (aura) => aura.team, { cascade: true, nullable: true })
   auras: Aura[];
 }
-

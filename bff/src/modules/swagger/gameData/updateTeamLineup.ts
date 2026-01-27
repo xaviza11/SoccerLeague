@@ -76,7 +76,7 @@ const UpdateTeamLineupSchema = {
       properties: {
         message: {
           type: "string",
-          example: "Error updating player",
+          example: "Error updating lineup",
         },
       },
     },
@@ -88,13 +88,7 @@ const UpdateTeamLineupSchema = {
       properties: {
         message: {
           type: "string",
-          example: [
-            "Players payload is missing or invalid",
-            "User has no team",
-            "Team players are invalid",
-            "Payload player id is missing",
-            "Player does not exist",
-          ],
+          example: "Players payload is missing or invalid",
         },
       },
     },

@@ -26,6 +26,7 @@ export class User {
     cascade: true,
     onDelete: "CASCADE",
   })
+  
   @JoinColumn()
   stats: UserStats;
 

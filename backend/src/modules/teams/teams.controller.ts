@@ -36,6 +36,25 @@ export class TeamsController {
     return this.teamsService.findOne(id);
   }
 
+  @Put("/lineup")
+  @UseGuards(AuthGuard)
+  async updateLineup(
+    @User("sub") userId: string,
+    @Body() body: any
+  ) {
+    const { teamId, players } = body;
+
+    if (!teamId) {
+      throw new BadRequestException("teamId is required");
+    }
+
+    if (!players || !Array.isArray(players) || players.length === 0) {
+      throw new BadRequestException("players payload is required and must be an array");
+    }
+
+    return this.teamsService.updateLineup(teamId, players, userId);
+  }
+
   @Put("/update")
   @UseGuards(AuthGuard)
   async updateMyTeam(@User("sub") userId: string, @Body() body: any) {

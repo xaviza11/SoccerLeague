@@ -16,6 +16,6 @@ export class UserStats {
   @Column()
   total_games: number;
 
-  @OneToOne(() => User, (user) => user.stats, { onDelete: "CASCADE" })
+  @OneToOne(() => User, (user) => user.stats, { nullable: false })
   user: User;
 }

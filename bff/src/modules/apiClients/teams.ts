@@ -10,7 +10,27 @@ import type {
   DeleteTeamPayload,
   GetTeamPayload,
 } from "../models/dto/payloads/team/index.js";
-import type { UpdateTeamResponse, GetTeamResponse } from "../models/dto/responses/teams/index.js";
+import type {
+  UpdateTeamResponse,
+  GetTeamResponse,
+} from "../models/dto/responses/teams/index.js";
+
+
+
+export interface UpdateLineupPlayer {
+  id: string;
+  isBench: boolean;
+}
+
+export interface UpdateLineupPayload {
+  teamId: string;
+  players: UpdateLineupPlayer[];
+}
+
+export interface UpdateLineupResponse {
+  message: string;
+}
+
 
 export class TeamsClient {
   private readonly baseEndpoint = "/teams";
@@ -22,7 +42,10 @@ export class TeamsClient {
     this.CRUD_API = configService.CRUD_API || "error";
   }
 
-  public async createTeam(token: string): Promise<NormalizedError | CreateTeamResponse> {
+  
+  public async createTeam(
+    token: string,
+  ): Promise<NormalizedError | CreateTeamResponse> {
     try {
       const response = await axios.post<CreateTeamResponse>(
         `${this.CRUD_API}${this.baseEndpoint}`,
@@ -105,6 +128,36 @@ export class TeamsClient {
         },
         data: { teamId: payload.teamId },
       });
+    } catch (error) {
+      return handleError(error);
+    }
+  }
+
+  public async updateLineup(
+    token: string,
+    payload: UpdateLineupPayload,
+  ): Promise<UpdateLineupResponse | NormalizedError> {
+    try {
+      if (!payload.teamId) {
+        throw new ValidationError("teamId is required");
+      }
+
+      if (
+        !payload.players ||
+        !Array.isArray(payload.players) ||
+        payload.players.length === 0
+      ) {
+        throw new ValidationError("players payload must be a non-empty array");
+      }
+
+      const url = `${this.CRUD_API}${this.baseEndpoint}`;
+      const response = await axios.put<UpdateLineupResponse>(url, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data;
     } catch (error) {
       return handleError(error);
     }
