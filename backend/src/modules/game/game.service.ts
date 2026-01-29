@@ -17,45 +17,45 @@ export class GameService {
 
   private readonly logger = new Logger(GameService.name);
 
-  async create(player_one_id: string, player_two_id: string | null, is_ai_game: boolean) {
+  async create(playerOneId: string, playerTwoId: string | null, isAiGame: boolean) {
     this.logger.log(
-      `Creating game: player_one_id=${player_one_id}, player_two_id=${player_two_id}, is_ai_game=${is_ai_game}`,
+      `Creating game: playerOneId=${playerOneId}, playerTwoId=${playerTwoId}, isAiGame=${isAiGame}`,
     );
-    if (!isUUID(player_one_id)) {
-      this.logger.log(`Invalid player_one_id: ${player_one_id}`);
-      throw new BadRequestException("Invalid player_one_id");
+    if (!isUUID(playerOneId)) {
+      this.logger.log(`Invalid playerOneId: ${playerOneId}`);
+      throw new BadRequestException("Invalid playerOneId");
     }
 
-    if (!is_ai_game) {
-      if (!isUUID(player_two_id)) {
-        this.logger.log(`Invalid player_two_id: ${player_two_id}`);
-        throw new BadRequestException("Invalid player_two_id");
+    if (!isAiGame) {
+      if (!isUUID(playerTwoId)) {
+        this.logger.log(`Invalid playerTwoId: ${playerTwoId}`);
+        throw new BadRequestException("Invalid playerTwoId");
       }
     }
 
     const player1 = await this.usersRepo.findOne({
-      where: { id: player_one_id },
+      where: { id: playerOneId },
     });
 
     if (!player1) {
-      this.logger.log(`Player 1 not found with id: ${player_one_id}`);
+      this.logger.log(`Player 1 not found with id: ${playerOneId}`);
       throw new NotFoundException("Player 1 not found");
     }
 
-    if (!is_ai_game && player_two_id !== null) {
+    if (!isAiGame && playerTwoId !== null) {
       const player2 = await this.usersRepo.findOne({
-        where: { id: player_two_id },
+        where: { id: playerTwoId },
       });
       if (!player2) {
-        this.logger.log(`Player 2 not found with id: ${player_two_id}`);
+        this.logger.log(`Player 2 not found with id: ${playerTwoId}`);
         throw new NotFoundException("Player 2 not found");
       }
     }
 
     const game = this.gameRepo.create({
-      player_one_id: player_one_id,
-      player_two_id: is_ai_game ? null : player_two_id,
-      is_ai_game: !!is_ai_game,
+      player_one_id: playerOneId,
+      player_two_id: isAiGame ? null : playerTwoId,
+      is_ai_game: !!isAiGame,
     });
 
     const response = await this.gameRepo.save(game);

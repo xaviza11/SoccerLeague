@@ -105,7 +105,14 @@ export class UsersService {
 
   async findAll(): Promise<any[]> {
     this.logger.log(`Retrieving all users`);
-    const users = await this.usersRepo.find();
+    const users = await this.usersRepo.find({
+      relations: ["stats"],
+      order: {
+        stats: {
+          elo: "DESC"
+        }
+      }
+    });
 
     this.logger.log(`Total users found: ${users.length}`);
     return users.map((u) => {

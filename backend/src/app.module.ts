@@ -15,6 +15,7 @@ import { MarketAurasModule } from "./modules/market_auras/market_auras.module";
 import { MarketCardsModule } from "./modules/market_cards/market_cards.module";
 import { MarketPlayersModule } from "./modules/market_players/market_players.module";
 import { ChangePositionCardsModule } from "./modules/market_change_position_cards/change_position_cards.module";
+import { GameModule } from "./modules/game/game.module";
 import { TeamsModule } from "./modules/teams/teams.module";
 import { LoggerModule } from "pino-nestjs";
 
@@ -26,6 +27,7 @@ import { LoggerModule } from "pino-nestjs";
     PlayerModule,
     CardsModule,
     AurasModule,
+    GameModule,
     PlayedGamesModule,
     MarketAurasModule,
     MarketCardsModule,

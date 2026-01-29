@@ -13,22 +13,21 @@ import { GameService } from "./game.service";
 import { AuthGuard } from "../../guards/auth.guard";
 import { User } from "../../decorators/user.decorator";
 
-@UseGuards(AuthGuard)
 @Controller("game")
 export class GameController {
   constructor(private readonly gameService: GameService) {}
 
   @Post()
   async create(
-    @Body("player_one_id") player_one_id: string,
-    @Body("player_two_id") player_two_id: string | null,
-    @Body("is_ai_game") is_ai_game: boolean,
+    @Body("playerOneId") playerOneId: string,
+    @Body("playerTwoId") playerTwoId: string | null,
+    @Body("isAiGame") isAiGame: boolean,
   ) {
-    if (!is_ai_game && !player_two_id) {
-      throw new BadRequestException("player_two_id is required unless is_ai_game = true");
+    if (!isAiGame && !playerTwoId) {
+      throw new BadRequestException("playerTwoId is required unless isAiGame = true");
     }
 
-    return this.gameService.create(player_one_id, player_two_id, is_ai_game);
+    return this.gameService.create(playerOneId, playerTwoId, isAiGame);
   }
 
   @Get()
