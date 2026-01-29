@@ -11,6 +11,7 @@ import type {
   UserLoginResponse,
   UserDeleteOneResponse,
   UserFindOneResponse,
+  UserFindAllResponse
 } from "../models/dto/responses/user/index.js";
 import { validateEmail, validatePassword } from "../common/validators/index.js";
 import { AuthError, ValidationError } from "../common/errors/index.js";
@@ -56,7 +57,9 @@ export class UserClient {
     }
   }
 
-  public async login(payload: UserLoginPayload): Promise<UserLoginResponse | NormalizedError> {
+  public async login(
+    payload: UserLoginPayload,
+  ): Promise<UserLoginResponse | NormalizedError> {
     try {
       if (!validateEmail(payload.email)) {
         throw new ValidationError("Invalid Email");
@@ -105,7 +108,9 @@ export class UserClient {
     }
   }*/
 
-  public async findMe(token: string): Promise<UserFindOneResponse | NormalizedError> {
+  public async findMe(
+    token: string,
+  ): Promise<UserFindOneResponse | NormalizedError> {
     try {
       if (!token) {
         throw new AuthError("Missing auth token");
@@ -125,7 +130,7 @@ export class UserClient {
     }
   }
 
-  /*public async findAll(): Promise<UserFindAllResponse | NormalizedError> {
+  public async findAll(): Promise<UserFindAllResponse | NormalizedError> {
     try {
       const url = `${this.CRUD_API}${this.findAllEndpoint}`;
       const response = await axios.get<UserFindAllResponse>(url);
@@ -133,7 +138,7 @@ export class UserClient {
     } catch (error) {
       return handleError(error);
     }
-  }*/
+  }
 
   /*public async findByName(
     payload: UserFindByNamePayload

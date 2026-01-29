@@ -43,7 +43,7 @@ export default function validateSquad(players: Player[]): {isValid: boolean, mes
     mainStrikers.length
 
   if (totalStarters !== 11) {
-    return { isValid: false, message: `The main team must have exactly 11 players now ${totalStarters}` }
+    return { isValid: false, message: `The main team must have exactly 11 players` }
   }
 
   if (mainGoalKeeper.length !== 1) {

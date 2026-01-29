@@ -28,7 +28,9 @@ interface UserFindOneResponse {
 
 interface UserUpdateResponse {}
 
-interface UserFindAllResponse {}
+interface UserFindAllResponse {
+  
+}
 
 export type {
   UserRegistrationResponse,
