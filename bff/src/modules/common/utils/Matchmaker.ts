@@ -1,41 +1,31 @@
 import type User from "../../models/interfaces/user.js";
 
 class Matchmaker {
+
   /**
-   * Generates a random number following a Gaussian (normal) distribution.
-   * The highest probability is at the mean value, and it decreases smoothly
-   * as the value moves farther away from it.
+   * Generates a random number using a Gaussian (normal) distribution.
+   * Values close to the mean are more likely than far ones.
+   * Used to prefer opponents with similar ELO.
    *
-   * This is useful for matchmaking scenarios where values close to the
-   * player's ELO should be more likely than distant ones.
-   *
-   * Example:
-   * minElo = 1, maxElo = 1000, playerElo = 50
-   * Values near 50 will be selected more frequently than values near 1 or 1000.
+   * @param mean Center value of the distribution
+   * @param stdDev Standard deviation of the distribution
+   * @returns A random number around the mean
    */
   static randomGaussian(mean: number, stdDev: number): number {
-    let u = 0;
-    let v = 0;
-
+    let u = 0, v = 0;
     while (u === 0) u = Math.random();
     while (v === 0) v = Math.random();
-
-    return (
-      mean + stdDev * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
-    );
+    return mean + stdDev * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
   }
 
   /**
-   * Returns a random ELO value constrained between minElo and maxElo.
-   * The probability distribution is centered on the player's ELO,
-   * meaning opponents with similar ELO are much more likely to be selected.
+   * Returns a random ELO between minElo and maxElo.
+   * The result is centered around the player's ELO.
    *
-   * The standard deviation is derived from the allowed ELO range,
-   * ensuring most generated values stay within bounds while still
-   * allowing occasional wider matches.
-   * @param minElo The minimElo included in the array
-   * @param maxElo The max elo included in the array
-   * @param playerElo The player elo
+   * @param minElo Minimum allowed ELO
+   * @param maxElo Maximum allowed ELO
+   * @param playerElo ELO of the base player
+   * @returns A random ELO value
    */
   static getRandomElo(
     minElo: number,
@@ -53,58 +43,193 @@ class Matchmaker {
   }
 
   /**
-   * Search one user using a binary search pattern and range, return it or a random user if is undefined,
-   * If found, removes the player from the array and returns it.
-   * @param players Descending sorted array of users
-   * @param targetElo Target ELO to match
-   * @param range Maximum allowed difference from targetElo (default 100)
-   * @param left Left index of current search
-   * @param right Right index of current search
+   * Tries to find a player with ELO close to targetElo using binary search.
+   * If found, removes the player from indexArr and returns it.
+   * If not found, returns a random available player.
+   *
+   * @param indexArr Indexes of available players
+   * @param players Full players array
+   * @param targetElo Desired opponent ELO
+   * @param range Allowed ELO difference
+   * @returns The selected player or null
    */
   static findAndRemoveBinary(
+    indexArr: number[],
     players: any[],
     targetElo: number,
     range: number,
   ): any {
-    if (players.length === 0) return null;
+    if (!indexArr || indexArr.length === 0) return null;
 
     let left = 0;
-    let right = players.length - 1;
-    let candidateIndex: number | null = null;
+    let right = indexArr.length - 1;
 
     while (left <= right) {
-      const mid = Math.floor((left + right) / 2); // start at the middle of the array
-      const diff = players[mid].stats.elo - targetElo; 
+      const mid = Math.floor((left + right) / 2);
+      const playerIdx = indexArr[mid];
 
-      if (diff <= range) {
-        candidateIndex = mid;
-        break;
+      if (playerIdx === undefined) {
+        right = mid - 1;
+        continue;
       }
 
-      //if the elo is biggest that required go to the right else go to the left, because the array is sorted from bigger to lower elo.
-      if (diff > range) {
+      const player = players[playerIdx];
+      if (!player) {
+        this.swapPop(indexArr, mid);
+        return null;
+      }
+
+      const currentElo = player.stats.elo;
+
+      if (
+        currentElo >= targetElo - range &&
+        currentElo <= targetElo + range
+      ) {
+        this.swapPop(indexArr, mid);
+        return player;
+      }
+
+      // select the direction using the elo
+      if (currentElo < targetElo - range) {
         right = mid - 1;
       } else {
         left = mid + 1;
       }
     }
 
-    if (candidateIndex !== null) {
-      return players.splice(candidateIndex, 1)[0];
+    // Fallback: pick a random player if no close ELO was found
+    if (indexArr.length > 0) {
+      const randomIndex = Math.floor(Math.random() * indexArr.length);
+      const fallbackIdx = indexArr[randomIndex];
+      const fallbackPlayer = players[fallbackIdx!];
+      this.swapPop(indexArr, randomIndex);
+      return fallbackPlayer;
     }
 
-    const randomIndex = Math.floor(Math.random() * players.length);
-    return players.splice(randomIndex, 1)[0];
+    return null;
   }
 
-  /**This function takes the length of the array as arg, then return the range for select one player inside this range elo
-   * @param arrLength The length of the array
+  /**
+   * Picks a random player that has not been matched yet.
+   *
+   * @param indexArr Indexes of available players
+   * @param players Full players array
+   * @returns The selected player or null
    */
-  static defineRange(arrLength: number) {
+  static choseRandomPlayer(indexArr: number[], players: any[]): any {
+    if (indexArr.length === 0) return null;
+    const randomPos = Math.floor(Math.random() * indexArr.length);
+    const player = players[randomPos];
+    player.has_game = true;
+    this.swapPop(indexArr, randomPos);
+    return player;
+  }
+
+  /**
+   * Defines the allowed ELO range based on how many players are left.
+   * More players = smaller range.
+   *
+   * @param arrLength Number of remaining players
+   * @returns ELO range
+   */
+  static defineRange(arrLength: number): number {
     if (arrLength < 100) return 1000;
-    if (arrLength < 10000) return 100;
-    if (arrLength < 100000) return 10;
-    if (arrLength < 1000000) return;
+    if (arrLength < 10000) return 500;
+    if (arrLength < 100000) return 250;
+    if (arrLength < 1000000) return 125;
+    return 125;
+  }
+
+  /**
+   * Removes an element from an array using swap-and-pop (O(1)).
+   *
+   * @param a Array to modify
+   * @param posToRemove Position to remove
+   */
+  static swapPop(a: number[], posToRemove: number) {
+    if (posToRemove < 0 || posToRemove >= a.length) return;
+    const last = a.pop();
+    if (posToRemove < a.length && last !== undefined) {
+      a[posToRemove] = last;
+    }
+  }
+
+  /**
+   * If the number of players is odd, assigns one random player to an AI match.
+   *
+   * @param players Full players array
+   * @param indexArr Indexes of available players
+   * @returns AI match object or undefined
+   */
+  static sanitizeArr(players: any[], indexArr: number[]) {
+    if (players.length % 2 !== 0) {
+      const randomPick = Math.floor(Math.random() * players.length);
+      const lonelyPlayer = players[randomPick];
+      this.swapPop(indexArr, randomPick);
+      lonelyPlayer.has_game = true;
+      return {
+        player1: lonelyPlayer.id,
+        player2: null,
+        is_ai_game: true,
+      };
+    }
+  }
+
+  /**
+   * Main function: generates matches for all players.
+   * Each player appears only once.
+   *
+   * @param users Sorted array of players
+   * @returns List of generated matches
+   */
+  static generateMatches(users: any[]): any[] {
+    if (!users || users.length === 0) return [];
+
+    const matches: any[] = [];
+    const indexArr: number[] = users.map((_, i) => i);
+
+    const aiGame = this.sanitizeArr(users, indexArr);
+    if (aiGame) matches.push(aiGame);
+
+    const maxElo = users[0]?.stats?.elo ?? 1000;
+    const minElo = users[users.length - 1]?.stats?.elo ?? 0;
+
+    while (indexArr.length > 1) {
+      const randomIndex = Math.floor(Math.random() * indexArr.length);
+      const playerIdx = indexArr[randomIndex];
+
+      if (playerIdx === undefined || !users[playerIdx]) {
+        this.swapPop(indexArr, randomIndex);
+        continue;
+      }
+
+      const basePlayer = users[playerIdx];
+      this.swapPop(indexArr, randomIndex);
+
+      const range = this.defineRange(indexArr.length);
+      const targetElo = this.getRandomElo(
+        minElo,
+        maxElo,
+        basePlayer.stats.elo,
+      );
+
+      const opponent = this.findAndRemoveBinary(
+        indexArr,
+        users,
+        targetElo,
+        range,
+      );
+
+      if (opponent) {
+        matches.push({
+          player1: basePlayer.id,
+          player2: opponent.id,
+          is_ai_game: false,
+        });
+      }
+    }
+
+    return matches;
   }
 }
 

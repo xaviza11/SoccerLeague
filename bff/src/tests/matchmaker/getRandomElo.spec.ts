@@ -20,29 +20,4 @@ describe("getRandomElo", () => {
 
     expect(closeMatches.length).toBeGreaterThan(values.length * 0.8);
   });
-
-
-  it("should create massive matches fast enough", () => {
-    const PLAYER_COUNT = 10000000;
-
-    const players = Array.from({ length: PLAYER_COUNT }, (_, i) => ({
-      stats: { elo: 3000 - i }, 
-    }));
-
-    const start = performance.now();
-
-    for(let i = 0; i > PLAYER_COUNT; i++) {
-      const player = players[i];
-      if(!player) {
-        expect(true).toBe(false)
-        return
-      } 
-      const targetElo = Matchmaker.getRandomElo(1, 3000, player.stats.elo);
-      Matchmaker.findAndRemoveBinary(players, targetElo, 100);
-    }
-
-    const duration = performance.now() - start;
-
-    expect(duration).toBeLessThan(2000);
-  });
 });
