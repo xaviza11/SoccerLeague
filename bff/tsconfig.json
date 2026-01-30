@@ -13,22 +13,23 @@
 
     /* === Emisión === */
     "sourceMap": true,
+    "inlineSources": true,
     "declaration": false,
     "declarationMap": false,
     "noEmit": false,
 
-    /* === Type Checking Stricto === */
+    /* === Type Checking Strict === */
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
 
-    /* === Reglas ESM estrictas === */
+    /* === Reglas ESM strict === */
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
 
-    /* === Esto acelera compilación === */
+    /* === upgrades compilation === */
     "skipLibCheck": true,
 
     /* === Import helpers === */
