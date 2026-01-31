@@ -25,8 +25,11 @@ export class GameService {
   //** This service find all the users, then use Matchmaker utility for create games */
   public async create() {
 
-    // Now returns objects whit 700b of info, this can be optimized reducing the unused fields, and if the users length grow needs to be
-    // converted into a stream or something better.
+    // Currently returns objects with 700B of data.
+    // This can be optimized by deleting unused fields.
+    // As the user base grows, this must be converted to streaming or batch processing with polling.
+    // TODO: Create the new endpoint returning only the required fields whit pagination.
+    // TODO: Manage the response of this new endpoint here
     const users = (await this.userClient.findAll()) as User[];
 
     if (!Array.isArray(users) || users.length === 0) {
