@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -19,11 +23,17 @@ export class UsersService {
 
   private readonly logger = new Logger(UsersService.name);
 
-  async createUser(name: string, email: string, password: string): Promise<any> {
+  async createUser(
+    name: string,
+    email: string,
+    password: string,
+  ): Promise<any> {
     this.logger.log(`Creating user with email: ${email} and name: ${name}`);
     if (name.length === 0) {
       this.logger.log(`Failed to create user: Name is empty`);
-      throw new BadRequestException("Name must have almost one character - CRUD");
+      throw new BadRequestException(
+        "Name must have almost one character - CRUD",
+      );
     }
 
     if (!validateEmail(email)) {
@@ -70,7 +80,10 @@ export class UsersService {
     return safeUser;
   }
 
-  async login(email: string, password: string): Promise<{ accessToken: string; name: string }> {
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{ accessToken: string; name: string }> {
     this.logger.log(`Attempting login for email: ${email}`);
     if (!validateEmail(email)) {
       this.logger.log(`Failed login: Invalid email format`);
@@ -103,29 +116,40 @@ export class UsersService {
     return { accessToken, name: user.name };
   }
 
-  async findAll(): Promise<any[]> {
-    this.logger.log(`Retrieving all users`);
+  async findAll(lastId: string | "x"): Promise<any[]> {
+    this.logger.log(`Retrieving users`);
+
     const users = await this.usersRepo.find({
-      relations: ["stats"],
+      select: {
+        id: true,
+        has_game: true,
+        name: true,
+        stats: {
+          elo: true,
+        },
+      },
+      relations: {
+        stats: true,
+      },
       order: {
         stats: {
-          elo: "DESC"
-        }
-      }
+          elo: "DESC",
+        },
+      },
+      skip: lastId === "x" ? 0 : undefined,
+      take: 100000,
     });
 
-    this.logger.log(`Total users found: ${users.length}`);
-    return users.map((u) => {
-      const { password, recovery_password, ...safeUser } = u;
-      return safeUser;
-    });
+    return users;
   }
 
   async searchUsersByName(name: string): Promise<any[]> {
     this.logger.log(`Searching users by name: ${name}`);
     if (name.length === 0) {
       this.logger.log(`Failed search: Name is empty`);
-      throw new BadRequestException("Name must have almost one character  - CRUD");
+      throw new BadRequestException(
+        "Name must have almost one character  - CRUD",
+      );
     }
 
     const users = await this.usersRepo.find({
@@ -170,8 +194,11 @@ export class UsersService {
   ): Promise<any> {
     this.logger.log(`Updating user with ID: ${id}`);
     if (updates.name) {
-      if (updates.name.length === 0) this.logger.log(`Failed to update user: Name is empty`);
-      throw new BadRequestException("Name must have almost one character  - CRUD");
+      if (updates.name.length === 0)
+        this.logger.log(`Failed to update user: Name is empty`);
+      throw new BadRequestException(
+        "Name must have almost one character  - CRUD",
+      );
     }
 
     if (updates.email) {
@@ -196,7 +223,10 @@ export class UsersService {
       throw new NotFoundException(`User with id ${id} not found - CRUD`);
     }
 
-    const isMatch = await bcrypt.compare(updates.currentPassword, user.password);
+    const isMatch = await bcrypt.compare(
+      updates.currentPassword,
+      user.password,
+    );
 
     if (!isMatch) {
       this.logger.log(`Failed to update user: Incorrect current password`);

@@ -21,33 +21,36 @@ import type User from "../modules/models/interfaces/user.js";
 
 export class GameService {
   private userClient = new UserClient();
+  private gameClient = new GameClient();
 
   //** This service find all the users, then use Matchmaker utility for create games */
   public async create() {
+    const allUsers: User[] = [];
+    let lastId: string = "x";
 
-    // Currently returns objects with 700B of data.
-    // This can be optimized by deleting unused fields.
-    // As the user base grows, this must be converted to streaming or batch processing with polling.
-    // TODO: Create the new endpoint returning only the required fields whit pagination.
-    // TODO: Manage the response of this new endpoint here
-    const users = (await this.userClient.findAll()) as User[];
+    // 1. get all users
+    while (true) {
+      const batch = (await this.userClient.findAll(lastId)) as User[];
+      if (!Array.isArray(batch) || batch.length === 0) break;
 
-    if (!Array.isArray(users) || users.length === 0) {
-      return [];
+      allUsers.push(...batch);
+      if (batch.length < 100000) break;
+
+      lastId = batch[batch.length - 1]?.id || "error";
+      if (lastId === "error") throw new Error("Fatal error fetching users");
     }
 
-    const allMatches = Matchmaker.generateMatches(users);
+    if (allUsers.length === 0) return { processed: 0 };
 
-    const BATCH_SIZE = 100;
-    const batches = [];
+    // 2. Generate all the matches
+    const matchGenerator = Matchmaker.generateMatches(allUsers);
 
-    for (let i = 0; i < allMatches.length; i += BATCH_SIZE) {
-      const batch = allMatches.slice(i, i + BATCH_SIZE);
-      batches.push(batch);
-
-      // TODO: Send batch to the CRUD
+    // 3. Send the games to the string
+    try {
+      const response = await this.gameClient.sendStream(matchGenerator as any);
+      return response; 
+    } catch (error) {
+      throw error;
     }
-
-    return allMatches;
   }
 }

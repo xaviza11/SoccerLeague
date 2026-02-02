@@ -14,6 +14,12 @@ export class Game {
   @Column("boolean", { default: false })
   is_ai_game: boolean;
 
+  @Column("int")
+  player_one_elo: number;
+
+  @Column("int", { nullable: true })
+  player_two_elo: number | null;
+
   @CreateDateColumn()
   createdAt: Date;
 }

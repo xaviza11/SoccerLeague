@@ -1,6 +1,6 @@
 interface CreateTeamResponse {
   id: string;
-  players: Array<any>;
+  players: Array<any>; //TODO: UPDATE DTO
   storage: {
     id: string;
   };

@@ -17,7 +17,7 @@ export class GameService {
 
   private readonly logger = new Logger(GameService.name);
 
-  async create(playerOneId: string, playerTwoId: string | null, isAiGame: boolean) {
+  async create(playerOneId: string, playerTwoId: string | null, isAiGame: boolean, player_one_elo: number, player_two_elo: number | null) {
     this.logger.log(
       `Creating game: playerOneId=${playerOneId}, playerTwoId=${playerTwoId}, isAiGame=${isAiGame}`,
     );
@@ -56,6 +56,8 @@ export class GameService {
       player_one_id: playerOneId,
       player_two_id: isAiGame ? null : playerTwoId,
       is_ai_game: !!isAiGame,
+      player_one_elo,
+      player_two_elo
     });
 
     const response = await this.gameRepo.save(game);

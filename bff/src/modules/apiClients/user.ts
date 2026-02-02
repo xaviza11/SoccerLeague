@@ -11,7 +11,7 @@ import type {
   UserLoginResponse,
   UserDeleteOneResponse,
   UserFindOneResponse,
-  UserFindAllResponse
+  UserFindAllResponse,
 } from "../models/dto/responses/user/index.js";
 import { validateEmail, validatePassword } from "../common/validators/index.js";
 import { AuthError, ValidationError } from "../common/errors/index.js";
@@ -24,7 +24,7 @@ export class UserClient {
   private findOneEndpoint = "/users/";
   private findByNameEndpoint = "/users/search/name/";
   private userDeleteEndpoint = "/users/";
-  private findAllEndpoint = "/users";
+  private findAllEndpoint = "/users/stream";
   private findSelfUser = "/users/me";
 
   private CRUD_API: string;
@@ -130,14 +130,28 @@ export class UserClient {
     }
   }
 
-  public async findAll(): Promise<UserFindAllResponse | NormalizedError> {
-    try {
-      const url = `${this.CRUD_API}${this.findAllEndpoint}`;
-      const response = await axios.get<UserFindAllResponse>(url);
-      return response.data;
-    } catch (error) {
-      return handleError(error);
-    }
+  public async findAll(lastId: string = "x"): Promise<any[]> {
+    const url = `${this.CRUD_API}${this.findAllEndpoint}?lastId=${lastId}`;
+    const response = await axios.get(url, { responseType: "stream" });
+
+    return new Promise((resolve, reject) => {
+      let buffer = "";
+      const users: any[] = [];
+
+      response.data.on("data", (chunk: Buffer) => {
+        buffer += chunk.toString();
+        const lines = buffer.split("\n");
+        buffer = lines.pop()!;
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          users.push(JSON.parse(line));
+        }
+      });
+
+      response.data.on("end", () => resolve(users));
+      response.data.on("error", reject);
+    });
   }
 
   /*public async findByName(
