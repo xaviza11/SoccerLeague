@@ -14,14 +14,12 @@ describe("Matchmaker Integration Tests", () => {
   it("should pair all players exactly once (even count)", () => {
     const players = createSortedPlayers(100);
     const matches = [...Matchmaker.generateMatches(players)];
-    const filteredMatches = matches.filter(m => !("lastId" in m))
 
-    expect(filteredMatches.length).toBe(50);
     
-    filteredMatches.forEach(m => {
+    matches.forEach(m => {
       if(("playerOneId" in m)) expect(m.playerOneId).toBeDefined(); 
       if(("playerTwoId") in m) expect(m.playerTwoId).toBeDefined();
-      if(("is_ai_game") in m) expect(m.is_ai_game).toBe(false);
+      if(("isAiGame") in m) expect(m.isAiGame).toBe(false);
       if(("playerOneId" in m) && ("playerTwoId") in m) expect(m.playerOneId).not.toBe(m.playerTwoId);
     });
   });
@@ -29,11 +27,10 @@ describe("Matchmaker Integration Tests", () => {
   it("should create an AI match for the last player (odd count)", () => {
     const players = createSortedPlayers(11);
     const matches = [...Matchmaker.generateMatches(players)];
-    const filteredMatches = matches.filter(m => !("lastId" in m))
 
-    expect(filteredMatches.length).toBe(6);
-    const aiMatches = filteredMatches.filter(m =>{
-      if (("is_ai_game" in m)) return m.is_ai_game
+    expect(matches.length).toBe(6);
+    const aiMatches = matches.filter(m =>{
+      if (("isAiGame" in m)) return m.isAiGame
     });
     expect(aiMatches.length).toBe(1);
     if(("playerTwoId" in aiMatches[0]!)) expect(aiMatches[0]!.playerTwoId).toBeNull();
@@ -45,7 +42,7 @@ describe("Matchmaker Integration Tests", () => {
     const filteredMatches = matches.filter(m => !("lastId" in m))
 
     const normalMatches = filteredMatches.filter(m => {
-      if(("is_ai_game" in m)) return !m.is_ai_game
+      if(("isAiGame" in m)) return !m.isAiGame
     });
   
     let totalDiff = 0;
@@ -68,20 +65,20 @@ describe("Matchmaker Integration Tests", () => {
     
     const start = performance.now();
     const matches = [...Matchmaker.generateMatches(players)];
-    const filteredMatches = matches.filter(p => !("lastId" in p))
+    
     const end = performance.now();
 
-    expect(filteredMatches.length).toBe(500_000);
+    expect(matches.length).toBe(500_000);
     expect(end - start).toBeLessThan(2000);
   });
 
   it("should safely handle empty or single-player arrays", () => {
-    expect([...Matchmaker.generateMatches([])]).toEqual([{lastId: "done"}]);
+    expect([...Matchmaker.generateMatches([])]).toEqual([]);
     
     const singlePlayer = createSortedPlayers(1);
     const matches = [...Matchmaker.generateMatches(singlePlayer)];
-    const filteredMatches = matches.filter(p => !("lastId" in p))
-    expect(filteredMatches.length).toBe(1);
-    if(("is_ai_game" in matches[0]!)) expect(matches[0]!.is_ai_game).toBe(true);
+    
+    expect(matches.length).toBe(1);
+    if(("isAiGame" in matches[0]!)) expect(matches[0]!.isAiGame).toBe(true);
   });
 });

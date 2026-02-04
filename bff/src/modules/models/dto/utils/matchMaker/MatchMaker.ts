@@ -1,7 +1,7 @@
 interface Match {
     playerOneId: string,
     playerTwoId: string | null,
-    is_ai_game: boolean,
+    isAiGame: boolean,
     playerOneElo: number,
     playerTwoElo: number | null 
 }

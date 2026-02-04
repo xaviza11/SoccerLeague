@@ -1,40 +1,45 @@
-import axios from 'axios';
-import { Readable } from 'stream';
+import { Pool } from "undici";
+import type { Match } from "../models/dto/utils/matchMaker/MatchMaker.js";
 
 export class GameClient {
-  private readonly gameEndpoint = "/game/stream"; 
+  private readonly gameEndpoint = "/game/create/many";
   private CRUD_API: string;
+  private client: Pool;
 
   constructor() {
     this.CRUD_API = process.env.CRUD_API || "http://localhost:3000";
+    
+    // Create persistent pool of connections
+    this.client = new Pool(this.CRUD_API, {
+      connections: 75, // Number of simultaneous connections
+      pipelining: 15,  // Send multiple connections
+      keepAliveTimeout: 240000, // Let the connection open
+    });
   }
 
-  /**
-   * Recibe un array de juegos y los envía como un stream NDJSON (Newline Delimited JSON)
-   */
-  public async sendStream(payloads: any[]): Promise<any> {
-    const url = `${this.CRUD_API}${this.gameEndpoint}`;
-
-    const stream = new Readable({
-      read() {
-        payloads.forEach(obj => {
-          this.push(JSON.stringify(obj) + '\n');
-        });
-        this.push(null);
-      }
-    });
-
+  public async createMatches(games: Match[]): Promise<any> {
     try {
-      const response = await axios.post(url, stream, {
+      const { statusCode, body } = await this.client.request({
+        path: this.gameEndpoint,
+        method: "POST",
         headers: {
-          'Content-Type': 'application/x-ndjson',
-          'Transfer-Encoding': 'chunked'
-        }
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(games),
       });
-      return response.data;
+
+      if (statusCode !== 200 && statusCode !== 201) {
+        throw new Error(`HTTP ${statusCode}`);
+      }
+
+      return await body.json();
     } catch (error: any) {
-      console.error("Error enviando stream desde Fastify:", error.message);
+      console.error(`Error sending ${games.length} games:`, error.message);
       throw error;
     }
+  }
+
+  public async close() {
+    await this.client.close();
   }
 }

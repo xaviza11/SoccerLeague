@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Game, User } from "../../entities";
@@ -17,7 +21,13 @@ export class GameService {
 
   private readonly logger = new Logger(GameService.name);
 
-  async create(playerOneId: string, playerTwoId: string | null, isAiGame: boolean, player_one_elo: number, player_two_elo: number | null) {
+  async create(
+    playerOneId: string,
+    playerTwoId: string | null,
+    isAiGame: boolean,
+    playerOneElo: number,
+    playerTwoElo: number | null,
+  ) {
     this.logger.log(
       `Creating game: playerOneId=${playerOneId}, playerTwoId=${playerTwoId}, isAiGame=${isAiGame}`,
     );
@@ -53,16 +63,32 @@ export class GameService {
     }
 
     const game = this.gameRepo.create({
-      player_one_id: playerOneId,
-      player_two_id: isAiGame ? null : playerTwoId,
-      is_ai_game: !!isAiGame,
-      player_one_elo,
-      player_two_elo
+      playerOneId: playerOneId,
+      playerTwoId: isAiGame ? null : playerTwoId,
+      isAiGame: isAiGame,
+      playerOneElo,
+      playerTwoElo,
     });
 
     const response = await this.gameRepo.save(game);
-    this.logger.log(`Game created successfully with ID: ${response.id}`);
     return response;
+  }
+
+  async createMany(
+    games: Array<{
+      playerOneId: string;
+      playerTwoId: string | null;
+      isAiGame: boolean;
+      playerOneElo: number;
+      playerTwoElo: number | null;
+    }>,
+  ) {
+    this.logger.log(`Creating ${games.length} games in bulk`);
+
+    const savedGames = await this.gameRepo.save(games);
+
+    this.logger.log(`${savedGames.length} games created successfully`);
+    return {success: true};
   }
 
   async findAll() {
@@ -80,9 +106,11 @@ export class GameService {
     }
 
     const response = await this.gameRepo.find({
-      where: [{ player_one_id: userId }, { player_two_id: userId }],
+      where: [{ playerOneId: userId }, { playerTwoId: userId }],
     });
-    this.logger.log(`Found ${response.length} games for user with id: ${userId}`);
+    this.logger.log(
+      `Found ${response.length} games for user with id: ${userId}`,
+    );
     return response;
   }
 

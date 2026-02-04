@@ -16,6 +16,8 @@ import type {
 import { validateEmail, validatePassword } from "../common/validators/index.js";
 import { AuthError, ValidationError } from "../common/errors/index.js";
 import type { NormalizedError } from "../models/dto/errors/index.js";
+import { request, Pool } from "undici";
+import type { User } from "../models/dto/utils/matchMaker/MatchMaker.js";
 
 export class UserClient {
   private registrationEndpoint = "/users";
@@ -24,13 +26,19 @@ export class UserClient {
   private findOneEndpoint = "/users/";
   private findByNameEndpoint = "/users/search/name/";
   private userDeleteEndpoint = "/users/";
-  private findAllEndpoint = "/users/stream";
+  private findAllEndpoint = "/users/all";
   private findSelfUser = "/users/me";
+  private client: Pool;
 
   private CRUD_API: string;
 
   constructor() {
     this.CRUD_API = configService.CRUD_API || "error";
+    this.client = new Pool(this.CRUD_API, {
+      connections: 75, // Number of simultaneous connections opened.
+      pipelining: 15, // Send multiple requests
+      keepAliveTimeout: 240000, // Keep the connection opened.
+    });
   }
 
   public async create(
@@ -130,28 +138,27 @@ export class UserClient {
     }
   }
 
-  public async findAll(lastId: string = "x"): Promise<any[]> {
-    const url = `${this.CRUD_API}${this.findAllEndpoint}?lastId=${lastId}`;
-    const response = await axios.get(url, { responseType: "stream" });
-
-    return new Promise((resolve, reject) => {
-      let buffer = "";
-      const users: any[] = [];
-
-      response.data.on("data", (chunk: Buffer) => {
-        buffer += chunk.toString();
-        const lines = buffer.split("\n");
-        buffer = lines.pop()!;
-
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          users.push(JSON.parse(line));
-        }
+  public async findAll(
+    page: number = 0,
+    pageSize: number = 50,
+  ): Promise<User[]> {
+    try {
+      const { statusCode, body } = await this.client.request({
+        path: `${this.findAllEndpoint}`,
+        method: "GET",
+        query: { page, pageSize },
       });
 
-      response.data.on("end", () => resolve(users));
-      response.data.on("error", reject);
-    });
+      if (statusCode !== 200) {
+        await body.dump();
+        throw new Error(`HTTP ${statusCode}`);
+      }
+
+      return (await body.json()) as User[];
+    } catch (error: any) {
+      console.error(`Error fetching page ${page}:`, error.message);
+      throw error;
+    }
   }
 
   /*public async findByName(
@@ -186,5 +193,9 @@ export class UserClient {
     } catch (error) {
       return handleError(error);
     }
+  }
+
+  public async close() {
+    await this.client.close();
   }
 }

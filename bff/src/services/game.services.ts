@@ -18,39 +18,56 @@ import { validateSquad } from "../modules/common/validators/team/index.js";
 import type { CreateGamePayload } from "../modules/models/dto/payloads/game/index.js";
 import Matchmaker from "../modules/common/utils/Matchmaker.js";
 import type User from "../modules/models/interfaces/user.js";
+import pLimit from "p-limit";
 
 export class GameService {
-  private userClient = new UserClient();
-  private gameClient = new GameClient();
+  private userClient!: UserClient;
+  private gameClient!: GameClient;
+  private limit = pLimit(10); 
 
-  //** This service find all the users, then use Matchmaker utility for create games */
   public async create() {
-    const allUsers: User[] = [];
-    let lastId: string = "x";
+    this.userClient = new UserClient();
+    this.gameClient = new GameClient();
 
-    // 1. get all users
-    while (true) {
-      const batch = (await this.userClient.findAll(lastId)) as User[];
-      if (!Array.isArray(batch) || batch.length === 0) break;
+    let page = 0;
+    const pageSize = 1000;
+    const savePromises = [];
+    let totalUsers = 0;
+    let totalMatches = 0;
 
-      allUsers.push(...batch);
-      if (batch.length < 100000) break;
+    console.log("🚀 Starting fresh optimized match generation...");
 
-      lastId = batch[batch.length - 1]?.id || "error";
-      if (lastId === "error") throw new Error("Fatal error fetching users");
-    }
-
-    if (allUsers.length === 0) return { processed: 0 };
-
-    // 2. Generate all the matches
-    const matchGenerator = Matchmaker.generateMatches(allUsers);
-
-    // 3. Send the games to the string
     try {
-      const response = await this.gameClient.sendStream(matchGenerator as any);
-      return response; 
+      while (true) {
+        const batch = await this.userClient.findAll(page, pageSize);
+        if (!batch || batch.length === 0) break;
+
+        totalUsers += batch.length;
+
+        const task = this.limit(async () => {
+          const matches = Matchmaker.generateMatches(batch);
+          totalMatches += matches.length; 
+          await this.gameClient.createMatches(matches as any);
+        });
+
+        savePromises.push(task);
+        if (batch.length < pageSize) break;
+        page++;
+      }
+
+      await Promise.all(savePromises);
+
     } catch (error) {
+      console.error("❌ Error during processing:", error);
       throw error;
+    } finally {
+      console.log("🔌 Cleaning up connections...");
+      await Promise.all([
+        this.userClient.close(),
+        this.gameClient.close()
+      ]);
     }
+
+    return { success: true, processedUsers: totalUsers, createdMatches: totalMatches };
   }
 }

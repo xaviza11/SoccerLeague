@@ -6,19 +6,19 @@ export class Game {
   id: string;
 
   @Column("uuid")
-  player_one_id: string;
+  playerOneId: string;
 
   @Column("uuid", { nullable: true })
-  player_two_id: string | null;
+  playerTwoId: string | null;
 
   @Column("boolean", { default: false })
-  is_ai_game: boolean;
+  isAiGame: boolean;
 
   @Column("int")
-  player_one_elo: number;
+  playerOneElo: number;
 
   @Column("int", { nullable: true })
-  player_two_elo: number | null;
+  playerTwoElo: number | null;
 
   @CreateDateColumn()
   createdAt: Date;

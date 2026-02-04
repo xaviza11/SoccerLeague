@@ -43,23 +43,21 @@ describe("Matchmaker Full Integration", () => {
     const userCount = 101;
     const users = createUsers(userCount);
     const matches = [...Matchmaker.generateMatches(users)];
-    const filteredMatches = matches.filter(m => !("lastId" in m))
 
-    expect(filteredMatches.length).toBe(51);
-    const aiMatches = matches.filter(m => ("is_ai_game" in m) && m.is_ai_game);
+    expect(matches.length).toBe(51);
+    const aiMatches = matches.filter(m => ("isAiGame" in m) && m.isAiGame);
     
     expect(aiMatches.length).toBe(1);
     if(("playerTwoId" in aiMatches[0]!)) expect(aiMatches[0]!.playerTwoId).toBeNull();
   });
 
   it("should handle edge case: 0 and 1 players", () => {
-    expect([...Matchmaker.generateMatches([])]).toEqual([{lastId: "done"}]);
+    expect([...Matchmaker.generateMatches([])]).toEqual([]);
     
     const singleUser = createUsers(1);
     const matches = [...Matchmaker.generateMatches(singleUser)];
-    const filteredMatches = matches.filter(p => !(('lastId' in p)) as never)
-    expect(filteredMatches.length).toBe(1);
-    if(("is_ai_game" in matches[0]!)) expect(matches[0]!.is_ai_game).toBe(true);
+    expect(matches.length).toBe(1);
+    if(("isAiGames" in matches[0]!)) expect(matches[0]!.isAiGame).toBe(true);
     if(("playerTwoId") in matches[0]!) expect(matches[0]!.playerTwoId).toBeNull();
   });
 });

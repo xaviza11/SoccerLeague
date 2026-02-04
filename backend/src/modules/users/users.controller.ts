@@ -44,28 +44,16 @@ export class UsersController {
     return this.usersService.searchUsersByName(name);
   }
 
-  @Get("stream")
-  async getStream(
-    @Query("lastId") lastId: string = "x",
-  ): Promise<StreamableFile> {
-    const pgStream = await this.usersService.findAll(lastId);
-
-    const readableStream =
-      pgStream instanceof Readable ? pgStream : Readable.from(pgStream);
-
-    const stringifier = new Transform({
-      writableObjectMode: true,
-      transform(user, encoding, callback) {
-        callback(null, JSON.stringify(user) + "\n");
-      },
-    });
-
-    const pipeline = readableStream.pipe(stringifier);
-
-    return new StreamableFile(pipeline, {
-      type: "application/x-ndjson",
-      disposition: 'attachment; filename="users.jsonl"',
-    });
+  @Get("all")
+  async getUsers(
+    @Query("page") page: number = 0,
+    @Query("pageSize") pageSize: number = 50,
+  ) {
+    const users = await this.usersService.findAll(
+      Number(page),
+      Number(pageSize),
+    );
+    return users;
   }
 
   @Put("")

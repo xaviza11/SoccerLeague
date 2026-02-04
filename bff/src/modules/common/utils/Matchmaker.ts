@@ -1,6 +1,7 @@
-import type { User, Match } from "../../models/dto/utils/matchMaker/index.js";
+import type { User, Match } from "../../models/dto/utils/matchMaker/MatchMaker.js"
 
 class Matchmaker {
+
   /**
    * Generates a random number using a Gaussian (normal) distribution.
    * Values close to the mean are more likely than far ones.
@@ -11,13 +12,10 @@ class Matchmaker {
    * @returns A random number around the mean
    */
   static randomGaussian(mean: number, stdDev: number): number {
-    let u = 0,
-      v = 0;
+    let u = 0, v = 0;
     while (u === 0) u = Math.random();
     while (v === 0) v = Math.random();
-    return (
-      mean + stdDev * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
-    );
+    return mean + stdDev * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
   }
 
   /**
@@ -83,7 +81,10 @@ class Matchmaker {
 
       const currentElo = player.stats.elo;
 
-      if (currentElo >= targetElo - range && currentElo <= targetElo + range) {
+      if (
+        currentElo >= targetElo - range &&
+        currentElo <= targetElo + range
+      ) {
         this.swapPop(indexArr, mid);
         return player;
       }
@@ -102,7 +103,7 @@ class Matchmaker {
       const fallbackIdx = indexArr[randomIndex];
       const fallbackPlayer = players[fallbackIdx!];
       this.swapPop(indexArr, randomIndex);
-      return fallbackPlayer as User;
+      return fallbackPlayer!;
     }
 
     return null;
@@ -121,7 +122,7 @@ class Matchmaker {
     const player = players[randomPos];
     player!.has_game = true;
     this.swapPop(indexArr, randomPos);
-    return player as User;
+    return player!;
   }
 
   /**
@@ -141,7 +142,6 @@ class Matchmaker {
 
   /**
    * Removes an element from an array using swap-and-pop (O(1)).
-   *
    * @param a Array to modify
    * @param posToRemove Position to remove
    */
@@ -160,7 +160,7 @@ class Matchmaker {
    * @param indexArr Indexes of available players
    * @returns AI match object or undefined
    */
-  static sanitizeArr(players: User[], indexArr: number[]): Match | undefined {
+  static sanitizeArr(players: User[], indexArr: number[]) : Match | void {
     if (players.length % 2 !== 0) {
       const randomPick = Math.floor(Math.random() * players.length);
       const lonelyPlayer = players[randomPick];
@@ -169,9 +169,9 @@ class Matchmaker {
       return {
         playerOneId: lonelyPlayer!.id,
         playerTwoId: null,
-        is_ai_game: true,
-        playerOneElo: lonelyPlayer?.stats.elo as number,
-        playerTwoElo: null
+        isAiGame: true,
+        playerOneElo: lonelyPlayer!.stats.elo,
+        playerTwoElo: null,
       };
     }
   }
@@ -183,24 +183,17 @@ class Matchmaker {
    * @param users Sorted array of players
    * @returns List of generated matches
    */
-  static *generateMatches(
-    users: User[],
-  ): IterableIterator<Match | { lastId: string }> {
-    if (!users || users.length === 0) {
-      yield { lastId: "done" } as any;
-      return;
-    }
+  static generateMatches(users: User[]): Match[] {
+    if (!users || users.length === 0) return [];
 
+    const matches: Match[] = [];
     const indexArr: number[] = users.map((_, i) => i);
 
     const aiGame = this.sanitizeArr(users, indexArr);
-    if (aiGame) {
-      yield aiGame;
-    }
+    if (aiGame) matches.push(aiGame);
 
     const maxElo = users[0]?.stats?.elo ?? 1000;
     const minElo = users[users.length - 1]?.stats?.elo ?? 0;
-    let lastProcessedPlayerId = "done";
 
     while (indexArr.length > 1) {
       const randomIndex = Math.floor(Math.random() * indexArr.length);
@@ -212,11 +205,14 @@ class Matchmaker {
       }
 
       const basePlayer = users[playerIdx];
-      lastProcessedPlayerId = basePlayer.id;
       this.swapPop(indexArr, randomIndex);
 
       const range = this.defineRange(indexArr.length);
-      const targetElo = this.getRandomElo(minElo, maxElo, basePlayer.stats.elo);
+      const targetElo = this.getRandomElo(
+        minElo,
+        maxElo,
+        basePlayer.stats.elo,
+      );
 
       const opponent = this.findAndRemoveBinary(
         indexArr,
@@ -226,17 +222,25 @@ class Matchmaker {
       );
 
       if (opponent) {
-        yield {
+        matches.push({
           playerOneId: basePlayer.id,
           playerTwoId: opponent.id,
-          is_ai_game: false,
+          isAiGame: false,
           playerOneElo: basePlayer.stats.elo,
-          playerTwoElo: opponent.stats.elo,
-        };
+          playerTwoElo: basePlayer.stats.elo
+        });
+      } else {
+        matches.push({
+          playerOneId: basePlayer.id,
+          playerTwoId: null,
+          isAiGame: true, 
+          playerOneElo: basePlayer.stats.elo,
+          playerTwoElo: null,
+        })
       }
     }
 
-    yield { lastId: lastProcessedPlayerId } as any;
+    return matches;
   }
 }
 

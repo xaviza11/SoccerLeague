@@ -6,7 +6,7 @@ import {
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Repository, MoreThan } from "typeorm";
 import { User, UserStats } from "../../entities";
 import { validatePassword, validateEmail } from "../../validators";
 import { Logger } from "@nestjs/common";
@@ -116,31 +116,19 @@ export class UsersService {
     return { accessToken, name: user.name };
   }
 
-  async findAll(lastId: string | "x"): Promise<any[]> {
-    this.logger.log(`Retrieving users`);
+  async findAll(page: number, pageSize: number): Promise<User[]> {
+    const parsedPage = Number(page) || 0;
+    const parsedPageSize = Number(pageSize) || 50;
 
-    const users = await this.usersRepo.find({
-      select: {
-        id: true,
-        has_game: true,
-        name: true,
-        stats: {
-          elo: true,
-        },
-      },
-      relations: {
-        stats: true,
-      },
-      order: {
-        stats: {
-          elo: "DESC",
-        },
-      },
-      skip: lastId === "x" ? 0 : undefined,
-      take: 100000,
-    });
-
-    return users;
+    return this.usersRepo
+      .createQueryBuilder("user")
+      .leftJoin("user.stats", "stats")
+      .select(["user.id", "user.name", "stats.elo"])
+      .orderBy("stats.elo", "DESC")
+      .addOrderBy("user.id", "ASC")
+      .skip(parsedPage * parsedPageSize)
+      .take(parsedPageSize)
+      .getMany();
   }
 
   async searchUsersByName(name: string): Promise<any[]> {

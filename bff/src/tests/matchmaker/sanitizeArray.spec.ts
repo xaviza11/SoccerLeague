@@ -22,7 +22,7 @@ describe("sanitizeArr", () => {
       playerOneElo: 1,
       playerTwoId: null,
       playerTwoElo: null,
-      is_ai_game: true,
+      isAiGame: true,
     });
 
     expect(players[0]?.has_game).toBe(true);
