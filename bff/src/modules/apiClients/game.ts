@@ -17,7 +17,7 @@ export class GameClient {
     });
   }
 
-  public async createMatches(games: Match[]): Promise<any> {
+  /*public async createMatches(games: Match[]): Promise<any> {
     try {
       const { statusCode, body } = await this.client.request({
         path: this.gameEndpoint,
@@ -41,5 +41,5 @@ export class GameClient {
 
   public async close() {
     await this.client.close();
-  }
+  }*/
 }
