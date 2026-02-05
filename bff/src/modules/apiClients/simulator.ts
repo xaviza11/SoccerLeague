@@ -1,4 +1,4 @@
-import axios from "axios";
+import { request } from "undici";
 import { configService } from "../../envConfig.js";
 import { handleError } from "../common/helpers/index.js";
 import type {
@@ -26,20 +26,24 @@ export class SimulatorClient {
     payload: GeneratePlayerPayload,
   ): Promise<GeneratePlayerResponse | NormalizedError> {
     try {
-      const url = `${this.SIMULATOR_API}${this.simulatePlayerEndpoint}`;
-      const response = await axios.get<GeneratePlayerResponse>(
-        `${url}?position=${payload.position}&target_avr=${payload.target_avr}`,
-      );
-      return response.data;
-    } catch (err: any) {
-      console.error("Axios error:", {
-        message: err.message,
-        code: err.code,
-        response: err.response?.data,
-        status: err.response?.status,
-        config: err.config,
+      const query = new URLSearchParams({
+        position: payload.position,
+        target_avr: payload.target_avr.toString(),
+      }).toString();
+
+      const url = `${this.SIMULATOR_API}${this.simulatePlayerEndpoint}?${query}`;
+      
+      const { body, statusCode } = await request(url, {
+        method: "GET",
       });
 
+      if (statusCode >= 400) {
+        throw new Error(`HTTP Error: ${statusCode}`);
+      }
+
+      return (await body.json()) as GeneratePlayerResponse;
+    } catch (err: any) {
+      console.error("Undici request error:", err.message);
       return handleError(err);
     }
   }
@@ -49,8 +53,20 @@ export class SimulatorClient {
   ): Promise<GenerateGameResponse | NormalizedError> {
     try {
       const url = `${this.SIMULATOR_API}${this.simulateGameEndpoint}`;
-      const response = await axios.post<SimulateMatchPayload>(url, payload);
-      return response.data;
+      
+      const { body, statusCode } = await request(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (statusCode >= 400) {
+        throw new Error(`HTTP Error: ${statusCode}`);
+      }
+
+      return (await body.json()) as GenerateGameResponse;
     } catch (error) {
       return handleError(error);
     }
@@ -83,11 +99,11 @@ export class SimulatorClient {
 
         const player = await this.generatePlayer(payload);
 
-        if ("error" in player) {
-          throw new Error(`Error generating player for ${pos.position}: ${player.error}`);
+        if ("error" in (player as object)) {
+          throw new Error(`Error generating player for ${pos.position}: ${(player as NormalizedError).error}`);
         }
 
-        allPlayers.push(player);
+        allPlayers.push(player as GeneratePlayerResponse);
       }
     }
 

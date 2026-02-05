@@ -1,10 +1,9 @@
-import axios from "axios";
-
+import { request } from "undici";
 import { isUUID } from "../common/validators/index.js";
 import { configService, handleError } from "../common/helpers/index.js";
+import { ValidationError } from "../common/errors/index.js";
 import type { CreateTeamResponse } from "../models/dto/responses/teams/index.js";
 import type { NormalizedError } from "../models/dto/errors/index.js";
-import { ValidationError } from "../common/errors/index.js";
 import type {
   UpdateTeamPayload,
   DeleteTeamPayload,
@@ -14,8 +13,6 @@ import type {
   UpdateTeamResponse,
   GetTeamResponse,
 } from "../models/dto/responses/teams/index.js";
-
-
 
 export interface UpdateLineupPlayer {
   id: string;
@@ -31,33 +28,32 @@ export interface UpdateLineupResponse {
   message: string;
 }
 
-
 export class TeamsClient {
   private readonly baseEndpoint = "/teams";
   private readonly updateTeamEndpoint = "/teams/update";
-
   private CRUD_API: string;
 
   constructor() {
     this.CRUD_API = configService.CRUD_API || "error";
   }
 
-  
   public async createTeam(
     token: string,
   ): Promise<NormalizedError | CreateTeamResponse> {
     try {
-      const response = await axios.post<CreateTeamResponse>(
-        `${this.CRUD_API}${this.baseEndpoint}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const url = `${this.CRUD_API}${this.baseEndpoint}`;
+      const { body, statusCode } = await request(url, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({}),
+      });
 
-      return response.data;
+      if (statusCode >= 400) throw new Error(`HTTP Error: ${statusCode}`);
+
+      return (await body.json()) as CreateTeamResponse;
     } catch (error) {
       return handleError(error);
     }
@@ -69,21 +65,21 @@ export class TeamsClient {
     payload: UpdateTeamPayload,
   ): Promise<NormalizedError | UpdateTeamResponse> {
     try {
-      if (!isUUID(teamId)) {
-        throw new ValidationError("Invalid team ID");
-      }
+      if (!isUUID(teamId)) throw new ValidationError("Invalid team ID");
 
-      const response = await axios.put<UpdateTeamResponse>(
-        `${this.CRUD_API}${this.updateTeamEndpoint}/${teamId}`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const url = `${this.CRUD_API}${this.updateTeamEndpoint}/${teamId}`;
+      const { body, statusCode } = await request(url, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(payload),
+      });
 
-      return response.data;
+      if (statusCode >= 400) throw new Error(`HTTP Error: ${statusCode}`);
+
+      return (await body.json()) as UpdateTeamResponse;
     } catch (error) {
       return handleError(error);
     }
@@ -94,20 +90,19 @@ export class TeamsClient {
     payload: GetTeamPayload,
   ): Promise<NormalizedError | GetTeamResponse> {
     try {
-      if (!isUUID(payload.teamId)) {
-        throw new ValidationError("Invalid team ID");
-      }
+      if (!isUUID(payload.teamId)) throw new ValidationError("Invalid team ID");
 
-      const response = await axios.get<GetTeamResponse>(
-        `${this.CRUD_API}${this.baseEndpoint}/${payload.teamId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const url = `${this.CRUD_API}${this.baseEndpoint}/${payload.teamId}`;
+      const { body, statusCode } = await request(url, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
         },
-      );
+      });
 
-      return response.data;
+      if (statusCode >= 400) throw new Error(`HTTP Error: ${statusCode}`);
+
+      return (await body.json()) as GetTeamResponse;
     } catch (error) {
       return handleError(error);
     }
@@ -118,16 +113,21 @@ export class TeamsClient {
     payload: DeleteTeamPayload,
   ): Promise<NormalizedError | void> {
     try {
-      if (!isUUID(payload.teamId)) {
-        throw new ValidationError("Invalid team ID");
-      }
+      if (!isUUID(payload.teamId)) throw new ValidationError("Invalid team ID");
 
-      await axios.delete(`${this.CRUD_API}${this.baseEndpoint}`, {
+      const url = `${this.CRUD_API}${this.baseEndpoint}`;
+      const { body, statusCode } = await request(url, {
+        method: "DELETE",
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        data: { teamId: payload.teamId },
+        body: JSON.stringify({ teamId: payload.teamId }),
       });
+
+      if (statusCode >= 400) throw new Error(`HTTP Error: ${statusCode}`);
+      
+      await body.dump();
     } catch (error) {
       return handleError(error);
     }
@@ -138,26 +138,24 @@ export class TeamsClient {
     payload: UpdateLineupPayload,
   ): Promise<UpdateLineupResponse | NormalizedError> {
     try {
-      if (!payload.teamId) {
-        throw new ValidationError("teamId is required");
-      }
-
-      if (
-        !payload.players ||
-        !Array.isArray(payload.players) ||
-        payload.players.length === 0
-      ) {
+      if (!payload.teamId) throw new ValidationError("teamId is required");
+      if (!payload.players || !Array.isArray(payload.players) || payload.players.length === 0) {
         throw new ValidationError("players payload must be a non-empty array");
       }
 
       const url = `${this.CRUD_API}${this.baseEndpoint}`;
-      const response = await axios.put<UpdateLineupResponse>(url, payload, {
+      const { body, statusCode } = await request(url, {
+        method: "PUT",
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify(payload),
       });
 
-      return response.data;
+      if (statusCode >= 400) throw new Error(`HTTP Error: ${statusCode}`);
+
+      return (await body.json()) as UpdateLineupResponse;
     } catch (error) {
       return handleError(error);
     }

@@ -1,8 +1,8 @@
-import axios from "axios";
-
+import { request } from "undici";
 import { isUUID } from "../common/validators/uuid.js";
 import { configService } from "../../envConfig.js";
 import { handleError } from "../common/helpers/index.js";
+import { ValidationError } from "../common/errors/index.js";
 import type {
   DeleteUsersStoragePayload,
   FindOneUsersStoragePayload,
@@ -12,88 +12,36 @@ import type {
   FindOneUsersStorageResponse,
 } from "../models/dto/responses/users_storage/index.js";
 import type { NormalizedError } from "../models/dto/errors/index.js";
-import { ValidationError } from "../common/errors/index.js";
 
 export class UsersStorageClient {
   private baseEndpoint = "/users-storage";
-
   private CRUD_API: string;
 
   constructor() {
     this.CRUD_API = configService.CRUD_API || "error";
   }
 
-  public async createStorage(token: string): Promise<NormalizedError | CreateUsersStorageResponse> {
+  public async createStorage(
+    token: string,
+  ): Promise<NormalizedError | CreateUsersStorageResponse> {
     try {
-      const response = await axios.post(
-        `${this.CRUD_API}${this.baseEndpoint}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const url = `${this.CRUD_API}${this.baseEndpoint}`;
+      const { body, statusCode } = await request(url, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({}),
+      });
 
-      return response.data;
+      if (statusCode >= 400) throw new Error(`HTTP Error: ${statusCode}`);
+
+      return (await body.json()) as CreateUsersStorageResponse;
     } catch (error) {
       return handleError(error);
     }
   }
-
-  /*public async addCard(
-    payload: addCardUsersStoragePayload
-  ): Promise<addCardUsersStoragePayload | NormalizedError> {
-    try {
-      if (!isUUID(payload.id)) {
-        throw new ValidationError("Invalid UUID format for storage ID");
-      }
-
-      const response = await axios.put(
-        `${this.CRUD_API}${this.baseEndpoint}/cards`,
-        payload
-      );
-      return response.data;
-    } catch (error) {
-      return handleError(error);
-    }
-  }
-
-  public async addPositionChangeCard(
-    payload: addPositionCardStoragePayload
-  ): Promise<addPositionCardStoragePayload | NormalizedError> {
-    try {
-      if (!isUUID(payload.id)) {
-        throw new ValidationError("Invalid UUID format for storage ID");
-      }
-
-      const response = await axios.put(
-        `${this.CRUD_API}${this.baseEndpoint}/positions-change`,
-        payload
-      );
-      return response.data;
-    } catch (error) {
-      return handleError(error);
-    }
-  }
-
-  public async addTeam(
-    payload: addTeamStoragePayload
-  ): Promise<addTeamStoragePayload | NormalizedError> {
-    try {
-      if (!isUUID(payload.id)) {
-        throw new ValidationError("Invalid UUID format for storage ID");
-      }
-
-      const response = await axios.put(
-        `${this.CRUD_API}${this.baseEndpoint}/team`,
-        payload
-      );
-      return response.data;
-    } catch (error) {
-      return handleError(error);
-    }
-  }*/
 
   public async findOne(
     token: string,
@@ -101,35 +49,25 @@ export class UsersStorageClient {
   ): Promise<FindOneUsersStorageResponse | NormalizedError> {
     try {
       const { storageId } = payload;
-
       if (!isUUID(storageId)) {
         throw new ValidationError("Invalid UUID format for storage ID");
       }
 
-      const response = await axios.get(`${this.CRUD_API}${this.baseEndpoint}/${storageId}`, {
+      const url = `${this.CRUD_API}${this.baseEndpoint}/${storageId}`;
+      const { body, statusCode } = await request(url, {
+        method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
       });
 
-      return response.data;
+      if (statusCode >= 400) throw new Error(`HTTP Error: ${statusCode}`);
+
+      return (await body.json()) as FindOneUsersStorageResponse;
     } catch (error) {
       return handleError(error);
     }
   }
-
-  /*public async findAll(): Promise<
-    FindAllUsersStorageResponse | NormalizedError
-  > {
-    try {
-      const response = await axios.get(
-        `${this.CRUD_API}${this.baseEndpoint}/all`
-      );
-      return response.data;
-    } catch (error) {
-      return handleError(error);
-    }
-  }*/
 
   public async deleteStorage(
     token: string,
@@ -140,16 +78,21 @@ export class UsersStorageClient {
         throw new ValidationError("Invalid ID");
       }
 
-      await axios.delete(`${this.CRUD_API}${this.baseEndpoint}`, {
+      const url = `${this.CRUD_API}${this.baseEndpoint}`;
+      const { body, statusCode } = await request(url, {
+        method: "DELETE",
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        data: {
+        body: JSON.stringify({
           storageId: payload.storageId,
-        },
+        }),
       });
 
-      return;
+      if (statusCode >= 400) throw new Error(`HTTP Error: ${statusCode}`);
+
+      await body.dump();
     } catch (error) {
       return handleError(error);
     }

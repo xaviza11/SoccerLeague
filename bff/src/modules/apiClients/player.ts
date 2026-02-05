@@ -1,4 +1,4 @@
-import axios from "axios";
+import { request } from "undici";
 import { configService } from "../../envConfig.js";
 import { handleError } from "../common/helpers/handleError.js";
 import type {
@@ -26,12 +26,18 @@ export class PlayerClient {
   ): Promise<CreatePlayerResponse | NormalizedError> {
     try {
       const url = `${this.CRUD_API}${this.generatePlayerEndpoint}`;
-      const response = await axios.post<CreatePlayerResponse>(url, payload, {
+      const { body, statusCode } = await request(url, {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify(payload),
       });
-      return response.data;
+
+      if (statusCode >= 400) throw new Error(`HTTP Error: ${statusCode}`);
+      
+      return (await body.json()) as CreatePlayerResponse;
     } catch (error) {
       return handleError(error);
     }
@@ -41,9 +47,14 @@ export class PlayerClient {
     payload: FindOnePlayerPayload,
   ): Promise<FindOnePlayerResponse | NormalizedError> {
     try {
-      const url = `${this.CRUD_API}${this.generatePlayerEndpoint}/?id=${payload.id}}`;
-      const response = await axios.get(url);
-      return response.data;
+      const url = `${this.CRUD_API}${this.generatePlayerEndpoint}/?id=${payload.id}`;
+      const { body, statusCode } = await request(url, {
+        method: "GET",
+      });
+
+      if (statusCode >= 400) throw new Error(`HTTP Error: ${statusCode}`);
+
+      return (await body.json()) as FindOnePlayerResponse;
     } catch (error) {
       return handleError(error);
     }
@@ -51,23 +62,22 @@ export class PlayerClient {
 
   public async updateIsBench(
     accessToken: string,
-    payload: {
-      id: string;
-      isBench: boolean;
-    },
+    payload: { id: string; isBench: boolean },
   ): Promise<UpdateIsBenchResponse | NormalizedError> {
     try {
       const url = `${this.CRUD_API}${this.generatePlayerEndpoint}/${payload.id}`;
-      const response = await axios.put<UpdateIsBenchResponse>(
-        url,
-        { isBench: payload.isBench },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+      const { body, statusCode } = await request(url, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
         },
-      );
-      return response.data;
+        body: JSON.stringify({ isBench: payload.isBench }),
+      });
+
+      if (statusCode >= 400) throw new Error(`HTTP Error: ${statusCode}`);
+
+      return (await body.json()) as UpdateIsBenchResponse;
     } catch (error) {
       return handleError(error);
     }
