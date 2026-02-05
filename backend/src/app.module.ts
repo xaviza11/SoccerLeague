@@ -18,6 +18,7 @@ import { ChangePositionCardsModule } from "./modules/market_change_position_card
 import { GameModule } from "./modules/game/game.module";
 import { TeamsModule } from "./modules/teams/teams.module";
 import { LoggerModule } from "pino-nestjs";
+import { MatchmakerModule } from "./modules/matchmaker/matchmaker.module";
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { LoggerModule } from "pino-nestjs";
     MarketPlayersModule,
     ChangePositionCardsModule,
     TeamsModule,
+    MatchmakerModule,
     LoggerModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
