@@ -246,7 +246,7 @@ class Matchmaker {
    * @param eloB playerB elo
    * @returns Two number whit the adjustment of player 1 and 2
    */
-  async eloAdjustmentCalculator(
+  static eloAdjustmentCalculator(
     goalsA: number,
     goalsB: number,
     eloA: number,
@@ -275,8 +275,8 @@ class Matchmaker {
     const adjustment = K * (actualA - expectedA) * goalMultiplier;
 
     return {
-      adjustmentA: Math.floor(Number(adjustment.toFixed(2)) * 2),
-      adjustmentB: Math.floor(Number(-adjustment.toFixed(2)) * 2),
+      adjustmentA: Math.round(Number(adjustment.toFixed(2)) * 2),
+      adjustmentB: Math.round(Number(-adjustment.toFixed(2)) * 2),
     };
   }
 }
