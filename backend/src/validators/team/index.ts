@@ -1,3 +1,3 @@
-import validateSquad from "./validateSquad.js"
+import validateSquad from "./validateSquad"
 
 export { validateSquad }

@@ -48,6 +48,8 @@ describe("GameController", () => {
   it("should create a human vs human game", async () => {
     const playerTwoId = uuid();
     const playerOneId = uuid();
+    const p1Elo = 1200;
+    const p2Elo = 1150;
     const game = {
       id: uuid(),
       player_one_id: playerOneId,
@@ -56,37 +58,61 @@ describe("GameController", () => {
     };
     mockService.create.mockResolvedValue(game);
 
-    const result = await controller.create(playerOneId, playerTwoId, false);
+    const result = await controller.create(
+      playerOneId,
+      playerTwoId,
+      false,
+      p1Elo,
+      p2Elo,
+    );
 
     expect(result).toEqual(game);
-    expect(mockService.create).toHaveBeenCalledWith(playerOneId, playerTwoId, false);
+    expect(mockService.create).toHaveBeenCalledWith(
+      playerOneId,
+      playerTwoId,
+      false,
+      p1Elo,
+      p2Elo
+    );
   });
 
   it("should create a game vs AI", async () => {
     const playerTwoId = null;
     const playerOneId = uuid();
+    const p1Elo = 1200;
+    const p2Elo = 1150;
     const game = {
       id: uuid(),
       player_one_id: playerOneId,
       player_two_id: playerTwoId,
       is_ai_game: true,
+      player_one_elo: p1Elo,
+      player_two_elo: p2Elo,
     };
     mockService.create.mockResolvedValue(game);
 
-    const result = await controller.create(playerOneId, playerTwoId, game.is_ai_game);
+    const result = await controller.create(
+      playerOneId,
+      playerTwoId,
+      game.is_ai_game,
+      p1Elo,
+      p2Elo,
+    );
 
     expect(result).toEqual(game);
-    expect(mockService.create).toHaveBeenCalledWith(playerOneId, null, true);
+    expect(mockService.create).toHaveBeenCalledWith(playerOneId, null, true, p1Elo, p2Elo);
   });
 
   it("should throw BadRequestException if human game missing player_two_id", async () => {
     const playerOneId = uuid(); // any valid UUID
     const isAiGame = false;
+    const p1Elo = 1200;
+    const p2Elo = 1150;
 
     // Pass no player_two_id
-    await expect(controller.create(playerOneId, null, isAiGame)).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(
+      controller.create(playerOneId, null, isAiGame, p1Elo, p2Elo),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it("should return all games", async () => {

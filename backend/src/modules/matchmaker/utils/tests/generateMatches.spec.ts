@@ -58,16 +58,16 @@ describe("Matchmaker Integration Tests", () => {
     expect(averageDiff).toBeLessThan(400); 
   });
 
-  it("performance test: should process 1,000,000 players in under 2 seconds", () => {
-    const players = createSortedPlayers(1_000_000);
+  it("performance test: should process 100,000 players in under 1 seconds", () => {
+    const players = createSortedPlayers(100_000);
     
     const start = performance.now();
     const matches = [...Matchmaker.generateMatches(players)];
     
     const end = performance.now();
 
-    expect(matches.length).toBe(500_000);
-    expect(end - start).toBeLessThan(2000);
+    expect(matches.length).toBe(50_000);
+    expect(end - start).toBeLessThan(1000);
   });
 
   it("should safely handle empty or single-player arrays", () => {

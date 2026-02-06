@@ -182,11 +182,12 @@ export class UsersService {
   ): Promise<any> {
     this.logger.log(`Updating user with ID: ${id}`);
     if (updates.name) {
-      if (updates.name.length === 0)
+      if (updates.name.length === 0) {
         this.logger.log(`Failed to update user: Name is empty`);
-      throw new BadRequestException(
-        "Name must have almost one character  - CRUD",
-      );
+        throw new BadRequestException(
+          "Name must have at least one character - CRUD",
+        );
+      }
     }
 
     if (updates.email) {
