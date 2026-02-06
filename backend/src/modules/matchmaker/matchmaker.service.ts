@@ -148,7 +148,6 @@ export class MatchmakerService {
         const newEloPlayerOne = batch[0].playerOneElo + eloChange[0];
         const newEloPlayerTwo = (batch[0].playerTwoElo || batch[0].playerOneElo) - eloChange[0];
 
-        // 1. Actualizar el Elo de los usuarios en la DB
         // save the match in a new entity
 
         return { result, eloChange };
@@ -156,7 +155,7 @@ export class MatchmakerService {
         /*totalUsers += batch.length;
 
         const task = this.limit(async () => {
-          // Usamos .map para crear un pool de promesas en lugar de un for secuencial
+          // use pool
           await Promise.all(batch.map(async (game) => {
             if (game.isAiGame === false) {
 
