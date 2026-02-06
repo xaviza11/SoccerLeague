@@ -1,7 +1,6 @@
-import type { User, Match } from "../dto/MatchMaker"
+import type { User, Match } from "../dto/MatchMaker";
 
 class Matchmaker {
-
   /**
    * Generates a random number using a Gaussian (normal) distribution.
    * Values close to the mean are more likely than far ones.
@@ -12,10 +11,13 @@ class Matchmaker {
    * @returns A random number around the mean
    */
   static randomGaussian(mean: number, stdDev: number): number {
-    let u = 0, v = 0;
+    let u = 0,
+      v = 0;
     while (u === 0) u = Math.random();
     while (v === 0) v = Math.random();
-    return mean + stdDev * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    return (
+      mean + stdDev * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
+    );
   }
 
   /**
@@ -81,10 +83,7 @@ class Matchmaker {
 
       const currentElo = player.stats.elo;
 
-      if (
-        currentElo >= targetElo - range &&
-        currentElo <= targetElo + range
-      ) {
+      if (currentElo >= targetElo - range && currentElo <= targetElo + range) {
         this.swapPop(indexArr, mid);
         return player;
       }
@@ -160,7 +159,7 @@ class Matchmaker {
    * @param indexArr Indexes of available players
    * @returns AI match object or undefined
    */
-  static sanitizeArr(players: User[], indexArr: number[]) : Match | void {
+  static sanitizeArr(players: User[], indexArr: number[]): Match | void {
     if (players.length % 2 !== 0) {
       const randomPick = Math.floor(Math.random() * players.length);
       const lonelyPlayer = players[randomPick];
@@ -208,11 +207,7 @@ class Matchmaker {
       this.swapPop(indexArr, randomIndex);
 
       const range = this.defineRange(indexArr.length);
-      const targetElo = this.getRandomElo(
-        minElo,
-        maxElo,
-        basePlayer.stats.elo,
-      );
+      const targetElo = this.getRandomElo(minElo, maxElo, basePlayer.stats.elo);
 
       const opponent = this.findAndRemoveBinary(
         indexArr,
@@ -227,20 +222,62 @@ class Matchmaker {
           playerTwoId: opponent.id,
           isAiGame: false,
           playerOneElo: basePlayer.stats.elo,
-          playerTwoElo: basePlayer.stats.elo
+          playerTwoElo: basePlayer.stats.elo,
         });
       } else {
         matches.push({
           playerOneId: basePlayer.id,
           playerTwoId: null,
-          isAiGame: true, 
+          isAiGame: true,
           playerOneElo: basePlayer.stats.elo,
           playerTwoElo: null,
-        })
+        });
       }
     }
 
     return matches;
+  }
+
+  /**
+   * Calculate the elo adjustment for both players playing a match
+   * @param goalsA Number goals of playerA
+   * @param goalB Number goals of playerB
+   * @param eloA playerA elo
+   * @param eloB playerB elo
+   * @returns Two number whit the adjustment of player 1 and 2
+   */
+  async eloAdjustmentCalculator(
+    goalsA: number,
+    goalsB: number,
+    eloA: number,
+    eloB: number,
+  ) {
+    const diffGoals = goalsA - goalsB;
+    if (diffGoals === 0) return { adjustmentA: 0, adjustmentB: 0 };
+
+    // 1. Calculate Expected Outcome (Standard Elo formula)
+    // Probability of A winning
+    const expectedA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
+
+    // 2. Actual Outcome (1 for win, 0 for loss)
+    const actualA = diffGoals > 0 ? 1 : 0;
+
+    // 3. Goal Multiplier (Optional: rewards high scoring games)
+    // Standard Elo doesn't use goals, but many sports systems use:
+    // multiplier = log(abs(diffGoals) + 1)
+    const goalMultiplier = Math.log(Math.abs(diffGoals) + 1);
+
+    // 4. Base K-Factor (The max points possible per game, e.g., 32)
+    const K = 32;
+
+    // 5. Calculate Adjustment
+    // Adjustment = K * (Actual - Expected) * GoalMultiplier
+    const adjustment = K * (actualA - expectedA) * goalMultiplier;
+
+    return {
+      adjustmentA: Math.floor(Number(adjustment.toFixed(2)) * 2),
+      adjustmentB: Math.floor(Number(-adjustment.toFixed(2)) * 2),
+    };
   }
 }
 
