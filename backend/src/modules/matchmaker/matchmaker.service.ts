@@ -86,7 +86,9 @@ export class MatchmakerService {
     return { resultGames, resultGameHistory };
   }
 
- public async resolveMatches() { //845s, fails 22 for 100000 games => 0.022% failure rate,
+  public async resolveMatches() {
+    //845s, fails 22 for 100000 games => 0.022% failure rate,
+    //TODO: Remaining to create another endpoint in the simulator for the AI games.
     let page = 0;
     const pageSize = 2000;
     let totalMatches = 0;
@@ -126,14 +128,16 @@ export class MatchmakerService {
 
         // 2. Batch fetch all necessary teams
         const allTeams = await this.getTeamsByPlayerIds(allPlayerIds);
-        
+
         // 3. Create a Map for fast O(1) team lookup by user ID
         const teamMap = new Map(allTeams.map((t) => [t.storage.user.id, t]));
 
         // 4. Map valid games into simulation payloads
         const payloads = validGames.map((game) => {
           const p1Team = teamMap.get(game.playerOneId);
-          const p2Team = game.playerTwoId ? teamMap.get(game.playerTwoId) : null;
+          const p2Team = game.playerTwoId
+            ? teamMap.get(game.playerTwoId)
+            : null;
 
           return {
             teams: [
@@ -217,18 +221,17 @@ export class MatchmakerService {
       this.logger.error("❌ Fatal error during resolveMatch:", error);
       throw error;
     }
-}
+  }
 
-  //! 1 - get teams instead of team use one array
+  // Helper method to fetch teams based on an array of player IDs
   private async getTeamsByPlayerIds(playerIds: string[]) {
-    // Si el array está vacío, evitamos la consulta y devolvemos un array vacío
     if (!playerIds || playerIds.length === 0) return [];
 
     return await this.teamRepo.find({
       where: {
         storage: {
           user: {
-            id: In(playerIds), // El operador In permite buscar coincidencias en un array
+            id: In(playerIds),
           },
         },
       },
