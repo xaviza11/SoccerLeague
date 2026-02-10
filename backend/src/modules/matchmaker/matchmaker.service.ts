@@ -5,8 +5,8 @@ import {
   Inject,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { User, Game, Team } from "../../entities";
+import { Repository, In } from "typeorm";
+import { User, Game, Team, GameHistory } from "../../entities";
 import { Logger } from "@nestjs/common";
 import Matchmaker from "./utils/Matchmaker";
 import pLimit from "p-limit";
@@ -23,6 +23,9 @@ export class MatchmakerService {
 
     @InjectRepository(Game)
     private readonly gameRepo: Repository<Game>,
+
+    @InjectRepository(GameHistory)
+    private readonly gameHistory: Repository<GameHistory>,
 
     private readonly simulatorClient: SimulatorApiClient,
   ) {}
@@ -77,124 +80,156 @@ export class MatchmakerService {
   }
 
   async deleteGames() {
-    const resultGames = await this.gameRepo.delete({});
-    //TODO: const resultPlayedGames = await this.playerGamesRepo.delete({});
+    const resultGames = await this.gameRepo.clear();
+    const resultGameHistory = await this.gameHistory.clear();
 
-    return {
-      deletedCount: resultGames.affected,
-      //TODO: deletedPlayedGamesCount: resultPlayedGames
-    };
+    return { resultGames, resultGameHistory };
   }
 
-  public async resolveMatches() {
+ public async resolveMatches() { //845s, fails 22 for 100000 games => 0.022% failure rate,
     let page = 0;
-    const pageSize = 5000;
-    const savePromises = [];
-    let totalUsers = 0;
+    const pageSize = 2000;
     let totalMatches = 0;
 
-    this.logger.log("🚀 Starting playing games...");
+    this.logger.log("🚀 Starting simulation engine...");
 
     try {
       while (true) {
+        this.logger.log(`📄 Processing page ${page}...`);
+
         const batch = await this.gameRepo.find({
           skip: page * pageSize,
           take: pageSize,
         });
 
-        if (!batch || batch.length === 0) break;
+        if (!batch || batch.length === 0) {
+          this.logger.log("🏁 No more games to process");
+          break;
+        }
 
-        const playerOneTeamId = await this.getTeamByPlayerId(
-          batch[0].playerOneId,
-        );
-        const playerTwoTeamId = await this.getTeamByPlayerId(
-          batch[0].playerTwoId!,
-        );
+        // Filter out games that are not AI-based
+        const validGames = batch.filter((game) => !game.isAiGame);
 
-        const payload = {
-          teams: [
-            {
-              name: playerOneTeamId?.name || "",
-              player_name: playerOneTeamId?.storage.user.name || "",
-              aura: ["None", "None", "None"],
-              bench_players:
-                playerOneTeamId?.players.filter((p) => p.isBench) ?? [],
-              players: playerOneTeamId?.players.filter((p) => !p.isBench) ?? [],
-            },
-            {
-              name: playerTwoTeamId?.name || "",
-              player_name: playerTwoTeamId?.storage.user.name || "",
-              aura: ["None", "None", "None"],
-              bench_players:
-                playerTwoTeamId?.players.filter((p) => p.isBench) ?? [],
-              players: playerTwoTeamId?.players.filter((p) => !p.isBench) ?? [],
-            },
-          ],
-        }; // 32kb more or less
+        if (validGames.length === 0) {
+          page++;
+          continue;
+        }
 
-        const simulationResult =
-          await this.simulatorClient.simulateGame(payload);
+        // 1. Gather all unique player IDs into a single array
+        const allPlayerIds = [
+          ...new Set(
+            validGames.flatMap((game) =>
+              [game.playerOneId, game.playerTwoId].filter(Boolean),
+            ),
+          ),
+        ] as string[];
 
-        const result = simulationResult.game_result.score;
+        // 2. Batch fetch all necessary teams
+        const allTeams = await this.getTeamsByPlayerIds(allPlayerIds);
+        
+        // 3. Create a Map for fast O(1) team lookup by user ID
+        const teamMap = new Map(allTeams.map((t) => [t.storage.user.id, t]));
 
-        const eloChange = Matchmaker.eloAdjustmentCalculator(
-          result[0],
-          result[1],
-          batch[0].playerOneElo,
-          batch[0].playerTwoElo || batch[0].playerOneElo,
-        );
+        // 4. Map valid games into simulation payloads
+        const payloads = validGames.map((game) => {
+          const p1Team = teamMap.get(game.playerOneId);
+          const p2Team = game.playerTwoId ? teamMap.get(game.playerTwoId) : null;
 
-        // update player elo
-        const newEloPlayerOne = batch[0].playerOneElo + eloChange[0];
-        const newEloPlayerTwo = (batch[0].playerTwoElo || batch[0].playerOneElo) - eloChange[0];
-
-        // save the match in a new entity
-
-        return { result, eloChange };
-
-        /*totalUsers += batch.length;
-
-        const task = this.limit(async () => {
-          // use pool
-          await Promise.all(batch.map(async (game) => {
-            if (game.isAiGame === false) {
-
-              const playerOne = this.userRepo.findOneById(game.playerOneId)
-              const playerTwo = this.userRepo.findOneById(game.playerTwoId!)
-              
-              // retrieve both users and teams. => 1-2ms
-              // format data => split players into players and bench_players, 1-2ms
-              // auras ["None", "None", "None"] 
-              
-              // create apiClient for call to generate game 
-              // each body have 54kb more or less.
-              // 1-2ms for each team and 52kb response.
-              // save the response to played_games entity (new)
-
-            } else {
-              // create new service on simulator for handle the ai games, now doesn't work
-            }
-          }));
+          return {
+            teams: [
+              {
+                name: p1Team?.name || "",
+                player_name: p1Team?.storage.user.name || "",
+                aura: ["None", "None", "None"],
+                bench_players: p1Team?.players.filter((p) => p.isBench) ?? [],
+                players: p1Team?.players.filter((p) => !p.isBench) ?? [],
+              },
+              {
+                name: p2Team?.name || "AI",
+                player_name: p2Team?.storage.user.name || "AI",
+                aura: ["None", "None", "None"],
+                bench_players: p2Team?.players.filter((p) => p.isBench) ?? [],
+                players: p2Team?.players.filter((p) => !p.isBench) ?? [],
+              },
+            ],
+          };
         });
 
-        savePromises.push(task as never);
-        
-        if (batch.length < pageSize) break;
-        page++;*/
+        this.logger.log(`🎮 Sending ${payloads.length} simulations...`);
+
+        // Map payloads to promises and catch errors individually to prevent Promise.all from failing
+        const simulationPromises = payloads.map((p) =>
+          this.simulatorClient.simulateGame(p).catch((err) => {
+            this.logger.error("❌ Simulation request failed:", err.message);
+            return null;
+          }),
+        );
+
+        const simulationResponses = await Promise.all(simulationPromises);
+
+        const historiesToSave = [];
+
+        simulationResponses.forEach((simResult, index) => {
+          // Guard clause: Skip if simulation failed or returned empty results
+          if (!simResult || !simResult.game_result) {
+            this.logger.warn(
+              `⚠️ Skipping game ${index} due to failed simulation`,
+            );
+            return;
+          }
+
+          const scores = simResult.game_result.score;
+          const gameInfo = validGames[index];
+
+          const eloChange = Matchmaker.eloAdjustmentCalculator(
+            scores[0],
+            scores[1],
+            gameInfo.playerOneElo,
+            gameInfo.playerTwoElo || gameInfo.playerOneElo,
+          ) as any;
+
+          const historyEntry = this.gameHistory.create({
+            playerOneId: gameInfo.playerOneId,
+            playerTwoId: gameInfo.playerTwoId,
+            isAiGame: gameInfo.isAiGame,
+            eloChange: [eloChange.adjustmentA, eloChange.adjustmentB],
+            result: scores,
+            logs: simResult.logs,
+          } as any);
+
+          historiesToSave.push(historyEntry as never);
+        });
+
+        if (historiesToSave.length > 0) {
+          await this.gameHistory.save(historiesToSave);
+          totalMatches += historiesToSave.length;
+          this.logger.log(
+            `💾 Saved ${historiesToSave.length} games. Total: ${totalMatches}`,
+          );
+        }
+
+        // Move to the next page of the batch
+        page++;
       }
 
-      /*await Promise.all(savePromises);
-      this.logger.log("✅ Finished processing all batches.");*/
+      return { totalCreated: totalMatches };
     } catch (error) {
-      this.logger.error("❌ Error during resolveMatch:", error);
+      this.logger.error("❌ Fatal error during resolveMatch:", error);
+      throw error;
     }
-  }
+}
 
-  private async getTeamByPlayerId(playerId: string) {
-    return await this.teamRepo.findOne({
+  //! 1 - get teams instead of team use one array
+  private async getTeamsByPlayerIds(playerIds: string[]) {
+    // Si el array está vacío, evitamos la consulta y devolvemos un array vacío
+    if (!playerIds || playerIds.length === 0) return [];
+
+    return await this.teamRepo.find({
       where: {
         storage: {
-          user: { id: playerId },
+          user: {
+            id: In(playerIds), // El operador In permite buscar coincidencias en un array
+          },
         },
       },
       relations: {
@@ -214,9 +249,6 @@ export class MatchmakerService {
           user: {
             id: true,
             name: true,
-            stats: {
-              elo: true,
-            },
           },
         },
       },

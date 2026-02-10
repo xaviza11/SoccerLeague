@@ -7,7 +7,7 @@ import { Card } from "./cards.entity";
 import { Player } from "./players.entity";
 import { Aura } from "./auras.entity";
 import { Game } from "./games.entity";
-import { GameHistory } from "./played_games.entity";
+import { GameHistory } from "./game_history.entity";
 import { MarketAura } from "./market_auras.entity";
 import { MarketCard } from "./market_cards.entity";
 import { MarketPlayer } from "./market_players.entity";

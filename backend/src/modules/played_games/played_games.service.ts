@@ -43,7 +43,7 @@ export class PlayedGamesService {
     const history = this.gameHistoryRepo.create({
       ...data,
       logs: data.logs ?? [],
-      is_ai_game: data.is_ai_game ?? false,
+      isAiGame: data.is_ai_game ?? false,
     });
 
     const response = await this.gameHistoryRepo.save(history);
@@ -105,7 +105,7 @@ export class PlayedGamesService {
 
     this.logger.log(`Game history entries for user ID ${userId} fetched successfully`);
     const response = await this.gameHistoryRepo.find({
-      where: [{ player_one_id: userId }, { player_two_id: userId }],
+      where: [{ playerOneId: userId }, { playerTwoId: userId }],
       order: { createdAt: "DESC" },
     });
     this.logger.log(`Game history entries for user ID ${userId} retrieved successfully`);

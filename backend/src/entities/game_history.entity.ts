@@ -7,13 +7,16 @@ export class GameHistory {
   id: string;
 
   @Column("uuid")
-  player_one_id: string;
+  playerOneId: string;
 
   @Column("uuid", { nullable: true })
-  player_two_id: string | null;
+  playerTwoId: string | null;
+
+  @Column("jsonb", {default: [0, 0]})
+  eloChange: [number, number];
 
   @Column("boolean", { default: false })
-  is_ai_game: boolean;
+  isAiGame: boolean;
 
   @Column("jsonb")
   result: [number, number];
