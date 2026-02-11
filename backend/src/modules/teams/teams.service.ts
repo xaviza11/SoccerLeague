@@ -3,7 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
-  UnprocessableEntityException
+  UnprocessableEntityException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -100,14 +100,19 @@ export class TeamsService {
     this.logger.log(
       `User found with ID: ${userId}, proceeding to update team with ID: ${id}`,
     );
+
     const team = await this.teamsRepo.findOne({
       where: { id },
-      relations: ["players", "auras", "storage"],
+      relations: ["storage", "storage.user", "players", "auras"],
     });
 
     if (!team) {
       this.logger.log(`Failed to update team: Team not found with ID: ${id}`);
       throw new NotFoundException("Team not found");
+    }
+
+    if (team.storage.user.id !== userId) {
+      throw new ForbiddenException("You cannot update this team");
     }
 
     if (dto.name !== undefined) team.name = dto.name;
