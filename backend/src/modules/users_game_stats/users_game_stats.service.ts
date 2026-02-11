@@ -88,7 +88,19 @@ export class UsersGameStatsService {
   async getLeaderboard(page = 1, limit = 50) {
     this.logger.log(`Retrieving leaderboard page ${page} with limit ${limit}`);
     const response = await this.UserStatsRepo.find({
-      relations: ["user"],
+      relations: {
+        user: true,
+      },
+      select: {
+        id: true,
+        elo: true,
+        money: true,
+        total_games: true,
+        user: {
+          id: true,
+          name: true,
+        },
+      },
       order: { elo: "DESC" },
       skip: (page - 1) * limit,
       take: limit,
