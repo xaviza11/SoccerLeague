@@ -1,52 +1,59 @@
-import { Controller } from "@nestjs/common";
+import { Controller, Post, Delete, Get, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { MatchmakerService } from "./matchmaker.service";
-import { Post, Delete, Get } from "@nestjs/common";
 
 @Controller("matchmaker")
 export class MatchmakerController {
-  constructor(private readonly matchMaker: MatchmakerService) {}
-
+  private readonly logger = new Logger(MatchmakerController.name);
   private readonly isTestMode = process.env.MODE === "test";
 
-  @Cron(CronExpression.EVERY_DAY_AT_3PM)
+  constructor(private readonly matchMaker: MatchmakerService) {}
+
+  @Cron(CronExpression.EVERY_DAY_AT_2PM)
   async handleCreateGamesCron() {
+    this.logger.log("Cron: Creating Games...");
     return await this.matchMaker.create();
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_1PM)
-  async handleResolveGames() {}
+  @Cron(CronExpression.EVERY_DAY_AT_3PM)
+  async handleResolveGames() {
+    this.logger.log("Cron: Resolving Simulations...");
+    return await this.matchMaker.resolveMatches();
+  }
 
-  @Cron(CronExpression.EVERY_DAY_AT_2PM)
-  async handleDeleteGamesCron() {}
+  @Cron(CronExpression.EVERY_DAY_AT_4PM)
+  async handleUpdateEloCron() {
+    this.logger.log("Cron: Updating elo and awards...");
+    return await this.matchMaker.updateElo();
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_1PM)
+  async handleDeleteGamesCron() {
+    this.logger.log("Cron: Cleaning Games...");
+    return await this.matchMaker.deleteGames();
+  }
 
   @Post("manual/create")
   async manualTrigger() {
     if (!this.isTestMode) return { message: "Disabled in production" };
-    const result = await this.matchMaker.create();
-    return {
-      message: "Process completed manually",
-      data: result,
-    };
+    return { message: "Create Started", data: await this.matchMaker.create() };
+  }
+
+  @Post("manual/resolve")
+  async manualResolveGames() {
+    if (!this.isTestMode) return { message: "Disabled in production" };
+    return { message: "Resolve Started", data: await this.matchMaker.resolveMatches() };
+  }
+
+  @Post("manual/update-elo")
+  async manualUpdateElo() {
+    if (!this.isTestMode) return { message: "Disabled in production" };
+    return { message: "Update ELO Started", data: await this.matchMaker.updateElo() };
   }
 
   @Delete("manual/delete")
   async manualDeleteGames() {
     if (!this.isTestMode) return { message: "Disabled in production" };
-    const result = await this.matchMaker.deleteGames();
-    return {
-      message: "Process completed manually",
-      data: result,
-    };
-  }
-
-  @Get("manual/resolve")
-  async manualResolveGames() {
-    if (!this.isTestMode) return { message: "Disabled in production" };
-    const result = await this.matchMaker.resolveMatches();
-    return {
-      message: "Process completed manually",
-      data: result,
-    };
+    return { message: "Delete iniciado", data: await this.matchMaker.deleteGames() };
   }
 }

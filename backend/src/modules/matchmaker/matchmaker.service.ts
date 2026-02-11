@@ -11,6 +11,7 @@ import { Logger } from "@nestjs/common";
 import Matchmaker from "./utils/Matchmaker";
 import pLimit from "p-limit";
 import SimulatorApiClient from "./utils/SimulatorApiClient";
+import { MongoEntityManager } from "typeorm/browser";
 
 @Injectable()
 export class MatchmakerService {
@@ -219,6 +220,104 @@ export class MatchmakerService {
       return { totalCreated: totalMatches };
     } catch (error) {
       this.logger.error("❌ Fatal error during resolveMatch:", error);
+      throw error;
+    }
+  }
+
+ public async updateElo() {
+    //199976 games processed, 68s, fails 0.03%
+    this.logger.log("📈 Stating update of Elo and Money (Modo Batch)...");
+    const startTime = Date.now();
+    const COIN_MULTIPLIER = 10;
+
+    const eloAdjustments = new Map<string, number>();
+    const coinAdjustments = new Map<string, number>();
+
+    try {
+      let page = 0;
+      const pageSize = 5000;
+      while (true) {
+        const historyBatch = await this.gameHistory.find({
+          skip: page * pageSize,
+          take: pageSize,
+        });
+
+        if (!historyBatch || historyBatch.length === 0) break;
+
+        for (const record of historyBatch) {
+          // Player one
+          const p1Id = record.playerOneId;
+          const p1EloChange = record.eloChange[0];
+          eloAdjustments.set(p1Id, (eloAdjustments.get(p1Id) || 0) + p1EloChange);
+          coinAdjustments.set(p1Id, (coinAdjustments.get(p1Id) || 0) + (p1EloChange * COIN_MULTIPLIER));
+
+          // Player Two (if exists)
+          if (record.playerTwoId) {
+            const p2Id = record.playerTwoId;
+            const p2EloChange = record.eloChange[1];
+            eloAdjustments.set(p2Id, (eloAdjustments.get(p2Id) || 0) + p2EloChange);
+            coinAdjustments.set(p2Id, (coinAdjustments.get(p2Id) || 0) + (p2EloChange * COIN_MULTIPLIER));
+          }
+        }
+
+        if (historyBatch.length < pageSize) break;
+        page++;
+      }
+
+      const userIds = Array.from(eloAdjustments.keys());
+      if (userIds.length === 0) {
+        this.logger.warn("⚠️ Not founded data for process.");
+        return { success: true, processed: 0 };
+      }
+
+      // 2. Load and update
+      const updateChunkSize = 1000;
+      let totalUpdated = 0;
+
+      for (let i = 0; i < userIds.length; i += updateChunkSize) {
+        const chunkIds = userIds.slice(i, i + updateChunkSize);
+
+        const users = await this.userRepo.find({
+          where: { id: In(chunkIds) },
+          relations: ["stats"],
+        });
+
+        const statsToSave = [];
+
+        for (const user of users) {
+          if (user.stats) {
+            const eloDelta = eloAdjustments.get(user.id) || 0;
+            const moneyDelta = coinAdjustments.get(user.id) || 0;
+
+            // Update
+            user.stats.elo = Number(user.stats.elo) + eloDelta;
+            user.stats.money = Number(user.stats.money) + moneyDelta;
+            user.stats.total_games = Number(user.stats.total_games) + 1;
+
+            statsToSave.push(user.stats as never);
+          }
+        }
+
+        if (statsToSave.length > 0) {
+          // Save
+          await this.userRepo.manager.save(statsToSave);
+          totalUpdated += statsToSave.length;
+          this.logger.log(`💾 Updated stats: ${totalUpdated} of ${userIds.length}`);
+        }
+      }
+
+      const duration = (Date.now() - startTime) / 1000;
+      this.logger.log(`🏁 Process completed in: ${duration}s`);
+
+      return {
+        success: true,
+        usersProcessed: userIds.length,
+        totalStatsUpdated: totalUpdated,
+        duration: `${duration}s`
+      };
+
+    } catch (error) {
+      this.logger.error("❌ Error fatal en updateElo:", error.stack);
       throw error;
     }
   }
