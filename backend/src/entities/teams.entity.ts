@@ -4,6 +4,8 @@ import {
   OneToOne,
   OneToMany,
   Column,
+  BeforeInsert,
+  BeforeUpdate,
 } from "typeorm";
 import { Storage, Player, Aura } from "./";
 
@@ -23,4 +25,17 @@ export class Team {
 
   @OneToMany(() => Aura, (aura) => aura.team, { cascade: true, nullable: true })
   auras: Aura[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  validateLimits() {
+    if (this.players && this.players.length > 40) {
+      throw new Error(`Team must not have more than 40 players.`);
+    }
+
+
+    if (this.players && this.players.length < 22) {
+      throw new Error(`Team must not have less than 22 players.`);
+    }
+  }
 }

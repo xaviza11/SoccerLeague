@@ -55,6 +55,21 @@ export class TeamsController {
     return this.teamsService.updateLineup(teamId, players, userId);
   }
 
+  @Post("/buy/player")
+  @UseGuards(AuthGuard)
+  async buyPlayer(
+    @User("sub") userId: string, 
+    @Body() body: { teamId: string; player: any }
+  ) {
+    const { teamId, player } = body;
+
+    if (!teamId || !player) {
+      throw new BadRequestException("teamId and player data are required");
+    }
+
+    return this.teamsService.addPlayerToTeam(teamId, player, userId);
+  }
+
   @Put("/update")
   @UseGuards(AuthGuard)
   async updateMyTeam(@User("sub") userId: string, @Body() body: any) {

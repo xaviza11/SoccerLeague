@@ -5,10 +5,9 @@ import {
   Body,
   Param,
   Delete,
-  Req,
   BadRequestException,
   ParseUUIDPipe,
-  StreamableFile,
+  UseGuards
 } from "@nestjs/common";
 import { GameService } from "./game.service";
 import { AuthGuard } from "../../guards/auth.guard";
@@ -62,6 +61,7 @@ export class GameController {
     return this.gameService.findAll();
   }
 
+  @UseGuards(AuthGuard)
   @Get("user")
   async findAllByUser(@User("sub") userId: string) {
     return this.gameService.findAllByUser(userId);

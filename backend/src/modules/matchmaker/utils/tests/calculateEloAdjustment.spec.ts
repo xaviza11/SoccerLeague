@@ -1,14 +1,9 @@
 import Matchmaker from "../Matchmaker";
 
 describe("eloAdjustmentCalculator", () => {
-  let matchmaker: Matchmaker;
-
-  beforeEach(() => {
-    matchmaker = new Matchmaker();
-  });
 
   it("returns 0 for both players when there is a draw and equal elo", async () => {
-    const result = await matchmaker.eloAdjustmentCalculator(
+    const result = Matchmaker.eloAdjustmentCalculator(
       1,
       1,
       1500,
@@ -20,7 +15,7 @@ describe("eloAdjustmentCalculator", () => {
   });
 
   it("gives positive adjustment to the lower elo winner and negative to the loser", async () => {
-    const result = await matchmaker.eloAdjustmentCalculator(
+    const result = await Matchmaker.eloAdjustmentCalculator(
       3,
       1,
       1400,
@@ -32,7 +27,7 @@ describe("eloAdjustmentCalculator", () => {
   });
 
   it("gives negative adjustment to the higher elo loser and positive to the winner", async () => {
-    const result = await matchmaker.eloAdjustmentCalculator(
+    const result = await Matchmaker.eloAdjustmentCalculator(
       0,
       2,
       1700,
@@ -44,7 +39,7 @@ describe("eloAdjustmentCalculator", () => {
   });
 
   it("never exceeds +1000 or -1000 for any player", async () => {
-    const result = await matchmaker.eloAdjustmentCalculator(
+    const result = await Matchmaker.eloAdjustmentCalculator(
       1000000,
       0,
       1,
@@ -58,7 +53,7 @@ describe("eloAdjustmentCalculator", () => {
   });
 
   it("is zero-sum: adjustments always cancel each other", async () => {
-    const result = await matchmaker.eloAdjustmentCalculator(
+    const result = await Matchmaker.eloAdjustmentCalculator(
       4,
       2,
       1450,
@@ -69,14 +64,14 @@ describe("eloAdjustmentCalculator", () => {
   });
 
   it("a win by more goals produces a larger absolute adjustment", async () => {
-    const narrowWin = await matchmaker.eloAdjustmentCalculator(
+    const narrowWin = await Matchmaker.eloAdjustmentCalculator(
       2,
       1,
       1500,
       1500
     );
 
-    const bigWin = await matchmaker.eloAdjustmentCalculator(
+    const bigWin = await Matchmaker.eloAdjustmentCalculator(
       5,
       1,
       1500,
@@ -88,14 +83,14 @@ describe("eloAdjustmentCalculator", () => {
   });
 
   it("an upset produces a larger adjustment than an expected result", async () => {
-    const expectedWin = await matchmaker.eloAdjustmentCalculator(
+    const expectedWin = await Matchmaker.eloAdjustmentCalculator(
       2,
       0,
       1700,
       1400
     );
 
-    const upsetWin = await matchmaker.eloAdjustmentCalculator(
+    const upsetWin = await Matchmaker.eloAdjustmentCalculator(
       2,
       0,
       1400,

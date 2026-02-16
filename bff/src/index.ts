@@ -1,6 +1,11 @@
 import Fastify from "fastify";
 
-import { userRoutes, gameDataRoute } from "./routes/index.js";
+import {
+  userRoutes,
+  gameDataRoutes,
+  gameStatsRoutes,
+  marketplaceRoutes,
+} from "./routes/index.js";
 import { configService } from "./envConfig.js";
 
 const fastify = Fastify({
@@ -17,8 +22,9 @@ await fastify.register(import("@fastify/swagger-ui"), {
 
 // Routes
 fastify.register(userRoutes, { prefix: "api" });
-fastify.register(gameDataRoute, { prefix: "api" });
-
+fastify.register(gameDataRoutes, { prefix: "api" });
+fastify.register(gameStatsRoutes, { prefix: "api" });
+fastify.register(marketplaceRoutes, { prefix: "api" });
 
 try {
   await fastify.listen({

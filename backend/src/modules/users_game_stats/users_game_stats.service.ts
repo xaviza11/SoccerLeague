@@ -130,7 +130,7 @@ export class UsersGameStatsService {
     });
 
     this.logger.log(`User ID: ${userId} has rank ${betterPlayers + 1}`);
-    return betterPlayers + 1;
+    return {userRank: betterPlayers + 1 };
   }
 
   async update(userId: string, dto: UpdateUserStatsDto): Promise<UserStats> {

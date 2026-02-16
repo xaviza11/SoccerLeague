@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Team, Storage, User } from "../../entities";
+import { Team, Storage, User, Player } from "../../entities";
 import { Logger } from "@nestjs/common";
 import { validateSquad } from "../../validators/team";
 
@@ -122,6 +122,29 @@ export class TeamsService {
     const response = await this.teamsRepo.save(team);
     this.logger.log(`Team updated successfully with ID: ${id}`);
     return response;
+  }
+
+  async addPlayerToTeam(teamId: string, newPlayer: Player, userId: string) {
+    const team = await this.teamsRepo.findOne({
+      where: { id: teamId },
+      relations: ["players", "storage", "storage.user"],
+    });
+
+    if (!team) throw new NotFoundException("Team not found");
+
+    if (team.storage.user.id !== userId) {
+      throw new ForbiddenException("No puedes modificar este equipo");
+    }
+
+    if (team.players.length >= 40) {
+      throw new BadRequestException(
+        "El equipo ya tiene el máximo de 40 jugadores",
+      );
+    }
+
+    team.players.push(newPlayer);
+
+    return await this.teamsRepo.save(team);
   }
 
   async updateLineup(

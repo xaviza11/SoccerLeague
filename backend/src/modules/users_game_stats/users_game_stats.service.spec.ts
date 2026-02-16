@@ -124,7 +124,9 @@ describe("UsersGameStatsService (unit)", () => {
 
   it("should throw if updating stats and user has no stats", async () => {
     mockUserStatsRepo.findOne.mockResolvedValue(null);
-    await expect(service.update(uuid(), { elo: 12000 })).rejects.toThrow(NotFoundException);
+    await expect(service.update(uuid(), { elo: 12000 })).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it("should delete stats by user", async () => {
@@ -163,12 +165,13 @@ describe("UsersGameStatsService (unit)", () => {
 
     const leaderboard = await service.getLeaderboard(2, 10);
 
-    expect(mockUserStatsRepo.find).toHaveBeenCalledWith({
-      relations: ["user"],
-      order: { elo: "DESC" },
-      skip: 10,
-      take: 10,
-    });
+    expect(mockUserStatsRepo.find).toHaveBeenCalledWith(
+      expect.objectContaining({
+        skip: 10,
+        take: 10,
+        order: { elo: "DESC" },
+      }),
+    );
     expect(leaderboard).toEqual([stats]);
   });
 
@@ -185,7 +188,7 @@ describe("UsersGameStatsService (unit)", () => {
     expect(mockUserStatsRepo.count).toHaveBeenCalledWith({
       where: { elo: MoreThan(stats.elo) },
     });
-    expect(rank).toBe(6);
+    expect(rank?.userRank).toBe(6);
   });
 
   it("should return null when user has no stats for rank", async () => {

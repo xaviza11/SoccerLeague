@@ -36,6 +36,12 @@ export class UsersController {
     return this.usersService.findOne(userId);
   }
 
+  @Get("search/id/:id")
+  @UseGuards(AuthGuard)
+  async findOne(@Param("id") id: string) {
+    return this.usersService.findOne(id);
+  }
+  
   @Get("search/name/:name")
   async searchByName(@Param("name") name: string) {
     if (!name || name.trim() === "") {
@@ -43,7 +49,7 @@ export class UsersController {
     }
     return this.usersService.searchUsersByName(name);
   }
-
+  
   @Get("all")
   async getUsers(
     @Query("page") page: number = 0,

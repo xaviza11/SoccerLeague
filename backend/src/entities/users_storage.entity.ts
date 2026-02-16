@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, OneToMany, OneToOne, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, OneToMany, OneToOne, JoinColumn, Index } from "typeorm";
 import { Card, Team, PositionChangeCard, User } from "./";
 
 @Entity()
@@ -6,6 +6,8 @@ export class Storage {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+
+  @Index()
   @OneToOne(() => Team, { cascade: true, onDelete: "CASCADE" })
   @JoinColumn()
   team: Team;
